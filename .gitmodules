@@ -1,0 +1,3 @@
+[submodule "mathspot"]
+	path = mathspot
+	url = https://github.com/Fahien/mathspot.git

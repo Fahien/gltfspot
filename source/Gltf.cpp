@@ -28,6 +28,9 @@ Gltf::Gltf(const string& path, const json& j)
 	{
 		initBufferViews(j["bufferViews"]);
 	}
+
+	// Accessors
+	initAccessors(j["accessors"]);
 }
 
 
@@ -56,7 +59,7 @@ void Gltf::initBuffers(const json& j)
 	{
 		Buffer buffer;
 
-		// Buffer length in bytes
+		// Buffer length in bytes (mandatory)
 		buffer.byteLength = b["byteLength"].get<size_t>();
 
 		// Uri of the binary file to upload
@@ -108,6 +111,56 @@ void Gltf::initBufferViews(const json& j)
 }
 
 
+void Gltf::initAccessors(const json& j)
+{
+	for (const auto& a : j)
+	{
+		Accessor accessor;
+
+		// Buffer view
+		if (a.count("bufferView"))
+		{
+			accessor.bufferView = a["bufferView"].get<size_t>();
+		}
+
+		// Byte offset
+		if (a.count("byteOffset"))
+		{
+			accessor.byteOffset = a["byteOffset"].get<size_t>();
+		}
+
+		// Component type
+		accessor.componentType = a["componentType"].get<size_t>();
+
+		// Count
+		accessor.count = a["count"].get<size_t>();
+
+		// Type
+		accessor.type = a["type"].get<string>();
+
+		// Max
+		if (a.count("max"))
+		{
+			for (const auto& value : a["max"])
+			{
+				accessor.max.push_back(value.get<float>());
+			}
+		}
+
+		// Min
+		if (a.count("min"))
+		{
+			for (const auto& value : a["min"])
+			{
+				accessor.min.push_back(value.get<float>());
+			}
+		}
+
+		mAccessors.push_back(accessor);
+	}
+}
+
+
 auto Gltf::loadBuffer(const size_t i)
 {
 	Buffer& b{ mBuffers[i] };
@@ -148,10 +201,18 @@ vector<char>& Gltf::GetBuffer(const size_t i)
 		// (key, value)
 		return (pair.first->second);
 	}
+
+	throw out_of_range{ "Could not find the buffer" };
 }
 
 
 vector<Gltf::BufferView>& Gltf::GetBufferViews()
 {
 	return mBufferViews;
+}
+
+
+vector<Gltf::Accessor>& Gltf::GetAccessors()
+{
+	return mAccessors;
 }

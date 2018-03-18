@@ -57,6 +57,25 @@ void printBufferViews(Gltf& model)
 }
 
 
+void printAccessors(Gltf& model)
+{
+	cout << endl << "# Accessors" << endl;
+	for (auto acc : model.GetAccessors())
+	{
+		cout << acc.componentType << ", "
+		     << acc.count << ", ";
+		for (auto v : acc.max)
+		{
+			cout << v << ", ";
+		}
+		for (auto v : acc.min)
+		{
+			cout << v << ", ";
+		}
+		cout << acc.type << endl;
+	}
+}
+
 int main()
 {
 	// Json
@@ -75,6 +94,9 @@ int main()
 
 	// BufferView
 	printBufferViews(model);
+
+	// Accessors
+	printAccessors(model);
 
 	return EXIT_SUCCESS;
 }

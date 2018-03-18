@@ -10,12 +10,16 @@ set(GST_VERSION_MAJOR 0)
 set(GST_VERSION_MINOR 1)
 set(GST_NAME gltfspot)
 
-# TODO Add LOGSPOT
-
 # Download the latest Niels Lohmann's JSON for Modern C++
 file(DOWNLOAD
      https://raw.githubusercontent.com/nlohmann/json/develop/single_include/nlohmann/json.hpp
      ${CMAKE_CURRENT_SOURCE_DIR}/include/nlohmann/json.hpp)
+
+# MathSpoT
+set(MATHSPOT mathspot)
+set(MATHSPOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/${MATHSPOT})
+add_subdirectory(${MATHSPOT_DIR})
+set(MATHSPOT_INCLUDE_DIR ${MATHSPOT_DIR}/include)
 
 # Includes
 set(GST_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
@@ -29,6 +33,8 @@ source_group(Source FILES ${GST_SOURCES})
 # Library
 add_library(${GST_NAME} ${GST_SOURCES})
 set_target_properties(${GST_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+target_link_libraries(${GST_NAME} ${MATHSPOT})
+target_include_directories(${GST_NAME} PUBLIC ${MATHSPOT_INCLUDE_DIR})
 
 # Test
 set(GST_TEST_DIR ${PROJECT_SOURCE_DIR}/test)
