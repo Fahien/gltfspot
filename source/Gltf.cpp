@@ -31,6 +31,12 @@ Gltf::Gltf(const string& path, const json& j)
 
 	// Accessors
 	initAccessors(j["accessors"]);
+
+	// Materials
+	if (j.count("materials"))
+	{
+		initMaterials(j["materials"]);
+	}
 }
 
 
@@ -111,6 +117,44 @@ void Gltf::initBufferViews(const json& j)
 }
 
 
+Gltf::Accessor::Type from_string(const std::string& s)
+{
+	if (s == "SCALAR")
+	{
+		return Gltf::Accessor::Type::SCALAR;
+	}
+	else if (s == "VEC2")
+	{
+		return Gltf::Accessor::Type::VEC2;
+	}
+	else if (s == "VEC3")
+	{
+		return Gltf::Accessor::Type::VEC3;
+	}
+	else if (s == "VEC4")
+	{
+		return Gltf::Accessor::Type::VEC4;
+	}
+	else if (s == "MAT2")
+	{
+		return Gltf::Accessor::Type::MAT2;
+	}
+	else if (s == "MAT3")
+	{
+		return Gltf::Accessor::Type::MAT3;
+	}
+	else if (s == "MAT4")
+	{
+		return Gltf::Accessor::Type::MAT4;
+	}
+	else
+	{
+		assert(true);
+		return Gltf::Accessor::Type::NONE;
+	}
+}
+
+
 void Gltf::initAccessors(const json& j)
 {
 	for (const auto& a : j)
@@ -130,13 +174,13 @@ void Gltf::initAccessors(const json& j)
 		}
 
 		// Component type
-		accessor.componentType = a["componentType"].get<size_t>();
+		accessor.componentType = a["componentType"].get<Accessor::ComponentType>();
 
 		// Count
 		accessor.count = a["count"].get<size_t>();
 
 		// Type
-		accessor.type = a["type"].get<string>();
+		accessor.type = from_string(a["type"].get<string>());
 
 		// Max
 		if (a.count("max"))
@@ -157,6 +201,20 @@ void Gltf::initAccessors(const json& j)
 		}
 
 		mAccessors.push_back(accessor);
+	}
+}
+
+
+void Gltf::initMaterials(const json& j)
+{
+	for (const auto& m : j)
+	{
+		Gltf::Material material;
+
+		// Name
+		material.name = m["name"].get<string>();
+
+		mMaterials.push_back(material);
 	}
 }
 
@@ -215,4 +273,10 @@ vector<Gltf::BufferView>& Gltf::GetBufferViews()
 vector<Gltf::Accessor>& Gltf::GetAccessors()
 {
 	return mAccessors;
+}
+
+
+vector<Gltf::Material>& Gltf::GetMaterials()
+{
+	return mMaterials;
 }

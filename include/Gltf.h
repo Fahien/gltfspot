@@ -46,20 +46,52 @@ class Gltf
 	/// A typed view into a bufferView
 	struct Accessor
 	{
+		/// The datatype of components in the attribute
+		enum class ComponentType
+		{
+			BYTE           = 5120,
+			UNSIGNED_BYTE  = 5121,
+			SHORT          = 5122,
+			UNSIGNED_SHORT = 5123,
+			UNSIGNED_INT   = 5125,
+			FLOAT          = 5126
+		};
+
+		/// Specifies if the attribute is a scalar, vector, or matrix
+		enum class Type
+		{
+			NONE,
+			SCALAR,
+			VEC2,
+			VEC3,
+			VEC4,
+			MAT2,
+			MAT3,
+			MAT4
+		};
+
 		/// Index of the buffer view
 		size_t bufferView;
 		/// Offset relative to the start of the bufferView in bytes
 		size_t byteOffset;
 		/// Datatype of components in the attribute
-		size_t componentType;
+		ComponentType componentType;
 		/// Number of attributes referenced by this accessor
 		size_t count;
 		/// Specifies if the attribute is a scalar, vector, or matrix
-		std::string type;
+		Type type;
 		/// Maximum value of each component in this attribute
 		std::vector<float> max;
 		/// Minimum value of each component in this attribute
 		std::vector<float> min;
+	};
+
+	/// The material appearance of a primitive
+	struct Material
+	{
+		/// The user-defined name of this object
+		std::string name;
+		// TODO
 	};
 
 	/// Constructs a Gltf object
@@ -80,6 +112,9 @@ class Gltf
 
 	/// Returns the accessors
 	std::vector<Accessor>& GetAccessors();
+
+	/// Returns the materials
+	std::vector<Material>& GetMaterials();
 
 	/// glTF asset
 	Asset asset;
@@ -102,6 +137,10 @@ class Gltf
 	/// @param[in] j Json object describing the accessors
 	void initAccessors(const nlohmann::json& j);
 
+	/// Initializes materials
+	/// @param[in] j Json object describing the materials
+	void initMaterials(const nlohmann::json& j);
+
 	/// Loads a buffer in the cache
 	/// @param[in] i Index of the buffer
 	auto loadBuffer(const size_t i);
@@ -120,6 +159,9 @@ class Gltf
 
 	/// List of accessors
 	std::vector<Accessor> mAccessors;
+
+	/// List of materials
+	std::vector<Material> mMaterials;
 };
 
 }

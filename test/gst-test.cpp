@@ -60,10 +60,9 @@ void printBufferViews(Gltf& model)
 void printAccessors(Gltf& model)
 {
 	cout << endl << "# Accessors" << endl;
-	for (auto acc : model.GetAccessors())
+	for (auto& acc : model.GetAccessors())
 	{
-		cout << acc.componentType << ", "
-		     << acc.count << ", ";
+		cout << acc.count << ", ";
 		for (auto v : acc.max)
 		{
 			cout << v << ", ";
@@ -72,9 +71,20 @@ void printAccessors(Gltf& model)
 		{
 			cout << v << ", ";
 		}
-		cout << acc.type << endl;
+		std::cout << endl;
 	}
 }
+
+
+void printMaterials(Gltf& model)
+{
+	cout << endl << "# Materials" << endl;
+	for (auto& material : model.GetMaterials())
+	{
+		cout << material.name << endl;
+	}
+}
+
 
 int main()
 {
@@ -97,6 +107,9 @@ int main()
 
 	// Accessors
 	printAccessors(model);
+
+	// Materials
+	printMaterials(model);
 
 	return EXIT_SUCCESS;
 }
