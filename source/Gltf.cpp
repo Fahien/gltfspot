@@ -8,6 +8,10 @@ using namespace gltfspot;
 using namespace nlohmann;
 
 
+template<typename T>
+T from_string(const string& s);
+
+
 Gltf::Gltf(const string& path, const json& j)
 {
 	// Get the directory path
@@ -36,6 +40,12 @@ Gltf::Gltf(const string& path, const json& j)
 	if (j.count("materials"))
 	{
 		initMaterials(j["materials"]);
+	}
+
+	// Meshes
+	if (j.count("meshes"))
+	{
+		initMeshes(j["meshes"]);
 	}
 }
 
@@ -117,7 +127,8 @@ void Gltf::initBufferViews(const json& j)
 }
 
 
-Gltf::Accessor::Type from_string(const std::string& s)
+template<>
+Gltf::Accessor::Type from_string<Gltf::Accessor::Type>(const std::string& s)
 {
 	if (s == "SCALAR")
 	{
@@ -180,7 +191,7 @@ void Gltf::initAccessors(const json& j)
 		accessor.count = a["count"].get<size_t>();
 
 		// Type
-		accessor.type = from_string(a["type"].get<string>());
+		accessor.type = from_string<Gltf::Accessor::Type>(a["type"].get<string>());
 
 		// Max
 		if (a.count("max"))
@@ -212,9 +223,124 @@ void Gltf::initMaterials(const json& j)
 		Gltf::Material material;
 
 		// Name
-		material.name = m["name"].get<string>();
+		if (m.count("name"))
+		{
+			material.name = m["name"].get<string>();
+		}
+
+		// PbrMetallicRoughness
+		if (m.count("pbrMetallicRoughness"))
+		{
+			auto& mr = m["pbrMetallicRoughness"];
+
+			if (mr.count("baseColorFactor"))
+			{
+				material.pbrMetallicRoughness.baseColorFactor = mr["baseColorFactor"].get<vector<float>>();
+			}
+
+			if (mr.count("metallicFactor"))
+			{
+				material.pbrMetallicRoughness.metallicFactor = mr["metallicFactor"].get<float>();
+			}
+
+			if (mr.count("roughnessFactor"))
+			{
+				material.pbrMetallicRoughness.roughnessFactor = mr["roughnessFactor"].get<float>();
+			}
+		}
 
 		mMaterials.push_back(material);
+	}
+}
+
+
+template<>
+Gltf::Mesh::Primitive::Semantic from_string<Gltf::Mesh::Primitive::Semantic>(const std::string& s)
+{
+	if (s == "POSITION")
+	{
+		return Gltf::Mesh::Primitive::Semantic::POSITION;
+	}
+	else if (s == "NORMAL")
+	{
+		return Gltf::Mesh::Primitive::Semantic::NORMAL;
+	}
+	else if (s == "TANGENT")
+	{
+		return Gltf::Mesh::Primitive::Semantic::TANGENT;
+	}
+	else if (s == "TEXCOORD_0")
+	{
+		return Gltf::Mesh::Primitive::Semantic::TEXCOORD_0;
+	}
+	else if (s == "TEXCOORD_1")
+	{
+		return Gltf::Mesh::Primitive::Semantic::TEXCOORD_1;
+	}
+	else if (s == "COLOR_0")
+	{
+		return Gltf::Mesh::Primitive::Semantic::COLOR_0;
+	}
+	else if (s == "JOINTS_0")
+	{
+		return Gltf::Mesh::Primitive::Semantic::JOINTS_0;
+	}
+	else if (s == "WEIGHTS_0")
+	{
+		return Gltf::Mesh::Primitive::Semantic::WEIGHTS_0;
+	}
+	else
+	{
+		assert(true);
+		return Gltf::Mesh::Primitive::Semantic::NONE;
+	}
+}
+
+
+void Gltf::initMeshes(const json& j)
+{
+	for (const auto& m : j)
+	{
+		Gltf::Mesh mesh;
+
+		// Name
+		if (m.count("name"))
+		{
+			mesh.name = m["name"].get<string>();
+		}
+
+		// Primitives
+		for (const auto& p : m["primitives"])
+		{
+			Gltf::Mesh::Primitive primitive;
+
+			auto attributes = p["attributes"].get<map<string, unsigned>>();
+
+			for (const auto& a : attributes)
+			{
+				auto semantic = from_string<Gltf::Mesh::Primitive::Semantic>(a.first);
+				primitive.attributes.emplace(semantic, a.second);
+			}
+
+			if (p.count("indices"))
+			{
+				primitive.indices = p["indices"].get<unsigned>();
+			}
+
+			if (p.count("material"))
+			{
+				primitive.material = p["material"].get<unsigned>();
+			}
+
+			if (p.count("mode"))
+			{
+				primitive.mode = p["mode"].get<unsigned>();
+			}
+
+			mesh.primitives.push_back(primitive);
+		}
+
+		mMeshes.push_back(mesh);
 	}
 }
 
@@ -279,4 +405,9 @@ vector<Gltf::Accessor>& Gltf::GetAccessors()
 vector<Gltf::Material>& Gltf::GetMaterials()
 {
 	return mMaterials;
+}
+
+vector<Gltf::Mesh>& Gltf::GetMeshes()
+{
+	return mMeshes;
 }

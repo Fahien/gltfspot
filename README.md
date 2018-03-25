@@ -28,4 +28,4 @@ ctest -C Release -T test
 
 ## License
 
-Apache License © 2017 [Antonio Caggiano](http://www.fahien.me)
+Apache License © 2018 [Antonio Caggiano](http://www.fahien.me)

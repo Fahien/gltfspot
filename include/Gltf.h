@@ -89,9 +89,67 @@ class Gltf
 	/// The material appearance of a primitive
 	struct Material
 	{
-		/// The user-defined name of this object
+		/// Metallic-Roughness Material
+		struct PbrMetallicRoughness
+		{
+			/// Base color of the material
+			std::vector<float> baseColorFactor = { 1.0f, 1.0f, 1.0f, 1.0f };
+			/// Metalness of the material
+			float metallicFactor = 1.0f;
+			/// Roughness of the material
+			float roughnessFactor = 1.0f;
+		};
+
+		/// User-defined name of this object
 		std::string name;
-		// TODO
+		/// Metallic-Roughness Material
+		PbrMetallicRoughness pbrMetallicRoughness;
+	};
+
+	/// Set of primitives to be rendered
+	struct Mesh
+	{
+		/// Geometry to be rendered with the given material
+		struct Primitive
+		{
+			/// Enumerated value identifying the vertex attribute
+			enum class Semantic
+			{
+				NONE,
+				POSITION,
+				NORMAL,
+				TANGENT,
+				TEXCOORD_0,
+				TEXCOORD_1,
+				COLOR_0,
+				JOINTS_0,
+				WEIGHTS_0
+			};
+
+			/// Dictionary object, where each key corresponds to mesh attribute semantic and
+			/// each value is the index of the accessor containing attribute's data (required)
+			std::map<Primitive::Semantic, unsigned> attributes;
+			/// Index of the accessor that contains the indices
+			unsigned indices;
+			/// Index of the material to apply to this primitive when rendering
+			unsigned material;
+			/// Type of primitives to render
+			unsigned mode = 4;
+			/// targets TODO An array of Morph Targets, each Morph Target is a dictionary mapping attributes (only POSITION, NORMAL, and TANGENT supported) to their deviations in the Morph Target
+			/// extensions TODO Dictionary object with extension-specific objects
+			/// Application-specific data
+			void* extras;
+		};
+
+		/// Array of primitives, each defining geometry to be rendered with a material (required)
+		std::vector<Primitive> primitives;
+		/// Array of weights to be applied to the Morph Targets
+		std::vector<float> weights;
+		/// User-defined name of this object
+		std::string name;
+		/// extensions TODO Dictionary object with extension-specific objects
+		/// extras TODO Application-specific data
+		void* extras;
 	};
 
 	/// Constructs a Gltf object
@@ -115,6 +173,9 @@ class Gltf
 
 	/// Returns the materials
 	std::vector<Material>& GetMaterials();
+
+	/// Returns the meshes
+	std::vector<Mesh>& GetMeshes();
 
 	/// glTF asset
 	Asset asset;
@@ -141,6 +202,10 @@ class Gltf
 	/// @param[in] j Json object describing the materials
 	void initMaterials(const nlohmann::json& j);
 
+	/// Initialized meshes
+	/// @param[in] j Json object describing the meshes
+	void initMeshes(const nlohmann::json& j);
+
 	/// Loads a buffer in the cache
 	/// @param[in] i Index of the buffer
 	auto loadBuffer(const size_t i);
@@ -162,6 +227,10 @@ class Gltf
 
 	/// List of materials
 	std::vector<Material> mMaterials;
+
+	/// List of meshes
+	std::vector<Mesh> mMeshes;
 };
+
 
 }

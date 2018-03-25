@@ -82,6 +82,41 @@ void printMaterials(Gltf& model)
 	for (auto& material : model.GetMaterials())
 	{
 		cout << material.name << endl;
+
+		cout << "[ ";
+		for (auto val : material.pbrMetallicRoughness.baseColorFactor)
+		{
+			cout << val << " ";
+		}
+		cout << "]" << endl;
+
+		cout << "Metallic : " << material.pbrMetallicRoughness.metallicFactor << endl;
+		cout << "Roughness: " << material.pbrMetallicRoughness.roughnessFactor << endl;
+	}
+}
+
+
+void printMeshes(Gltf& model)
+{
+	cout << endl << "# Meshes" << endl;
+
+	for (auto& mesh : model.GetMeshes())
+	{
+		cout << mesh.name << endl;
+
+		for (auto& p : mesh.primitives)
+		{
+			cout << "  # Attributes" << endl;
+			for (auto& a : p.attributes)
+			{
+				cout << "  " << static_cast<unsigned>(a.first) << ": " << a.second << endl;
+			}
+
+			cout << "indices["  << p.indices  << "] "
+				 << "material[" << p.material << "] "
+				 << "mode["     << p.mode     << "] "
+				 << endl;
+		}
 	}
 }
 
@@ -110,6 +145,9 @@ int main()
 
 	// Materials
 	printMaterials(model);
+
+	// Meshes
+	printMeshes(model);
 
 	return EXIT_SUCCESS;
 }
