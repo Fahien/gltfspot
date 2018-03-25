@@ -53,6 +53,15 @@ Gltf::Gltf(const string& path, const json& j)
 	{
 		initNodes(j["nodes"]);
 	}
+
+	// Scenes
+	if (j.count("scenes"))
+	{
+		initScenes(j["scenes"]);
+
+		auto uIndex = j["scene"].get<uint64_t>();
+		mScene = &mScenes[uIndex];
+	}
 }
 
 
@@ -394,6 +403,29 @@ void Gltf::initNodes(const json& j)
 }
 
 
+void Gltf::initScenes(const json& j)
+{
+	for (const auto& s : j)
+	{
+		Gltf::Scene scene;
+
+		// Name
+		if (s.count("name"))
+		{
+			scene.name = s["name"].get<string>();
+		}
+
+		// Nodes
+		if (s.count("nodes"))
+		{
+			scene.nodes = s["nodes"].get<vector<uint64_t>>();
+		}
+
+		mScenes.push_back(scene);
+	}
+}
+
+
 auto Gltf::loadBuffer(const size_t i)
 {
 	Buffer& b{ mBuffers[i] };
@@ -464,4 +496,14 @@ vector<Gltf::Mesh>& Gltf::GetMeshes()
 vector<Gltf::Node>& Gltf::GetNodes()
 {
 	return mNodes;
+}
+
+vector<Gltf::Scene>& Gltf::GetScenes()
+{
+	return mScenes;
+}
+
+Gltf::Scene* Gltf::GetScene()
+{
+	return mScene;
 }

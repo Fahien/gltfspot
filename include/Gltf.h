@@ -167,6 +167,15 @@ class Gltf
 		std::string name;
 	};
 
+	/// Root nodes of a scene
+	struct Scene
+	{
+		/// Indices of each root node
+		std::vector<uint64_t> nodes;
+		/// User-defined name of this object
+		std::string name;
+	};
+
 	/// Constructs a Gltf object
 	/// @param[in] path Gltf file path
 	/// @param[in] j Json object describing the model
@@ -194,6 +203,12 @@ class Gltf
 
 	/// Returns the nodes
 	std::vector<Node>& GetNodes();
+
+	/// Returns the scenes
+	std::vector<Scene>& GetScenes();
+
+	/// Returns the current scene
+	Scene* GetScene();
 
 	/// glTF asset
 	Asset asset;
@@ -228,6 +243,10 @@ class Gltf
 	/// @param[in] j Json object describing the nodes
 	void initNodes(const nlohmann::json& j);
 
+	/// Initializes scenes
+	/// @param[in] j Json object describing the scenes
+	void initScenes(const nlohmann::json& j);
+
 	/// Loads a buffer in the cache
 	/// @param[in] i Index of the buffer
 	auto loadBuffer(const size_t i);
@@ -255,6 +274,12 @@ class Gltf
 
 	/// List of nodes
 	std::vector<Node> mNodes;
+
+	/// List of scenes
+	std::vector<Scene> mScenes;
+
+	/// Current scene
+	Scene* mScene;
 };
 
 

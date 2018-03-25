@@ -50,9 +50,9 @@ void printBufferViews(Gltf& model)
 	cout << endl << "# BufferViews" << endl;
 	for (auto view : model.GetBufferViews())
 	{
-		cout << view.buffer << ", "
-		     << view.byteLength << ", "
-		     << view.target << endl;
+		cout << view.buffer     << ", "
+			 << view.byteLength << ", "
+			 << view.target     << endl;
 	}
 }
 
@@ -121,6 +121,26 @@ void printMeshes(Gltf& model)
 }
 
 
+void printScenes(Gltf& model)
+{
+	cout << endl << "# Scenes" << endl;
+
+	for (const auto& s : model.GetScenes())
+	{
+		cout << s.name << endl;
+
+		cout << "nodes[ ";
+		for (const auto& n : s.nodes)
+		{
+			cout << n << " ";
+		}
+		cout << "]" << endl;
+	}
+
+	cout << endl << "# Scene[" << model.GetScene()->name << "]" << endl;
+}
+
+
 void printNodes(Gltf& model)
 {
 	cout << endl << "# Nodes" << endl;
@@ -177,6 +197,9 @@ int main()
 
 	// Nodes
 	printNodes(model);
+
+	// Schenes
+	printScenes(model);
 
 	return EXIT_SUCCESS;
 }
