@@ -1,3 +1,5 @@
+#include <MathSpot.h>
+
 #include "nlohmann/json.hpp"
 
 namespace gltfspot
@@ -152,6 +154,19 @@ class Gltf
 		void* extras;
 	};
 
+	/// Node in the node hierarchy
+	struct Node
+	{
+		/// This node's children
+		std::vector<unsigned> children;
+		/// Floating-point 4x4 transformation matrix stored in column-major order
+		mathspot::Mat4 matrix = mathspot::Mat4::identity;
+		/// Mesh in this node
+		Mesh* pMesh;
+		/// User-defined name of this object
+		std::string name;
+	};
+
 	/// Constructs a Gltf object
 	/// @param[in] path Gltf file path
 	/// @param[in] j Json object describing the model
@@ -176,6 +191,9 @@ class Gltf
 
 	/// Returns the meshes
 	std::vector<Mesh>& GetMeshes();
+
+	/// Returns the nodes
+	std::vector<Node>& GetNodes();
 
 	/// glTF asset
 	Asset asset;
@@ -202,9 +220,13 @@ class Gltf
 	/// @param[in] j Json object describing the materials
 	void initMaterials(const nlohmann::json& j);
 
-	/// Initialized meshes
+	/// Initializes meshes
 	/// @param[in] j Json object describing the meshes
 	void initMeshes(const nlohmann::json& j);
+
+	/// Initializes nodes
+	/// @param[in] j Json object describing the nodes
+	void initNodes(const nlohmann::json& j);
 
 	/// Loads a buffer in the cache
 	/// @param[in] i Index of the buffer
@@ -230,6 +252,9 @@ class Gltf
 
 	/// List of meshes
 	std::vector<Mesh> mMeshes;
+
+	/// List of nodes
+	std::vector<Node> mNodes;
 };
 
 

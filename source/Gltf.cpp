@@ -47,6 +47,12 @@ Gltf::Gltf(const string& path, const json& j)
 	{
 		initMeshes(j["meshes"]);
 	}
+
+	// Nodes
+	if (j.count("nodes"))
+	{
+		initNodes(j["nodes"]);
+	}
 }
 
 
@@ -345,6 +351,49 @@ void Gltf::initMeshes(const json& j)
 }
 
 
+void Gltf::initNodes(const json& j)
+{
+	for (const auto& n : j)
+	{
+		Gltf::Node node;
+
+		// Name
+		if (n.count("name"))
+		{
+			node.name = n["name"].get<string>();
+		}
+
+		// Children
+		if (n.count("children"))
+		{
+			node.children = n["children"].get<vector<unsigned>>();
+		}
+
+		// Matrix
+		if (n.count("matrix"))
+		{
+			// TODO Improve this
+			auto mvec = n["matrix"].get<vector<float>>();
+			array<float, 16> marr;
+			for (unsigned i{ 0 }; i < 16; ++i)
+			{
+				marr[i] = mvec[i];
+			}
+			node.matrix = mathspot::Mat4{ marr.data() };
+		}
+
+		// Mesh
+		if (n.count("mesh"))
+		{
+			unsigned m = n["mesh"];
+			node.pMesh = &mMeshes[m];
+		}
+
+		mNodes.push_back(node);
+	}
+}
+
+
 auto Gltf::loadBuffer(const size_t i)
 {
 	Buffer& b{ mBuffers[i] };
@@ -410,4 +459,9 @@ vector<Gltf::Material>& Gltf::GetMaterials()
 vector<Gltf::Mesh>& Gltf::GetMeshes()
 {
 	return mMeshes;
+}
+
+vector<Gltf::Node>& Gltf::GetNodes()
+{
+	return mNodes;
 }

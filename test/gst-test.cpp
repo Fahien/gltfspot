@@ -121,6 +121,32 @@ void printMeshes(Gltf& model)
 }
 
 
+void printNodes(Gltf& model)
+{
+	cout << endl << "# Nodes" << endl;
+
+	for (const auto& node : model.GetNodes())
+	{
+		cout << node.name << endl;
+
+		cout << "children[ ";
+		for (const auto& v : node.children)
+		{
+			cout << v << " ";
+		}
+		cout << "]" << endl;
+
+		cout << "matrix[ ";
+		
+		for (const auto& v : node.matrix.matrix)
+		{
+			cout << v << " ";
+		}
+		cout << "]" << endl;
+	}
+}
+
+
 int main()
 {
 	// Json
@@ -148,6 +174,9 @@ int main()
 
 	// Meshes
 	printMeshes(model);
+
+	// Nodes
+	printNodes(model);
 
 	return EXIT_SUCCESS;
 }
