@@ -1,4 +1,18 @@
 cmake_minimum_required(VERSION 3.9)
+
+# MathSpoT
+set(MATHSPOT mathspot)
+if("${PROJECT_SOURCE_DIR}" STREQUAL "")
+    set(PROJECT_SOURCE_DIR ".")
+endif()
+set(MATHSPOT_DIR ${PROJECT_SOURCE_DIR}/${MATHSPOT})
+message(STATUS ${MATHSPOT_DIR})
+if(NOT TARGET ${MATHSPOT})
+    add_subdirectory(${MATHSPOT_DIR})
+endif()
+set(MATHSPOT_INCLUDE_DIR ${MATHSPOT_DIR}/include)
+
+# GltfSpoT
 set(GST_TITLE GltfSpoT)
 project(${GST_TITLE})
 
@@ -14,12 +28,6 @@ set(GST_NAME gltfspot)
 file(DOWNLOAD
      https://raw.githubusercontent.com/nlohmann/json/develop/single_include/nlohmann/json.hpp
      ${CMAKE_CURRENT_SOURCE_DIR}/include/nlohmann/json.hpp)
-
-# MathSpoT
-set(MATHSPOT mathspot)
-set(MATHSPOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/${MATHSPOT})
-add_subdirectory(${MATHSPOT_DIR})
-set(MATHSPOT_INCLUDE_DIR ${MATHSPOT_DIR}/include)
 
 # Includes
 set(GST_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
