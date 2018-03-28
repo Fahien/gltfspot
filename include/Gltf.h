@@ -1,3 +1,6 @@
+#ifndef GSP_GLTF_H_
+#define GSP_GLTF_H_
+
 #include <MathSpot.h>
 
 #include "nlohmann/json.hpp"
@@ -293,3 +296,5 @@ class Gltf
 
 
 }
+
+#endif // GSP_GLTF_H_
