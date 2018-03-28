@@ -51,8 +51,31 @@ void printBufferViews(Gltf& model)
 	for (auto view : model.GetBufferViews())
 	{
 		cout << view.buffer     << ", "
-			 << view.byteLength << ", "
-			 << view.target     << endl;
+			 << view.byteLength << ", ";
+		
+		switch(view.target)
+		{
+			case Gltf::BufferView::Target::NONE:
+			{
+				cout << "NONE" << endl;
+				break;
+			}
+			case Gltf::BufferView::Target::ARRAY_BUFFER:
+			{
+				cout << "ARRAY_BUFFER" << endl;
+				break;
+			}
+			case Gltf::BufferView::Target::ELEMENT_ARRAY_BUFFER:
+			{
+				cout << "ELEMENT_ARRAY_BUFFER" << endl;
+				break;
+			}
+			default:
+			{
+				cerr << "Invalid BufferView::Target " << static_cast<size_t>(view.target) << endl;
+				assert(true);
+			}
+		}
 	}
 }
 

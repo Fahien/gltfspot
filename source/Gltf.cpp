@@ -134,7 +134,7 @@ void Gltf::initBufferViews(const json& j)
 		// Target
 		if (v.count("target"))
 		{
-			view.target = v["target"].get<size_t>();
+			view.target = static_cast<Gltf::BufferView::Target>(v["target"].get<size_t>());
 		}
 
 		mBufferViews.push_back(move(view));

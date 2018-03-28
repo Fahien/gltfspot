@@ -30,9 +30,18 @@ class Gltf
 		std::string uri;
 	};
 
+
 	/// A view into a buffer generally representing a subset of the buffer
 	struct BufferView
 	{
+		/// Target that the GPU buffer should be bound to
+		enum class Target
+		{
+			NONE = 0,
+			ARRAY_BUFFER         = 34962,
+			ELEMENT_ARRAY_BUFFER = 34963
+		};
+
 		/// Index of the buffer
 		size_t buffer;
 		/// Offset into the buffer in bytes
@@ -42,7 +51,7 @@ class Gltf
 		/// Stride, in bytes
 		size_t byteStride;
 		/// Target that the GPU buffer should be bound to
-		size_t target;
+		Target target;
 	};
 
 	/// A typed view into a bufferView
