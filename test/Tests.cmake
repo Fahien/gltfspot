@@ -1,12 +1,18 @@
 include(CTest)
 
-# Download a box model for testing
-file(DOWNLOAD
-     https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Box/glTF/Box.gltf
-     ${CMAKE_CURRENT_SOURCE_DIR}/test/model/box/Box.gltf)
-file(DOWNLOAD
-     https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Box/glTF/Box0.bin
-     ${CMAKE_CURRENT_SOURCE_DIR}/test/model/box/Box0.bin)
+# Download models for testing
+function(download_model MODEL_PATH)
+	set(URL "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/${MODEL_PATH}")
+	file(DOWNLOAD
+	     ${URL}
+	    "${CMAKE_CURRENT_SOURCE_DIR}/test/model/${MODEL_PATH}")
+	message(STATUS "Downloading ${URL}")
+endfunction()
+
+download_model(Box/glTF/Box.gltf)
+download_model(Box/glTF/Box0.bin)
+download_model(BoxInterleaved/glTF/BoxInterleaved.gltf)
+download_model(BoxInterleaved/glTF/BoxInterleaved.bin)
 
 function(make_test TEST_NAME)
 	# Sources

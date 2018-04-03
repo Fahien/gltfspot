@@ -194,7 +194,7 @@ int main()
 {
 	// Json
 	cout << "# Json" << endl;
-	string modelPath{ "../test/model/box/Box.gltf" };
+	string modelPath{ "../test/model/BoxInterleaved/glTF/BoxInterleaved.gltf" };
 	printJson(modelPath);
 
 	// Gltf
