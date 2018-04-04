@@ -92,6 +92,13 @@ class Gltf
 		std::string name;
 	};
 
+	/// Image data used to create a texture
+	struct Image
+	{
+		// Uri of the image
+		std::string uri;
+	};
+
 	/// A typed view into a bufferView
 	struct Accessor
 	{
@@ -242,6 +249,9 @@ class Gltf
 	/// Returns the samplers
 	std::vector<Sampler>& GetSamplers();
 
+	/// Returns the images
+	std::vector<Image>& GetImages();
+
 	/// Returns the accessors
 	std::vector<Accessor>& GetAccessors();
 
@@ -281,6 +291,10 @@ class Gltf
 	/// @param[in] j Json object describing the samplers
 	void initSamplers(const nlohmann::json& j);
 
+	/// Initializes images
+	/// @param[in] j Json object describing the images
+	void initImages(const nlohmann::json& j);
+
 	/// Initializes accessors
 	/// @param[in] j Json object describing the accessors
 	void initAccessors(const nlohmann::json& j);
@@ -319,6 +333,9 @@ class Gltf
 
 	/// List of samplers
 	std::vector<Sampler> mSamplers;
+
+	/// List of images
+	std::vector<Image> mImages;
 
 	/// List of accessors
 	std::vector<Accessor> mAccessors;

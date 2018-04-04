@@ -36,6 +36,12 @@ Gltf::Gltf(const string& path, const json& j)
 		initSamplers(j["samplers"]);
 	}
 
+	// Images
+	if (j.count("images"))
+	{
+		initImages(j["images"]);
+	}
+
 	// Accessors
 	initAccessors(j["accessors"]);
 
@@ -210,6 +216,22 @@ void Gltf::initSamplers(const json& j)
 		}
 
 		mSamplers.push_back(sampler);
+	}
+}
+
+
+void Gltf::initImages(const json& j)
+{
+	for (const auto& i : j)
+	{
+		Image image;
+
+		if (i.count("uri"))
+		{
+			image.uri = i["uri"].get<string>();
+		}
+
+		mImages.push_back(image);
 	}
 }
 
@@ -634,6 +656,12 @@ vector<Gltf::BufferView>& Gltf::GetBufferViews()
 vector<Gltf::Sampler>& Gltf::GetSamplers()
 {
 	return mSamplers;
+}
+
+
+vector<Gltf::Image>& Gltf::GetImages()
+{
+	return mImages;
 }
 
 

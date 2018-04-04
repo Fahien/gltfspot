@@ -94,6 +94,17 @@ void printSamplers(Gltf& model)
 }
 
 
+void printImages(Gltf& model)
+{
+	cout << endl << "# Images" << endl;
+
+	for (auto& image : model.GetImages())
+	{
+		cout << "Uri[" << image.uri << "]" << endl;
+	}
+}
+
+
 void printAccessors(Gltf& model)
 {
 	cout << endl << "# Accessors" << endl;
@@ -226,6 +237,9 @@ int main()
 
 	// Samplers
 	printSamplers(model);
+
+	// Images
+	printImages(model);
 
 	// Accessors
 	printAccessors(model);
