@@ -105,6 +105,18 @@ void printImages(Gltf& model)
 }
 
 
+void printTextures(Gltf& model)
+{
+	cout << endl << "# Textures" << endl;
+
+	for (auto& texture : model.GetTextures())
+	{
+		cout << "Sampler[..." << to_string(texture.sampler->minFilter) << "] "
+		     << "Source[..." << texture.source->uri << "]" << endl;
+	}
+}
+
+
 void printAccessors(Gltf& model)
 {
 	cout << endl << "# Accessors" << endl;
@@ -240,6 +252,9 @@ int main()
 
 	// Images
 	printImages(model);
+
+	// Textures
+	printTextures(model);
 
 	// Accessors
 	printAccessors(model);

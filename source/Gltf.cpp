@@ -42,6 +42,12 @@ Gltf::Gltf(const string& path, const json& j)
 		initImages(j["images"]);
 	}
 
+	// Textures
+	if (j.count("textures"))
+	{
+		initTextures(j["textures"]);
+	}
+
 	// Accessors
 	initAccessors(j["accessors"]);
 
@@ -232,6 +238,37 @@ void Gltf::initImages(const json& j)
 		}
 
 		mImages.push_back(image);
+	}
+}
+
+
+void Gltf::initTextures(const json& j)
+{
+	for (const auto& t : j)
+	{
+		Texture texture;
+
+		// Sampler
+		if (t.count("sampler"))
+		{
+			size_t index = t["sampler"].get<size_t>();
+			texture.sampler = &mSamplers[index];
+		}
+
+		// Image
+		if (t.count("source"))
+		{
+			size_t index = t["source"].get<size_t>();
+			texture.source = &mImages[index];
+		}
+
+		// Name
+		if (t.count("name"))
+		{
+			texture.name = t["name"].get<string>();
+		}
+
+		mTextures.push_back(texture);
 	}
 }
 
@@ -662,6 +699,12 @@ vector<Gltf::Sampler>& Gltf::GetSamplers()
 vector<Gltf::Image>& Gltf::GetImages()
 {
 	return mImages;
+}
+
+
+vector<Gltf::Texture>& Gltf::GetTextures()
+{
+	return mTextures;
 }
 
 
