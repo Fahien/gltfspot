@@ -9,10 +9,18 @@ function(download_model MODEL_PATH)
 	message(STATUS "Downloading ${URL}")
 endfunction()
 
+
+# Box
 download_model(Box/glTF/Box.gltf)
 download_model(Box/glTF/Box0.bin)
+# Box Interleaved
 download_model(BoxInterleaved/glTF/BoxInterleaved.gltf)
 download_model(BoxInterleaved/glTF/BoxInterleaved.bin)
+# Box Textured
+download_model(BoxTextured/glTF/BoxTextured.gltf)
+download_model(BoxTextured/glTF/BoxTextured0.bin)
+download_model(BoxTextured/glTF/CesiumLogoFlat.png)
+
 
 function(make_test TEST_NAME)
 	# Sources

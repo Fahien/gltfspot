@@ -80,12 +80,27 @@ void printBufferViews(Gltf& model)
 }
 
 
+void printSamplers(Gltf& model)
+{
+	cout << endl << "# Samplers" << endl;
+
+	for (auto& sampler : model.GetSamplers())
+	{
+		cout << "MinFilter[" << to_string(sampler.minFilter) << "] "
+		     << "MagFiler["  << to_string(sampler.magFilter) << "] "
+		     << "WrapS["     << to_string(sampler.wrapS)     << "] "
+		     << "WrapT["     << to_string(sampler.wrapT)     << "]" << endl;
+	}
+}
+
+
 void printAccessors(Gltf& model)
 {
 	cout << endl << "# Accessors" << endl;
 	for (auto& acc : model.GetAccessors())
 	{
-		cout << acc.count << ", ";
+		cout << to_string(acc.type) << ", "
+		     << acc.count           << ", ";
 		for (auto v : acc.max)
 		{
 			cout << v << ", ";
@@ -132,7 +147,7 @@ void printMeshes(Gltf& model)
 			cout << "  # Attributes" << endl;
 			for (auto& a : p.attributes)
 			{
-				cout << "  " << static_cast<unsigned>(a.first) << ": " << a.second << endl;
+				cout << "  " << to_string(a.first) << ": " << a.second << endl;
 			}
 
 			cout << "indices["  << p.indices  << "] "
@@ -194,7 +209,7 @@ int main()
 {
 	// Json
 	cout << "# Json" << endl;
-	string modelPath{ "../test/model/BoxInterleaved/glTF/BoxInterleaved.gltf" };
+	string modelPath{ "../test/model/BoxTextured/glTF/BoxTextured.gltf" };
 	printJson(modelPath);
 
 	// Gltf
@@ -208,6 +223,9 @@ int main()
 
 	// BufferView
 	printBufferViews(model);
+
+	// Samplers
+	printSamplers(model);
 
 	// Accessors
 	printAccessors(model);

@@ -8,9 +8,6 @@ using namespace gltfspot;
 using namespace nlohmann;
 
 
-template<typename T>
-T from_string(const string& s);
-
 
 Gltf::Gltf(const string& path, const json& j)
 {
@@ -31,6 +28,12 @@ Gltf::Gltf(const string& path, const json& j)
 	if (j.count("bufferViews"))
 	{
 		initBufferViews(j["bufferViews"]);
+	}
+
+	// Samplers
+	if (j.count("samplers"))
+	{
+		initSamplers(j["samplers"]);
 	}
 
 	// Accessors
@@ -143,7 +146,76 @@ void Gltf::initBufferViews(const json& j)
 
 
 template<>
-Gltf::Accessor::Type from_string<Gltf::Accessor::Type>(const std::string& s)
+string to_string<Gltf::Sampler::Filter>(const Gltf::Sampler::Filter& f)
+{
+	switch (f)
+	{
+		case Gltf::Sampler::Filter::NONE:    return "NONE";
+		case Gltf::Sampler::Filter::NEAREST: return "NEAREST";
+		case Gltf::Sampler::Filter::LINEAR:  return "LINEAR";
+		case Gltf::Sampler::Filter::NEAREST_MIPMAP_NEAREST: return "NEAREST_MIPMAP_NEAREST";
+		case Gltf::Sampler::Filter::LINEAR_MIPMAP_NEAREST:  return "LINEAR_MIPMAP_NEAREST";
+		case Gltf::Sampler::Filter::NEAREST_MIPMAP_LINEAR:  return "NEAREST_MIPMAP_LINEAR";
+		case Gltf::Sampler::Filter::LINEAR_MIPMAP_LINEAR:   return "LINEAR_MIPMAP_LINEAR";
+	}
+}
+
+
+template<>
+string to_string<Gltf::Sampler::Wrapping>(const Gltf::Sampler::Wrapping& w)
+{
+	switch (w)
+	{
+		case Gltf::Sampler::Wrapping::CLAMP_TO_EDGE:   return "CLAMP_TO_EDGE";
+		case Gltf::Sampler::Wrapping::MIRRORED_REPEAT: return "MIRRORED_REPEAT";
+		case Gltf::Sampler::Wrapping::REPEAT:          return "REPEAT";
+	}
+}
+
+
+void Gltf::initSamplers(const json& j)
+{
+	for (const auto& s : j)
+	{
+		Sampler sampler;
+
+		// Mag Filter
+		if (s.count("magFilter"))
+		{
+			sampler.magFilter = static_cast<Sampler::Filter>(s["magFilter"].get<int>());
+		}
+
+		// Min Filter
+		if (s.count("minFilter"))
+		{
+			sampler.minFilter = static_cast<Sampler::Filter>(s["minFilter"].get<int>());
+		}
+
+		// WrapS
+		if (s.count("wrapS"))
+		{
+			sampler.wrapS = static_cast<Sampler::Wrapping>(s["wrapS"].get<int>());
+		}
+
+		// WrapT
+		if (s.count("wrapT"))
+		{
+			sampler.wrapT = static_cast<Sampler::Wrapping>(s["wrapT"].get<int>());
+		}
+
+		// Name
+		if (s.count("name"))
+		{
+			sampler.name = s["name"].get<string>();
+		}
+
+		mSamplers.push_back(sampler);
+	}
+}
+
+
+template<>
+Gltf::Accessor::Type from_string<Gltf::Accessor::Type>(const string& s)
 {
 	if (s == "SCALAR")
 	{
@@ -177,6 +249,45 @@ Gltf::Accessor::Type from_string<Gltf::Accessor::Type>(const std::string& s)
 	{
 		assert(true);
 		return Gltf::Accessor::Type::NONE;
+	}
+}
+
+
+template<>
+std::string to_string<Gltf::Accessor::Type>(const Gltf::Accessor::Type& t)
+{
+	if (t == Gltf::Accessor::Type::SCALAR)
+	{
+		return "SCALAR";
+	}
+	else if (t == Gltf::Accessor::Type::VEC2)
+	{
+		return "VEC2";
+	}
+	else if (t == Gltf::Accessor::Type::VEC3)
+	{
+		return "VEC3";
+	}
+	else if (t == Gltf::Accessor::Type::VEC4)
+	{
+		return "VEC4";
+	}
+	else if (t == Gltf::Accessor::Type::MAT2)
+	{
+		return "MAT2";
+	}
+	else if (t == Gltf::Accessor::Type::MAT3)
+	{
+		return "MAT3";
+	}
+	else if (t == Gltf::Accessor::Type::MAT4)
+	{
+		return "MAT4";
+	}
+	else
+	{
+		assert(true);
+		return "NONE";
 	}
 }
 
@@ -308,6 +419,49 @@ Gltf::Mesh::Primitive::Semantic from_string<Gltf::Mesh::Primitive::Semantic>(con
 	{
 		assert(true);
 		return Gltf::Mesh::Primitive::Semantic::NONE;
+	}
+}
+
+
+template<>
+std::string to_string<Gltf::Mesh::Primitive::Semantic>(const Gltf::Mesh::Primitive::Semantic& s)
+{
+	if (s == Gltf::Mesh::Primitive::Semantic::POSITION)
+	{
+		return "POSITION";
+	}
+	else if (s == Gltf::Mesh::Primitive::Semantic::NORMAL)
+	{
+		return "NORMAL";
+	}
+	else if (s == Gltf::Mesh::Primitive::Semantic::TANGENT)
+	{
+		return "TANGENT";
+	}
+	else if (s == Gltf::Mesh::Primitive::Semantic::TEXCOORD_0)
+	{
+		return "TEXCOORD_0";
+	}
+	else if (s == Gltf::Mesh::Primitive::Semantic::TEXCOORD_1)
+	{
+		return "TEXCOORD_1";
+	}
+	else if (s == Gltf::Mesh::Primitive::Semantic::COLOR_0)
+	{
+		return "COLOR_0";
+	}
+	else if (s == Gltf::Mesh::Primitive::Semantic::JOINTS_0)
+	{
+		return "JOINTS_0";
+	}
+	else if (s == Gltf::Mesh::Primitive::Semantic::WEIGHTS_0)
+	{
+		return "WEIGHTS_0";
+	}
+	else
+	{
+		assert(true);
+		return "NONE";
 	}
 }
 
@@ -474,6 +628,12 @@ vector<char>& Gltf::GetBuffer(const size_t i)
 vector<Gltf::BufferView>& Gltf::GetBufferViews()
 {
 	return mBufferViews;
+}
+
+
+vector<Gltf::Sampler>& Gltf::GetSamplers()
+{
+	return mSamplers;
 }
 
 

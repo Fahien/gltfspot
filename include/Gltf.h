@@ -57,6 +57,41 @@ class Gltf
 		Target target;
 	};
 
+	/// Texture sampler properties for filtering and wrapping modes
+	struct Sampler
+	{
+		/// Magnification/Minification filter
+		enum class Filter
+		{
+			NONE    = 0,
+			NEAREST = 9728,
+			LINEAR  = 9729,
+			NEAREST_MIPMAP_NEAREST = 9984,
+			LINEAR_MIPMAP_NEAREST  = 9985,
+			NEAREST_MIPMAP_LINEAR  = 9986,
+			LINEAR_MIPMAP_LINEAR   = 9987
+		};
+
+		/// Wrapping mode
+		enum class Wrapping
+		{
+			CLAMP_TO_EDGE   = 33071,
+			MIRRORED_REPEAT = 33648,
+			REPEAT = 10497
+		};
+
+		/// Magnification filter
+		Filter magFilter = Filter::NONE;
+		/// Minification filter
+		Filter minFilter = Filter::NONE;
+		/// S wrapping mode
+		Wrapping wrapS = Wrapping::REPEAT;
+		/// T wrapping mode
+		Wrapping wrapT = Wrapping::REPEAT;
+		/// User-defined name of this object
+		std::string name;
+	};
+
 	/// A typed view into a bufferView
 	struct Accessor
 	{
@@ -185,7 +220,7 @@ class Gltf
 		/// Indices of each root node
 		std::vector<uint64_t> nodes;
 		/// User-defined name of this object
-		std::string name;
+		std::string name = "default";
 	};
 
 	/// Constructs a Gltf object
@@ -203,6 +238,9 @@ class Gltf
 
 	/// Returns the buffer views
 	std::vector<BufferView>& GetBufferViews();
+
+	/// Returns the samplers
+	std::vector<Sampler>& GetSamplers();
 
 	/// Returns the accessors
 	std::vector<Accessor>& GetAccessors();
@@ -238,6 +276,10 @@ class Gltf
 	/// Initializes bufferViews
 	/// @param[in] j Json object describing the bufferViews
 	void initBufferViews(const nlohmann::json& j);
+
+	/// Initializes samplers
+	/// @param[in] j Json object describing the samplers
+	void initSamplers(const nlohmann::json& j);
 
 	/// Initializes accessors
 	/// @param[in] j Json object describing the accessors
@@ -275,6 +317,9 @@ class Gltf
 	/// List of buffer views
 	std::vector<BufferView> mBufferViews;
 
+	/// List of samplers
+	std::vector<Sampler> mSamplers;
+
 	/// List of accessors
 	std::vector<Accessor> mAccessors;
 
@@ -296,5 +341,29 @@ class Gltf
 
 
 }
+
+template<typename T>
+T from_string(const std::string& s);
+
+template<typename T>
+std::string to_string(const T& t);
+
+template<>
+gltfspot::Gltf::Accessor::Type from_string<gltfspot::Gltf::Accessor::Type>(const std::string& s);
+
+template<>
+std::string to_string<gltfspot::Gltf::Accessor::Type>(const gltfspot::Gltf::Accessor::Type& t);
+
+template<>
+gltfspot::Gltf::Mesh::Primitive::Semantic from_string<gltfspot::Gltf::Mesh::Primitive::Semantic>(const std::string& s);
+
+template<>
+std::string to_string<gltfspot::Gltf::Mesh::Primitive::Semantic>(const gltfspot::Gltf::Mesh::Primitive::Semantic& s);
+
+template<>
+std::string to_string<gltfspot::Gltf::Sampler::Filter>(const gltfspot::Gltf::Sampler::Filter& f);
+
+template<>
+std::string to_string<gltfspot::Gltf::Sampler::Wrapping>(const gltfspot::Gltf::Sampler::Wrapping& w);
 
 #endif // GSP_GLTF_H_
