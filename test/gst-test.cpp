@@ -112,7 +112,7 @@ void printTextures(Gltf& model)
 	for (auto& texture : model.GetTextures())
 	{
 		cout << "Sampler[..." << to_string(texture.sampler->minFilter) << "] "
-		     << "Source[..." << texture.source->uri << "]" << endl;
+		     << "Source[..."  << texture.source->uri                   << "]" << endl;
 	}
 }
 
@@ -151,8 +151,13 @@ void printMaterials(Gltf& model)
 		}
 		cout << "]" << endl;
 
-		cout << "Metallic : " << material.pbrMetallicRoughness.metallicFactor << endl;
-		cout << "Roughness: " << material.pbrMetallicRoughness.roughnessFactor << endl;
+		if (material.pbrMetallicRoughness.baseColorTexture)
+		{
+			cout << "Texture  :" << material.pbrMetallicRoughness.baseColorTexture->source->uri << endl;
+		}
+
+		cout << "Metallic :" << material.pbrMetallicRoughness.metallicFactor << endl;
+		cout << "Roughness:" << material.pbrMetallicRoughness.roughnessFactor << endl;
 	}
 }
 

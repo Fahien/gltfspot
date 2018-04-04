@@ -251,14 +251,14 @@ void Gltf::initTextures(const json& j)
 		// Sampler
 		if (t.count("sampler"))
 		{
-			size_t index = t["sampler"].get<size_t>();
+			size_t index{ t["sampler"].get<size_t>() };
 			texture.sampler = &mSamplers[index];
 		}
 
 		// Image
 		if (t.count("source"))
 		{
-			size_t index = t["source"].get<size_t>();
+			size_t index{ t["source"].get<size_t>() };
 			texture.source = &mImages[index];
 		}
 
@@ -421,6 +421,12 @@ void Gltf::initMaterials(const json& j)
 			if (mr.count("baseColorFactor"))
 			{
 				material.pbrMetallicRoughness.baseColorFactor = mr["baseColorFactor"].get<vector<float>>();
+			}
+
+			if (mr.count("baseColorTexture"))
+			{
+				size_t index{ mr["baseColorTexture"]["index"].get<size_t>() };
+				material.pbrMetallicRoughness.baseColorTexture = &mTextures[index];
 			}
 
 			if (mr.count("metallicFactor"))

@@ -161,6 +161,8 @@ class Gltf
 		{
 			/// Base color of the material
 			std::vector<float> baseColorFactor = { 1.0f, 1.0f, 1.0f, 1.0f };
+			/// Base color texture
+			Texture* baseColorTexture = nullptr;
 			/// Metalness of the material
 			float metallicFactor = 1.0f;
 			/// Roughness of the material
