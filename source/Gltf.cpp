@@ -690,6 +690,12 @@ vector<char>& Gltf::GetBuffer(const size_t i)
 }
 
 
+const std::string& Gltf::GetPath()
+{
+	return mPath;
+}
+
+
 vector<Gltf::BufferView>& Gltf::GetBufferViews()
 {
 	return mBufferViews;

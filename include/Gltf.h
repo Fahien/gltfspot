@@ -252,6 +252,9 @@ class Gltf
 	/// @param[in] path Gltf file path
 	static Gltf Load(const std::string& path);
 
+	/// Returns the path
+	const std::string& GetPath();
+
 	/// Returns the buffer number i
 	/// @param[in] i Index of the buffer
 	std::vector<char>& GetBuffer(const size_t i);

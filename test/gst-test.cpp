@@ -242,6 +242,7 @@ int main()
 
 	// Gltf
 	Gltf model{ Gltf::Load(modelPath) };
+	cout << endl << "# Path[" << model.GetPath() << "]" << endl;
 
 	// Asset
 	printAsset(model);
