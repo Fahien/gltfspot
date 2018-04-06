@@ -169,6 +169,7 @@ string to_string<Gltf::Sampler::Filter>(const Gltf::Sampler::Filter& f)
 		case Gltf::Sampler::Filter::LINEAR_MIPMAP_NEAREST:  return "LINEAR_MIPMAP_NEAREST";
 		case Gltf::Sampler::Filter::NEAREST_MIPMAP_LINEAR:  return "NEAREST_MIPMAP_LINEAR";
 		case Gltf::Sampler::Filter::LINEAR_MIPMAP_LINEAR:   return "LINEAR_MIPMAP_LINEAR";
+		default: return "UNDEFINED";
 	}
 }
 
@@ -181,6 +182,7 @@ string to_string<Gltf::Sampler::Wrapping>(const Gltf::Sampler::Wrapping& w)
 		case Gltf::Sampler::Wrapping::CLAMP_TO_EDGE:   return "CLAMP_TO_EDGE";
 		case Gltf::Sampler::Wrapping::MIRRORED_REPEAT: return "MIRRORED_REPEAT";
 		case Gltf::Sampler::Wrapping::REPEAT:          return "REPEAT";
+		default: return "UNDEFINED";
 	}
 }
 

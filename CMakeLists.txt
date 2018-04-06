@@ -25,6 +25,7 @@ set(GST_VERSION_MINOR 1)
 set(GST_NAME gltfspot)
 
 # Download the latest Niels Lohmann's JSON for Modern C++
+message(STATUS "Downloading nlohmann json.hpp")
 file(DOWNLOAD
      https://raw.githubusercontent.com/nlohmann/json/develop/single_include/nlohmann/json.hpp
      ${CMAKE_CURRENT_SOURCE_DIR}/include/nlohmann/json.hpp)

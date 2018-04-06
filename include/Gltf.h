@@ -24,7 +24,7 @@ class Gltf
 		std::string copyright;
 	};
 
-	/// A buffer points to binary geometry, animation, or skins
+	/// Buffer pointing to binary geometry, animation, or skins
 	struct Buffer
 	{
 		/// Length of the buffer in bytes
@@ -34,7 +34,7 @@ class Gltf
 	};
 
 
-	/// A view into a buffer generally representing a subset of the buffer
+	/// View into a buffer, generally representing a subset of the buffer
 	struct BufferView
 	{
 		/// Target that the GPU buffer should be bound to
@@ -95,7 +95,7 @@ class Gltf
 	/// Image data used to create a texture
 	struct Image
 	{
-		// Uri of the image
+		/// Uri of the image
 		std::string uri;
 	};
 
@@ -110,10 +110,10 @@ class Gltf
 		std::string name;
 	};
 
-	/// A typed view into a bufferView
+	/// Typed view into a bufferView
 	struct Accessor
 	{
-		/// The datatype of components in the attribute
+		/// Datatype of components in the attribute
 		enum class ComponentType
 		{
 			BYTE           = 5120,
@@ -153,7 +153,7 @@ class Gltf
 		std::vector<float> min;
 	};
 
-	/// The material appearance of a primitive
+	/// Material appearance of a primitive
 	struct Material
 	{
 		/// Metallic-Roughness Material
@@ -250,43 +250,44 @@ class Gltf
 
 	/// Loads a GLtf model from path
 	/// @param[in] path Gltf file path
+	/// @return A Gltf model
 	static Gltf Load(const std::string& path);
 
-	/// Returns the path
+	/// @return The Path
 	const std::string& GetPath();
 
-	/// Returns the buffer number i
 	/// @param[in] i Index of the buffer
+	/// @return Buffer number i
 	std::vector<char>& GetBuffer(const size_t i);
 
-	/// Returns the buffer views
+	/// @return Buffer views
 	std::vector<BufferView>& GetBufferViews();
 
-	/// Returns the samplers
+	/// @return Samplers
 	std::vector<Sampler>& GetSamplers();
 
-	/// Returns the images
+	/// @return Images
 	std::vector<Image>& GetImages();
 
-	/// Returns the textures
+	/// @return Textures
 	std::vector<Texture>& GetTextures();
 
-	/// Returns the accessors
+	/// @return Accessors
 	std::vector<Accessor>& GetAccessors();
 
-	/// Returns the materials
+	/// @return Materials
 	std::vector<Material>& GetMaterials();
 
-	/// Returns the meshes
+	/// @return Meshes
 	std::vector<Mesh>& GetMeshes();
 
-	/// Returns the nodes
+	/// @return Nodes
 	std::vector<Node>& GetNodes();
 
-	/// Returns the scenes
+	/// @return Scenes
 	std::vector<Scene>& GetScenes();
 
-	/// Returns the current scene
+	/// @return Current scene
 	Scene* GetScene();
 
 	/// glTF asset
