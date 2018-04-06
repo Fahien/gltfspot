@@ -46,15 +46,15 @@ class Gltf
 		};
 
 		/// Index of the buffer
-		size_t buffer;
+		size_t buffer     = 0;
 		/// Offset into the buffer in bytes
-		size_t byteOffset;
+		size_t byteOffset = 0;
 		/// Length of the bufferView in bytes
-		size_t byteLength;
+		size_t byteLength = 0;
 		/// Stride, in bytes
-		size_t byteStride;
+		size_t byteStride = 0;
 		/// Target that the GPU buffer should be bound to
-		Target target;
+		Target target     = Target::NONE;
 	};
 
 	/// Texture sampler properties for filtering and wrapping modes
