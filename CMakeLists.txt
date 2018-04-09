@@ -24,11 +24,17 @@ set(GST_VERSION_MAJOR 0)
 set(GST_VERSION_MINOR 1)
 set(GST_NAME gltfspot)
 
-# Download the latest Niels Lohmann's JSON for Modern C++
-message(STATUS "Downloading nlohmann json.hpp")
-file(DOWNLOAD
-     https://raw.githubusercontent.com/nlohmann/json/develop/single_include/nlohmann/json.hpp
-     ${CMAKE_CURRENT_SOURCE_DIR}/include/nlohmann/json.hpp)
+# Niels Lohmann's JSON for Modern C++
+set(OUT ${CMAKE_CURRENT_SOURCE_DIR}/include/nlohmann/json.hpp)
+# Check whether the file has already been downloaded
+if(NOT EXISTS ${OUT})
+	set(FILE_DOES_NOT_EXIST TRUE)
+endif()
+if(${FORCE_DOWNLOAD} OR ${FILE_DOES_NOT_EXIST})
+	set(URL "https://raw.githubusercontent.com/nlohmann/json/develop/single_include/nlohmann/json.hpp")
+	message(STATUS "Downloading ${URL}")
+	file(DOWNLOAD ${URL} ${OUT})
+endif()
 
 # Includes
 set(GST_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)

@@ -2,12 +2,18 @@ include(CTest)
 
 # Download models for testing
 macro(download_model MODEL_PATH)
-	set(URL "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/${MODEL_PATH}")
 	set(OUT "${CMAKE_CURRENT_SOURCE_DIR}/test/model/${MODEL_PATH}")
-	message(STATUS "Downloading ${URL}")
-	file(DOWNLOAD ${URL} ${OUT})
 	if("${OUT}" MATCHES ".gltf$")
 		list(APPEND GLTF_FILES ${OUT})
+	endif()
+	# Check whether the file has already been downloaded
+	if(NOT EXISTS ${OUT})
+		set(FILE_DOES_NOT_EXIST TRUE)
+	endif()
+	if(${FORCE_DOWNLOAD} OR ${FILE_DOES_NOT_EXIST})
+		set(URL "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/${MODEL_PATH}")
+		message(STATUS "Downloading ${URL}")
+		file(DOWNLOAD ${URL} ${OUT})
 	endif()
 endmacro()
 
