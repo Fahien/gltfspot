@@ -233,11 +233,18 @@ void printNodes(Gltf& model)
 }
 
 
-int main()
+int main(int argc, char** argv)
 {
+	/// Check arguments
+	if (argc < 2)
+	{
+		cerr << "Usage: " << argv[0] << " modelPath" << endl;
+		return EXIT_FAILURE;
+	}
+
 	// Json
 	cout << "# Json" << endl;
-	string modelPath{ "../test/model/BoxTextured/glTF/BoxTextured.gltf" };
+	string modelPath{ argv[1] };
 	printJson(modelPath);
 
 	// Gltf
