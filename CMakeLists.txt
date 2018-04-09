@@ -24,9 +24,12 @@ set(GST_VERSION_MAJOR 0)
 set(GST_VERSION_MINOR 1)
 set(GST_NAME gltfspot)
 
+option(FORCE_DOWNLOAD FALSE)
+
 # Niels Lohmann's JSON for Modern C++
 set(OUT ${CMAKE_CURRENT_SOURCE_DIR}/include/nlohmann/json.hpp)
 # Check whether the file has already been downloaded
+set(FILE_DOES_NOT_EXIST FALSE)
 if(NOT EXISTS ${OUT})
 	set(FILE_DOES_NOT_EXIST TRUE)
 endif()

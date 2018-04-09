@@ -1,12 +1,15 @@
+option(FORCE_DOWNLOAD FALSE)
+
 # Download models for testing
 macro(download_model MODEL_PATH)
-	set(OUT "${OUT_DIR}/${MODEL_PATH}")
+	set(OUT "${GLTF_OUT}/${MODEL_PATH}")
 	if("${OUT}" MATCHES ".gltf$")
 		list(APPEND GLTF_FILES ${OUT})
 	endif()
 	# Check whether the file has already been downloaded
-	if(NOT EXISTS ${OUT})
-		set(FILE_DOES_NOT_EXIST TRUE)
+	set(FILE_DOES_NOT_EXIST TRUE)
+	if(EXISTS ${OUT})
+		set(FILE_DOES_NOT_EXIST FALSE)
 	endif()
 	if(${FORCE_DOWNLOAD} OR ${FILE_DOES_NOT_EXIST})
 		set(URL "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/${MODEL_PATH}")
@@ -15,7 +18,9 @@ macro(download_model MODEL_PATH)
 	endif()
 endmacro()
 
-set(OUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/test/model)
+if(NOT GLTF_OUT)
+	set(GLTF_OUT ${CMAKE_CURRENT_SOURCE_DIR}/test/model)
+endif()
 
 # Box
 download_model(Box/glTF/Box.gltf)
