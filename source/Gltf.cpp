@@ -596,7 +596,7 @@ void Gltf::initNodes(const json& j)
 		// Children
 		if (n.count("children"))
 		{
-			node.children = n["children"].get<vector<unsigned>>();
+			node.childrenIndices = n["children"].get<vector<unsigned>>();
 		}
 
 		// Matrix
@@ -616,10 +616,24 @@ void Gltf::initNodes(const json& j)
 		if (n.count("mesh"))
 		{
 			unsigned m = n["mesh"];
-			node.pMesh = &mMeshes[m];
+			node.pMesh = &(mMeshes[m]);
 		}
 
 		mNodes.push_back(node);
+	}
+
+	// Solve nodes children
+	for (auto& node : mNodes)
+	{
+		for (auto nodeIndex : node.childrenIndices)
+		{
+			auto pNode = &mNodes[nodeIndex];
+			// A node should not be its own parent
+			if (pNode != &node)
+			{
+				node.children.push_back(pNode);
+			}
+		}
 	}
 }
 
@@ -639,7 +653,12 @@ void Gltf::initScenes(const json& j)
 		// Nodes
 		if (s.count("nodes"))
 		{
-			scene.nodes = s["nodes"].get<vector<uint64_t>>();
+			auto nodesIndices = s["nodes"].get<vector<uint64_t>>();
+			for (auto nodeIndex : nodesIndices)
+			{
+				auto pNode = &(mNodes[nodeIndex]);
+				scene.nodes.push_back(pNode);
+			}
 		}
 
 		mScenes.push_back(scene);

@@ -225,7 +225,9 @@ class Gltf
 	struct Node
 	{
 		/// This node's children
-		std::vector<unsigned> children;
+		std::vector<Node*> children;
+		// This node's children indices
+		std::vector<unsigned> childrenIndices;
 		/// Floating-point 4x4 transformation matrix stored in column-major order
 		mathspot::Mat4 matrix = mathspot::Mat4::identity;
 		/// Mesh in this node
@@ -238,7 +240,7 @@ class Gltf
 	struct Scene
 	{
 		/// Indices of each root node
-		std::vector<uint64_t> nodes;
+		std::vector<Node*> nodes;
 		/// User-defined name of this object
 		std::string name = "default";
 	};
