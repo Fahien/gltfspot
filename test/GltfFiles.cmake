@@ -35,3 +35,7 @@ download_model(BoxTextured/glTF/CesiumLogoFlat.png)
 # Box Vertex colors
 download_model(BoxVertexColors/glTF/BoxVertexColors.gltf)
 download_model(BoxVertexColors/glTF/buffer.bin)
+# Duck
+download_model(Duck/glTF/Duck.gltf)
+download_model(Duck/glTF/Duck0.bin)
+download_model(Duck/glTF/DuckCM.png)
