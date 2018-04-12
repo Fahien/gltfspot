@@ -231,7 +231,7 @@ class Gltf
 		/// Floating-point 4x4 transformation matrix stored in column-major order
 		mathspot::Mat4 matrix = mathspot::Mat4::identity;
 		/// Mesh in this node
-		Mesh* pMesh;
+		Mesh* pMesh = nullptr;
 		/// User-defined name of this object
 		std::string name;
 	};
@@ -382,7 +382,7 @@ class Gltf
 	std::vector<Scene> mScenes;
 
 	/// Current scene
-	Scene* mScene;
+	Scene* mScene = nullptr;
 };
 
 
