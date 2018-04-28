@@ -42,7 +42,12 @@ download_model(Duck/glTF/DuckCM.png)
 # Cilinder Engine
 download_model(2CylinderEngine/glTF/2CylinderEngine.gltf)
 download_model(2CylinderEngine/glTF/2CylinderEngine0.bin)
+
 # Cesium Milk Truck
 download_model(CesiumMilkTruck/glTF/CesiumMilkTruck.gltf)
 download_model(CesiumMilkTruck/glTF/CesiumMilkTruck.png)
 download_model(CesiumMilkTruck/glTF/CesiumMilkTruck0.bin)
+
+# Orientation Test
+download_model(OrientationTest/glTF/OrientationTest.bin)
+download_model(OrientationTest/glTF/OrientationTest.gltf)
