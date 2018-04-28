@@ -75,7 +75,7 @@ Gltf::Gltf(const string& path, const json& j)
 		initScenes(j["scenes"]);
 
 		auto uIndex = j["scene"].get<uint64_t>();
-		mScene = &mScenes[uIndex];
+		mScene = &mScenes[static_cast<const unsigned>(uIndex)];
 	}
 }
 
@@ -656,7 +656,7 @@ void Gltf::initScenes(const json& j)
 			auto nodesIndices = s["nodes"].get<vector<uint64_t>>();
 			for (auto nodeIndex : nodesIndices)
 			{
-				auto pNode = &(mNodes[nodeIndex]);
+				auto pNode = &(mNodes[static_cast<const unsigned>(nodeIndex)]);
 				scene.nodes.push_back(pNode);
 			}
 		}

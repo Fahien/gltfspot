@@ -39,3 +39,6 @@ download_model(BoxVertexColors/glTF/buffer.bin)
 download_model(Duck/glTF/Duck.gltf)
 download_model(Duck/glTF/Duck0.bin)
 download_model(Duck/glTF/DuckCM.png)
+# Cilinder Engine
+download_model(2CylinderEngine/glTF/2CylinderEngine.gltf)
+download_model(2CylinderEngine/glTF/2CylinderEngine0.bin)
