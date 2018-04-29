@@ -223,12 +223,17 @@ void printNodes(Gltf& model)
 		cout << "]" << endl;
 
 		cout << "matrix[ ";
-		
 		for (const auto& v : node.matrix.matrix)
 		{
 			cout << v << " ";
 		}
 		cout << "]" << endl;
+
+		cout << "rotation[ "
+		     << node.rotation.x << ", "
+		     << node.rotation.y << ", "
+		     << node.rotation.z << ", "
+		     << node.rotation.w << " ]" << endl;
 	}
 }
 

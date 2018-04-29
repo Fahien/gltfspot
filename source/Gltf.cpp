@@ -635,6 +635,13 @@ void Gltf::initNodes(const json& j)
 			node.pMesh = &(mMeshes[m]);
 		}
 
+		// Rotation
+		if (n.count("rotation"))
+		{
+			auto qvec = n["rotation"].get<vector<float>>();
+			node.rotation = mathspot::Quat{ qvec[0], qvec[1], qvec[2], qvec[3] };
+		}
+
 		mNodes.push_back(node);
 	}
 

@@ -244,6 +244,8 @@ class Gltf
 		mathspot::Mat4 matrix = mathspot::Mat4::identity;
 		/// Mesh in this node
 		Mesh* pMesh = nullptr;
+		/// Unit quaternion rotation in the order (x, y, z, w), where w is the scalar
+		mathspot::Quat rotation;
 		/// User-defined name of this object
 		std::string name;
 	};
