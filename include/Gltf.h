@@ -245,7 +245,7 @@ class Gltf
 		/// Mesh in this node
 		Mesh* pMesh = nullptr;
 		/// Unit quaternion rotation in the order (x, y, z, w), where w is the scalar
-		mathspot::Quat rotation;
+		mathspot::Quat rotation = mathspot::Quat::identity;
 		/// User-defined name of this object
 		std::string name;
 	};
