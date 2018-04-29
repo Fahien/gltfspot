@@ -195,15 +195,27 @@ class Gltf
 				WEIGHTS_0
 			};
 
+			/// Type of primitives to render
+			enum class Mode
+			{
+				POINTS,
+				LINES,
+				LINE_LOOP,
+				LINE_STRIP,
+				TRIANGLES,
+				TRIANGLE_STRIP,
+				TRIANGLE_FAN
+			};
+
 			/// Dictionary object, where each key corresponds to mesh attribute semantic and
 			/// each value is the index of the accessor containing attribute's data (required)
-			std::map<Primitive::Semantic, unsigned> attributes;
+			std::map<Semantic, unsigned> attributes;
 			/// Index of the accessor that contains the indices
 			unsigned indices;
 			/// Index of the material to apply to this primitive when rendering
 			unsigned material;
 			/// Type of primitives to render
-			unsigned mode = 4;
+			Mode mode = Mode::TRIANGLES;
 			/// targets TODO An array of Morph Targets, each Morph Target is a dictionary mapping attributes (only POSITION, NORMAL, and TANGENT supported) to their deviations in the Morph Target
 			/// extensions TODO Dictionary object with extension-specific objects
 			/// Application-specific data
@@ -411,5 +423,8 @@ std::string to_string<gltfspot::Gltf::Sampler::Filter>(const gltfspot::Gltf::Sam
 
 template<>
 std::string to_string<gltfspot::Gltf::Sampler::Wrapping>(const gltfspot::Gltf::Sampler::Wrapping& w);
+
+template<>
+std::string to_string<gltfspot::Gltf::Mesh::Primitive::Mode>(const gltfspot::Gltf::Mesh::Primitive::Mode& m);
 
 #endif // GSP_GLTF_H_

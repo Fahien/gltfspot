@@ -162,13 +162,13 @@ string to_string<Gltf::Sampler::Filter>(const Gltf::Sampler::Filter& f)
 {
 	switch (f)
 	{
-		case Gltf::Sampler::Filter::NONE:    return "NONE";
-		case Gltf::Sampler::Filter::NEAREST: return "NEAREST";
-		case Gltf::Sampler::Filter::LINEAR:  return "LINEAR";
+		case Gltf::Sampler::Filter::NONE                  : return "NONE"                  ;
+		case Gltf::Sampler::Filter::NEAREST               : return "NEAREST"               ;
+		case Gltf::Sampler::Filter::LINEAR                : return "LINEAR"                ;
 		case Gltf::Sampler::Filter::NEAREST_MIPMAP_NEAREST: return "NEAREST_MIPMAP_NEAREST";
-		case Gltf::Sampler::Filter::LINEAR_MIPMAP_NEAREST:  return "LINEAR_MIPMAP_NEAREST";
-		case Gltf::Sampler::Filter::NEAREST_MIPMAP_LINEAR:  return "NEAREST_MIPMAP_LINEAR";
-		case Gltf::Sampler::Filter::LINEAR_MIPMAP_LINEAR:   return "LINEAR_MIPMAP_LINEAR";
+		case Gltf::Sampler::Filter::LINEAR_MIPMAP_NEAREST : return "LINEAR_MIPMAP_NEAREST" ;
+		case Gltf::Sampler::Filter::NEAREST_MIPMAP_LINEAR : return "NEAREST_MIPMAP_LINEAR" ;
+		case Gltf::Sampler::Filter::LINEAR_MIPMAP_LINEAR  : return "LINEAR_MIPMAP_LINEAR"  ;
 		default: return "UNDEFINED";
 	}
 }
@@ -179,13 +179,29 @@ string to_string<Gltf::Sampler::Wrapping>(const Gltf::Sampler::Wrapping& w)
 {
 	switch (w)
 	{
-		case Gltf::Sampler::Wrapping::CLAMP_TO_EDGE:   return "CLAMP_TO_EDGE";
+		case Gltf::Sampler::Wrapping::CLAMP_TO_EDGE  : return "CLAMP_TO_EDGE"  ;
 		case Gltf::Sampler::Wrapping::MIRRORED_REPEAT: return "MIRRORED_REPEAT";
-		case Gltf::Sampler::Wrapping::REPEAT:          return "REPEAT";
+		case Gltf::Sampler::Wrapping::REPEAT         : return "REPEAT"         ;
 		default: return "UNDEFINED";
 	}
 }
 
+
+template<>
+string to_string<Gltf::Mesh::Primitive::Mode>(const Gltf::Mesh::Primitive::Mode& m)
+{
+	switch (m)
+	{
+		case Gltf::Mesh::Primitive::Mode::POINTS        : return "POINTS"        ;
+		case Gltf::Mesh::Primitive::Mode::LINES         : return "LINES"         ;
+		case Gltf::Mesh::Primitive::Mode::LINE_LOOP     : return "LINE_LOOP"     ;
+		case Gltf::Mesh::Primitive::Mode::LINE_STRIP    : return "LINE_STRIP"    ;
+		case Gltf::Mesh::Primitive::Mode::TRIANGLES     : return "TRIANGLES"     ;
+		case Gltf::Mesh::Primitive::Mode::TRIANGLE_STRIP: return "TRIANGLE_STRIP";
+		case Gltf::Mesh::Primitive::Mode::TRIANGLE_FAN  : return "TRIANGLE_FAN"  ;
+		default: return "UNDEFINED";
+	}
+}
 
 void Gltf::initSamplers(const json& j)
 {
@@ -570,7 +586,7 @@ void Gltf::initMeshes(const json& j)
 
 			if (p.count("mode"))
 			{
-				primitive.mode = p["mode"].get<unsigned>();
+				primitive.mode = p["mode"].get<Gltf::Mesh::Primitive::Mode>();
 			}
 
 			mesh.primitives.push_back(primitive);
