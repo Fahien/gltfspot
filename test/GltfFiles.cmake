@@ -43,6 +43,9 @@ download_model(Duck/glTF/DuckCM.png)
 download_model(2CylinderEngine/glTF/2CylinderEngine.gltf)
 download_model(2CylinderEngine/glTF/2CylinderEngine0.bin)
 
+# Box Animated
+download_model(BoxAnimated/glTF/BoxAnimated.gltf)
+download_model(BoxAnimated/glTF/BoxAnimated0.bin)
 # Cesium Milk Truck
 download_model(CesiumMilkTruck/glTF/CesiumMilkTruck.gltf)
 download_model(CesiumMilkTruck/glTF/CesiumMilkTruck.png)

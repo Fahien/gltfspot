@@ -1,5 +1,5 @@
-#ifndef GSP_GLTF_H_
-#define GSP_GLTF_H_
+#ifndef GST_GLTF_H_
+#define GST_GLTF_H_
 
 #include <MathSpot.h>
 
@@ -140,7 +140,7 @@ class Gltf
 		/// Index of the buffer view
 		size_t bufferView;
 		/// Offset relative to the start of the bufferView in bytes
-		size_t byteOffset;
+		size_t byteOffset{ 0 };
 		/// Datatype of components in the attribute
 		ComponentType componentType;
 		/// Number of attributes referenced by this accessor
@@ -429,4 +429,4 @@ std::string to_string<gltfspot::Gltf::Sampler::Wrapping>(const gltfspot::Gltf::S
 template<>
 std::string to_string<gltfspot::Gltf::Mesh::Primitive::Mode>(const gltfspot::Gltf::Mesh::Primitive::Mode& m);
 
-#endif // GSP_GLTF_H_
+#endif // GST_GLTF_H_
