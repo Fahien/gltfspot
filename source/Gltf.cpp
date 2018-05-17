@@ -74,7 +74,12 @@ Gltf::Gltf(const string& path, const json& j)
 	{
 		initScenes(j["scenes"]);
 
-		auto uIndex = j["scene"].get<uint64_t>();
+		uint64_t uIndex = 0;
+		
+		if (j.count("scene"))
+		{
+			uIndex = j["scene"].get<uint64_t>();
+		}
 		mScene = &mScenes[static_cast<const unsigned>(uIndex)];
 	}
 }

@@ -55,11 +55,6 @@ void printBufferViews(Gltf& model)
 		
 		switch(view.target)
 		{
-			case Gltf::BufferView::Target::NONE:
-			{
-				cout << "NONE" << endl;
-				break;
-			}
 			case Gltf::BufferView::Target::ARRAY_BUFFER:
 			{
 				cout << "ARRAY_BUFFER" << endl;

@@ -40,7 +40,6 @@ class Gltf
 		/// Target that the GPU buffer should be bound to
 		enum class Target
 		{
-			NONE = 0,
 			ARRAY_BUFFER         = 34962,
 			ELEMENT_ARRAY_BUFFER = 34963
 		};
@@ -54,7 +53,7 @@ class Gltf
 		/// Stride, in bytes
 		size_t byteStride = 0;
 		/// Target that the GPU buffer should be bound to
-		Target target     = Target::NONE;
+		Target target     = Target::ARRAY_BUFFER;
 	};
 
 	/// Texture sampler properties for filtering and wrapping modes
