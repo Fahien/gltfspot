@@ -8,6 +8,22 @@ using namespace gltfspot;
 using namespace nlohmann;
 
 
+Gltf::Gltf(Gltf&& g)
+: mPath        { move(g.mPath)         }
+, mBuffers     { move(g.mBuffers)      }
+, mBuffersCache{ move(g.mBuffersCache) }
+, mBufferViews { move(g.mBufferViews)  }
+, mSamplers    { move(g.mSamplers)     }
+, mImages      { move(g.mImages)       }
+, mTextures    { move(g.mTextures)     }
+, mAccessors   { move(g.mAccessors)    }
+, mMaterials   { move(g.mMaterials)    }
+, mMeshes      { move(g.mMeshes)       }
+, mNodes       { move(g.mNodes)        }
+, mScenes      { move(g.mScenes)       }
+, mScene       { g.mScene              }
+{}
+
 
 Gltf::Gltf(const string& path, const json& j)
 {

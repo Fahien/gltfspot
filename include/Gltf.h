@@ -258,6 +258,10 @@ class Gltf
 		std::string name = "default";
 	};
 
+	/// Copy contrusts a Gltf object
+	/// @param[in] g Gltf object
+	Gltf(Gltf&& g);
+
 	/// Constructs a Gltf object
 	/// @param[in] path Gltf file path
 	/// @param[in] j Json object describing the model
