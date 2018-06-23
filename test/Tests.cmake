@@ -10,7 +10,7 @@ function(make_test TEST_NAME)
 	
 	# Executable
 	add_executable(${TEST_NAME} ${TEST_SOURCES})
-	set_target_properties(${TEST_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+	target_include_directories(${TEST_NAME} PRIVATE ${GST_INCLUDE_DIRS})
 	target_link_libraries(${TEST_NAME} ${GST_NAME})
 
 	# Tests

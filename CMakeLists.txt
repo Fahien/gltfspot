@@ -1,28 +1,20 @@
-cmake_minimum_required(VERSION 3.9)
-
-# MathSpoT
-set(MATHSPOT mathspot)
-if("${PROJECT_SOURCE_DIR}" STREQUAL "")
-    set(PROJECT_SOURCE_DIR ".")
-endif()
-set(MATHSPOT_DIR ${PROJECT_SOURCE_DIR}/${MATHSPOT})
-message(STATUS ${MATHSPOT_DIR})
-if(NOT TARGET ${MATHSPOT})
-    add_subdirectory(${MATHSPOT_DIR})
-endif()
-set(MATHSPOT_INCLUDE_DIR ${MATHSPOT_DIR}/include)
-
-# GltfSpoT
-set(GST_TITLE GltfSpoT)
-project(${GST_TITLE})
+cmake_minimum_required(VERSION 3.6)
 
 set(CMAKE_C_STANDARD   14)
 set(CMAKE_CXX_STANDARD 14)
 
+# GltfSpot
+set(GST_TITLE GltfSpot)
+project(${GST_TITLE} C CXX)
+
 # Version number
 set(GST_VERSION_MAJOR 0)
-set(GST_VERSION_MINOR 1)
+set(GST_VERSION_MINOR 2)
 set(GST_NAME gltfspot)
+
+# CMake modules
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+include(AddMathSpot)
 
 option(FORCE_DOWNLOAD FALSE)
 
@@ -41,7 +33,7 @@ endif()
 
 # Includes
 set(GST_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
-include_directories(${GST_INCLUDE_DIR})
+set(GST_INCLUDE_DIRS ${GST_INCLUDE_DIR} ${MATHSPOT_INCLUDE_DIRS})
 
 # Sources
 set(GST_SOURCE_DIR ${PROJECT_SOURCE_DIR}/source)
@@ -50,18 +42,9 @@ source_group(Source FILES ${GST_SOURCES})
 
 # Library
 add_library(${GST_NAME} ${GST_SOURCES})
-set_target_properties(${GST_NAME} PROPERTIES LINKER_LANGUAGE CXX)
-target_link_libraries(${GST_NAME} ${MATHSPOT})
-target_include_directories(${GST_NAME} PUBLIC ${MATHSPOT_INCLUDE_DIR})
+target_link_libraries(${GST_NAME} ${MATHSPOT_LIBRARIES})
+target_include_directories(${GST_NAME} PUBLIC ${GST_INCLUDE_DIRS})
 
 # Test
 set(GST_TEST_DIR ${PROJECT_SOURCE_DIR}/test)
 include(${GST_TEST_DIR}/Tests.cmake)
-
-# Documentation
-find_package(Doxygen REQUIRED)
-set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/docs)
-set(DOXYGEN_RECURSIVE NO)
-doxygen_add_docs(doxygen
-                 "${GST_INCLUDE_DIR};${GST_SOURCE_DIR}"
-                 COMMENT "Generating documentation")
