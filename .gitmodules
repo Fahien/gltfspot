@@ -1,3 +1,6 @@
 [submodule "mathspot"]
 	path = mathspot
 	url = https://github.com/Fahien/mathspot.git
+[submodule "filespot"]
+	path = filespot
+	url = https://github.com/Fahien/filespot.git

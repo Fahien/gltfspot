@@ -15,6 +15,7 @@ set(GST_NAME gltfspot)
 # CMake modules
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(AddMathSpot)
+include(AddFileSpot)
 
 option(FORCE_DOWNLOAD FALSE)
 
@@ -33,7 +34,9 @@ endif()
 
 # Includes
 set(GST_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
-set(GST_INCLUDE_DIRS ${GST_INCLUDE_DIR} ${MATHSPOT_INCLUDE_DIRS})
+set(GST_INCLUDE_DIRS ${GST_INCLUDE_DIR}
+	${MATHSPOT_INCLUDE_DIRS}
+	${FILESPOT_INCLUDE_DIRS})
 
 # Sources
 set(GST_SOURCE_DIR ${PROJECT_SOURCE_DIR}/source)
@@ -42,7 +45,9 @@ source_group(Source FILES ${GST_SOURCES})
 
 # Library
 add_library(${GST_NAME} ${GST_SOURCES})
-target_link_libraries(${GST_NAME} ${MATHSPOT_LIBRARIES})
+target_link_libraries(${GST_NAME}
+	${MATHSPOT_LIBRARIES}
+	${FILESPOT_LIBRARIES})
 target_include_directories(${GST_NAME} PUBLIC ${GST_INCLUDE_DIRS})
 
 # Test

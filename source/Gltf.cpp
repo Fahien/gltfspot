@@ -1,11 +1,13 @@
 #include <fstream>
 #include <stdexcept>
+#include <filespot/Ifstream.h>
 
 #include "Gltf.h"
 
 using namespace std;
 using namespace gltfspot;
 using namespace nlohmann;
+namespace fst = filespot;
 
 
 Gltf::Gltf(Gltf&& g)
@@ -729,7 +731,7 @@ auto Gltf::loadBuffer(const size_t i)
 Gltf Gltf::Load(const string& path)
 {
 	// read a JSON file
-	ifstream i{ path };
+	fst::Ifstream i{ path };
 	json j;
 	i >> j;
 	Gltf model{ path, j };
