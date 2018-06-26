@@ -718,7 +718,7 @@ auto Gltf::loadBuffer(const size_t i)
 
 	vector<char> buffer(b.byteLength);
 
-	ifstream file{ b.uri, ios::binary };
+	fst::Ifstream file{ b.uri, ios::binary };
 	if (!file.read(buffer.data(), b.byteLength))
 	{
 		throw runtime_error{ "Could not read uri" };
