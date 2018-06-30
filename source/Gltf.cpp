@@ -24,6 +24,7 @@ Gltf::Gltf(Gltf&& g)
 , mNodes       { move(g.mNodes)        }
 , mScenes      { move(g.mScenes)       }
 , mScene       { g.mScene              }
+, asset        { move(g.asset)         }
 {}
 
 
@@ -716,13 +717,8 @@ auto Gltf::loadBuffer(const size_t i)
 {
 	Buffer& b{ mBuffers[i] };
 
-	vector<char> buffer(b.byteLength);
-
 	fst::Ifstream file{ b.uri, ios::binary };
-	if (!file.Read(buffer.data(), b.byteLength))
-	{
-		throw runtime_error{ "Could not read uri" };
-	}
+	auto buffer = file.Read(b.byteLength);
 
 	return mBuffersCache.emplace(i, move(buffer));
 }

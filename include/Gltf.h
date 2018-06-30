@@ -258,7 +258,7 @@ class Gltf
 		std::string name = "default";
 	};
 
-	/// Copy contrusts a Gltf object
+	/// Move contructs a Gltf object
 	/// @param[in] g Gltf object
 	Gltf(Gltf&& g);
 
@@ -266,6 +266,10 @@ class Gltf
 	/// @param[in] path Gltf file path
 	/// @param[in] j Json object describing the model
 	Gltf(const std::string& path, const nlohmann::json& j);
+
+	// Delete copy constructor and assignment
+	Gltf(const Gltf&) = delete;
+	Gltf& operator=(const Gltf&) = delete;
 
 	/// Loads a GLtf model from path
 	/// @param[in] path Gltf file path
@@ -363,40 +367,40 @@ class Gltf
 	auto loadBuffer(const size_t i);
 
 	/// Directory path of the gltf file
-	std::string mPath;
+	std::string mPath{};
 
 	/// List of buffers
-	std::vector<Buffer> mBuffers;
+	std::vector<Buffer> mBuffers{};
 
 	/// Cache of buffers
-	std::map<const size_t, std::vector<char>> mBuffersCache;
+	std::map<const size_t, std::vector<char>> mBuffersCache{};
 
 	/// List of buffer views
-	std::vector<BufferView> mBufferViews;
+	std::vector<BufferView> mBufferViews{};
 
 	/// List of samplers
-	std::vector<Sampler> mSamplers;
+	std::vector<Sampler> mSamplers{};
 
 	/// List of images
-	std::vector<Image> mImages;
+	std::vector<Image> mImages{};
 
 	/// List of textures
-	std::vector<Texture> mTextures;
+	std::vector<Texture> mTextures{};
 
 	/// List of accessors
-	std::vector<Accessor> mAccessors;
+	std::vector<Accessor> mAccessors{};
 
 	/// List of materials
-	std::vector<Material> mMaterials;
+	std::vector<Material> mMaterials{};
 
 	/// List of meshes
-	std::vector<Mesh> mMeshes;
+	std::vector<Mesh> mMeshes{};
 
 	/// List of nodes
-	std::vector<Node> mNodes;
+	std::vector<Node> mNodes{};
 
 	/// List of scenes
-	std::vector<Scene> mScenes;
+	std::vector<Scene> mScenes{};
 
 	/// Current scene
 	Scene* mScene = nullptr;
