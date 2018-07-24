@@ -288,6 +288,10 @@ class Gltf
 		Mesh* pMesh = nullptr;
 		/// Unit quaternion rotation in the order (x, y, z, w), where w is the scalar
 		mathspot::Quat rotation = mathspot::Quat::identity;
+		/// Non-uniform scale
+		mathspot::Vec3 scale = mathspot::Vec3{ 1.0f, 1.0f, 1.0f };
+		/// Translation
+		mathspot::Vec3 translation = mathspot::Vec3{ 0.0f, 0.0f , 0.0f };
 		/// User-defined name of this object
 		std::string name;
 	};

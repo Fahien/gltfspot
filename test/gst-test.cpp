@@ -243,6 +243,16 @@ void printNodes(Gltf& model)
 		     << node.rotation.y << ", "
 		     << node.rotation.z << ", "
 		     << node.rotation.w << " ]" << endl;
+
+		cout << "scale[ "
+		     << node.scale.x << ", "
+		     << node.scale.y << ", "
+		     << node.scale.z << " ]" << endl;
+
+		cout << "translation[ "
+		     << node.translation.x << ", "
+		     << node.translation.y << ", "
+		     << node.translation.z << " ]" << endl;
 	}
 }
 

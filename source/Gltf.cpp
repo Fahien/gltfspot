@@ -716,6 +716,20 @@ void Gltf::initNodes(const json& j)
 			node.rotation = mathspot::Quat{ qvec[0], qvec[1], qvec[2], qvec[3] };
 		}
 
+		// Scale
+		if (n.count("scale"))
+		{
+			auto s = n["scale"].get<vector<float>>();
+			node.scale = mathspot::Vec3{ s[0], s[1], s[2] };
+		}
+
+		// Translation
+		if (n.count("translation"))
+		{
+			auto t = n["translation"].get<vector<float>>();
+			node.translation = mathspot::Vec3{ t[0], t[1], t[2] };
+		}
+
 		mNodes.push_back(node);
 	}
 
