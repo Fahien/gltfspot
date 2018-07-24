@@ -56,6 +56,47 @@ class Gltf
 		Target target     = Target::ARRAY_BUFFER;
 	};
 
+	/// Camera's projection.
+	/// A node can reference a camera to apply a transform to place the camera in the scene
+	struct Camera
+	{
+		/// Orthographic Camera
+		struct Ortographic
+		{
+			/// Horizontal magnification
+			float xmag  = 0.0f;
+			/// Vertical magnification
+			float ymag  = 0.0f;
+			/// Distance to the far clipping plane
+			float zfar  = 0.0f;
+			/// Distance to the near clipping plane
+			float znear = 0.0f;
+		};
+
+		/// Perspective camera
+		struct Perspective
+		{
+			/// Aspect ratio of the field of view
+			float aspectRatio = 1.0f;
+			/// Vertical field of view in radians
+			float yfov        = 0.0f;
+			/// Distance to the far clipping plane
+			float zfar        = 0.0f;
+			/// Distance to the near clipping plane
+			float znear       = 0.0f;
+		};
+
+		/// Orthographic camera
+		Ortographic orthographic;
+		/// Perspective camera
+		Perspective perspective;
+		/// Specifies if the camera uses a perspective or orthographic projection
+		std::string type;
+		/// Name
+		std::string name;
+
+	};
+
 	/// Texture sampler properties for filtering and wrapping modes
 	struct Sampler
 	{
@@ -286,6 +327,9 @@ class Gltf
 	/// @return Buffer views
 	std::vector<BufferView>& GetBufferViews();
 
+	/// @return Cameras
+	std::vector<Camera>& GetCameras() { return mCameras; }
+
 	/// @return Samplers
 	std::vector<Sampler>& GetSamplers();
 
@@ -329,6 +373,10 @@ class Gltf
 	/// Initializes bufferViews
 	/// @param[in] j Json object describing the bufferViews
 	void initBufferViews(const nlohmann::json& j);
+
+	/// Initializes cameras
+	/// @param[in] j Json object describing the cameras
+	void initCameras(const nlohmann::json& j);
 
 	/// Initializes samplers
 	/// @param[in] j Json object describing the samplers
@@ -377,6 +425,9 @@ class Gltf
 
 	/// List of buffer views
 	std::vector<BufferView> mBufferViews{};
+
+	/// List of cameras
+	std::vector<Camera> mCameras;
 
 	/// List of samplers
 	std::vector<Sampler> mSamplers{};

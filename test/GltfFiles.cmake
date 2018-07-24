@@ -54,3 +54,7 @@ download_model(CesiumMilkTruck/glTF/CesiumMilkTruck0.bin)
 # Orientation Test
 download_model(OrientationTest/glTF/OrientationTest.bin)
 download_model(OrientationTest/glTF/OrientationTest.gltf)
+
+# Cameras
+download_model(Cameras/glTF/Cameras.gltf)
+download_model(Cameras/glTF/simpleSquare.bin)

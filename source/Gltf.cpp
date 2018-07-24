@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include <filespot/Ifstream.h>
 
-#include "Gltf.h"
+#include "gltfspot/Gltf.h"
 
 using namespace std;
 using namespace gltfspot;
@@ -15,6 +15,7 @@ Gltf::Gltf(Gltf&& g)
 , mBuffers     { move(g.mBuffers)      }
 , mBuffersCache{ move(g.mBuffersCache) }
 , mBufferViews { move(g.mBufferViews)  }
+, mCameras     { move(g.mCameras)      }
 , mSamplers    { move(g.mSamplers)     }
 , mImages      { move(g.mImages)       }
 , mTextures    { move(g.mTextures)     }
@@ -47,6 +48,12 @@ Gltf::Gltf(const string& path, const json& j)
 	if (j.count("bufferViews"))
 	{
 		initBufferViews(j["bufferViews"]);
+	}
+
+	// Cameras
+	if (j.count("cameras"))
+	{
+		initCameras(j["cameras"]);
 	}
 
 	// Samplers
@@ -177,6 +184,42 @@ void Gltf::initBufferViews(const json& j)
 		}
 
 		mBufferViews.push_back(move(view));
+	}
+}
+
+
+void Gltf::initCameras(const json& j)
+{
+	for (const auto& c : j)
+	{
+		Camera camera;
+
+		// Type
+		camera.type = c["type"].get<string>();
+
+		// Camera
+		if (camera.type == "orthographic")
+		{
+			camera.orthographic.xmag  = c["orthographic"]["xmag"].get<float>();
+			camera.orthographic.ymag  = c["orthographic"]["ymag"].get<float>();
+			camera.orthographic.zfar  = c["orthographic"]["zfar"].get<float>();
+			camera.orthographic.znear = c["orthographic"]["znear"].get<float>();
+		}
+		else
+		{
+			camera.perspective.aspectRatio = c["perspective"]["aspectRatio"].get<float>();
+			camera.perspective.yfov        = c["perspective"]["yfov"].get<float>();
+			camera.perspective.zfar        = c["perspective"]["zfar"].get<float>();
+			camera.perspective.znear       = c["perspective"]["znear"].get<float>();
+		}
+
+		// Name
+		if (c.count("name"))
+		{
+			camera.name = c["name"].get<string>();
+		}
+
+		mCameras.push_back(move(camera));
 	}
 }
 

@@ -3,7 +3,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "Gltf.h"
+#include <gltfspot/Gltf.h>
 
 using namespace std;
 using namespace gltfspot;
@@ -15,7 +15,10 @@ void printJson(const string& path)
 	ifstream i{ path };
 	json j;
 	i >> j;
-	cout << j["asset"]["version"] << endl;
+	if (j.count("asset"))
+	{
+		cout << j["asset"]["version"] << endl;
+	}
 }
 
 
@@ -71,6 +74,17 @@ void printBufferViews(Gltf& model)
 				assert(true);
 			}
 		}
+	}
+}
+
+
+void printCameras(Gltf& model)
+{
+	cout << endl << "# Cameras" << endl;
+
+	for (auto& camera : model.GetCameras())
+	{
+		cout << camera.type << endl;
 	}
 }
 
@@ -259,6 +273,9 @@ int main(int argc, char** argv)
 
 	// BufferView
 	printBufferViews(model);
+
+	// Cameras
+	printCameras(model);
 
 	// Samplers
 	printSamplers(model);
