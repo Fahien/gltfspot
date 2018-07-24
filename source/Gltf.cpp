@@ -676,6 +676,13 @@ void Gltf::initNodes(const json& j)
 			node.name = n["name"].get<string>();
 		}
 
+		// Camera
+		if (n.count("camera"))
+		{
+			unsigned m   = n["camera"];
+			node.pCamera = &(mCameras[m]);
+		}
+
 		// Children
 		if (n.count("children"))
 		{

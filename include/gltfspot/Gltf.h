@@ -276,6 +276,8 @@ class Gltf
 	/// Node in the node hierarchy
 	struct Node
 	{
+		/// Camera referenced by this node
+		Camera* pCamera = nullptr;
 		/// This node's children
 		std::vector<Node*> children;
 		// This node's children indices
