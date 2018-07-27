@@ -1,7 +1,7 @@
 #ifndef GST_GLTF_H_
 #define GST_GLTF_H_
 
-#include <MathSpot.h>
+#include <mathspot/Math.h>
 
 #include "nlohmann/json.hpp"
 
