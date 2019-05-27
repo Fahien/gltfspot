@@ -1,6 +1,6 @@
+#include <filespot/Ifstream.h>
 #include <fstream>
 #include <stdexcept>
-#include <filespot/Ifstream.h>
 
 #include "gltfspot/Gltf.h"
 
@@ -10,129 +10,130 @@ using namespace nlohmann;
 namespace fst = filespot;
 
 
-Gltf::Gltf(Gltf&& g)
-: mPath        { move(g.mPath)         }
-, mBuffers     { move(g.mBuffers)      }
-, mBuffersCache{ move(g.mBuffersCache) }
-, mBufferViews { move(g.mBufferViews)  }
-, mCameras     { move(g.mCameras)      }
-, mSamplers    { move(g.mSamplers)     }
-, mImages      { move(g.mImages)       }
-, mTextures    { move(g.mTextures)     }
-, mAccessors   { move(g.mAccessors)    }
-, mMaterials   { move(g.mMaterials)    }
-, mMeshes      { move(g.mMeshes)       }
-, mNodes       { move(g.mNodes)        }
-, mScenes      { move(g.mScenes)       }
-, mScene       { g.mScene              }
-, asset        { move(g.asset)         }
-{}
+Gltf::Gltf( Gltf&& g )
+    : mPath{ move( g.mPath ) }
+    , mBuffers{ move( g.mBuffers ) }
+    , mBuffersCache{ move( g.mBuffersCache ) }
+    , mBufferViews{ move( g.mBufferViews ) }
+    , mCameras{ move( g.mCameras ) }
+    , mSamplers{ move( g.mSamplers ) }
+    , mImages{ move( g.mImages ) }
+    , mTextures{ move( g.mTextures ) }
+    , mAccessors{ move( g.mAccessors ) }
+    , mMaterials{ move( g.mMaterials ) }
+    , mMeshes{ move( g.mMeshes ) }
+    , mNodes{ move( g.mNodes ) }
+    , mScenes{ move( g.mScenes ) }
+    , mScene{ g.mScene }
+    , asset{ move( g.asset ) }
+{
+}
 
 
-Gltf::Gltf(const string& path, const json& j)
+Gltf::Gltf( const string& path, const json& j )
 {
 	// Get the directory path
-	auto index = path.find_last_of("/\\");
-	mPath = path.substr(0, index);
+	auto index = path.find_last_of( "/\\" );
+	mPath      = path.substr( 0, index );
 
 	// Asset
-	initAsset(j["asset"]);
+	initAsset( j["asset"] );
 
 	// Buffer
-	if (j.count("buffers"))
+	if ( j.count( "buffers" ) )
 	{
-		initBuffers(j["buffers"]);
+		initBuffers( j["buffers"] );
 	}
 
 	// BufferViews
-	if (j.count("bufferViews"))
+	if ( j.count( "bufferViews" ) )
 	{
-		initBufferViews(j["bufferViews"]);
+		initBufferViews( j["bufferViews"] );
 	}
 
 	// Cameras
-	if (j.count("cameras"))
+	if ( j.count( "cameras" ) )
 	{
-		initCameras(j["cameras"]);
+		initCameras( j["cameras"] );
 	}
 
 	// Samplers
-	if (j.count("samplers"))
+	if ( j.count( "samplers" ) )
 	{
-		initSamplers(j["samplers"]);
+		initSamplers( j["samplers"] );
 	}
 
 	// Images
-	if (j.count("images"))
+	if ( j.count( "images" ) )
 	{
-		initImages(j["images"]);
+		initImages( j["images"] );
 	}
 
 	// Textures
-	if (j.count("textures"))
+	if ( j.count( "textures" ) )
 	{
-		initTextures(j["textures"]);
+		initTextures( j["textures"] );
 	}
 
 	// Accessors
-	initAccessors(j["accessors"]);
+	initAccessors( j["accessors"] );
 
 	// Materials
-	if (j.count("materials"))
+	if ( j.count( "materials" ) )
 	{
-		initMaterials(j["materials"]);
+		initMaterials( j["materials"] );
 	}
 
 	// Meshes
-	if (j.count("meshes"))
+	if ( j.count( "meshes" ) )
 	{
-		initMeshes(j["meshes"]);
+		initMeshes( j["meshes"] );
 	}
 
 	// Nodes
-	if (j.count("nodes"))
+	if ( j.count( "nodes" ) )
 	{
-		initNodes(j["nodes"]);
+		initNodes( j["nodes"] );
 	}
 
 	// Scenes
-	if (j.count("scenes"))
+	if ( j.count( "scenes" ) )
 	{
-		initScenes(j["scenes"]);
+		initScenes( j["scenes"] );
 
 		uint64_t uIndex = 0;
-		
-		if (j.count("scene"))
+
+		if ( j.count( "scene" ) )
 		{
 			uIndex = j["scene"].get<uint64_t>();
 		}
-		mScene = &mScenes[static_cast<const unsigned>(uIndex)];
+		mScene = &mScenes[static_cast<const unsigned>( uIndex )];
 	}
 }
 
 
-void Gltf::initAsset(const json& j)
+void Gltf::initAsset( const json& j )
 {
 	// Version (mandatory)
 	asset.version = j["version"].get<string>();
-	
+
 	// Generator
-	if (j.count("generator"))
+	if ( j.count( "generator" ) )
 	{
 		asset.generator = j["generator"].get<string>();
 	}
 
 	// Copyright
-	if (j.count("copyright"))
+	if ( j.count( "copyright" ) )
 	{
 		asset.copyright = j["copyright"].get<string>();
 	}
 }
 
 
-void Gltf::initBuffers(const json& j)
+void Gltf::initBuffers( const json& j )
 {
-	for (const auto& b : j)
+	for ( const auto& b : j )
 	{
 		Buffer buffer;
 
@@ -140,19 +141,24 @@ void Gltf::initBuffers(const json& j)
 		buffer.byteLength = b["byteLength"].get<size_t>();
 
 		// Uri of the binary file to upload
-		if (b.count("uri"))
+		if ( b.count( "uri" ) )
 		{
-			buffer.uri = mPath + "/" + b["uri"].get<string>();
+			buffer.uri = b["uri"].get<string>();
+			// If it is not data
+			if ( buffer.uri.rfind( "data:", 0 ) != 0 )
+			{
+				buffer.uri = mPath + "/" + buffer.uri;
+			}
 		}
 
-		mBuffers.push_back(buffer);
+		mBuffers.push_back( buffer );
 	}
 }
 
 
-void Gltf::initBufferViews(const json& j)
+void Gltf::initBufferViews( const json& j )
 {
-	for (const auto& v : j)
+	for ( const auto& v : j )
 	{
 		BufferView view;
 
@@ -160,37 +166,37 @@ void Gltf::initBufferViews(const json& j)
 		view.buffer = v["buffer"].get<size_t>();
 
 		// Byte offset
-		if (v.count("byteOffset"))
+		if ( v.count( "byteOffset" ) )
 		{
 			view.byteOffset = v["byteOffset"].get<size_t>();
 		}
 
 		// Byte length
-		if (v.count("byteLength"))
+		if ( v.count( "byteLength" ) )
 		{
 			view.byteLength = v["byteLength"].get<size_t>();
 		}
 
 		// Byte stride
-		if (v.count("byteStride"))
+		if ( v.count( "byteStride" ) )
 		{
 			view.byteStride = v["byteStride"].get<size_t>();
 		}
 
 		// Target
-		if (v.count("target"))
+		if ( v.count( "target" ) )
 		{
-			view.target = static_cast<Gltf::BufferView::Target>(v["target"].get<size_t>());
+			view.target = static_cast<Gltf::BufferView::Target>( v["target"].get<size_t>() );
 		}
 
-		mBufferViews.push_back(move(view));
+		mBufferViews.push_back( move( view ) );
 	}
 }
 
 
-void Gltf::initCameras(const json& j)
+void Gltf::initCameras( const json& j )
 {
-	for (const auto& c : j)
+	for ( const auto& c : j )
 	{
 		Camera camera;
 
@@ -198,7 +204,7 @@ void Gltf::initCameras(const json& j)
 		camera.type = c["type"].get<string>();
 
 		// Camera
-		if (camera.type == "orthographic")
+		if ( camera.type == "orthographic" )
 		{
 			camera.orthographic.xmag  = c["orthographic"]["xmag"].get<float>();
 			camera.orthographic.ymag  = c["orthographic"]["ymag"].get<float>();
@@ -214,242 +220,277 @@ void Gltf::initCameras(const json& j)
 		}
 
 		// Name
-		if (c.count("name"))
+		if ( c.count( "name" ) )
 		{
 			camera.name = c["name"].get<string>();
 		}
 
-		mCameras.push_back(move(camera));
+		mCameras.push_back( move( camera ) );
 	}
 }
 
 
-template<>
-string to_string<Gltf::Sampler::Filter>(const Gltf::Sampler::Filter& f)
+template <>
+string to_string<Gltf::Sampler::Filter>( const Gltf::Sampler::Filter& f )
 {
-	switch (f)
+	switch ( f )
 	{
-		case Gltf::Sampler::Filter::NONE                  : return "NONE"                  ;
-		case Gltf::Sampler::Filter::NEAREST               : return "NEAREST"               ;
-		case Gltf::Sampler::Filter::LINEAR                : return "LINEAR"                ;
-		case Gltf::Sampler::Filter::NEAREST_MIPMAP_NEAREST: return "NEAREST_MIPMAP_NEAREST";
-		case Gltf::Sampler::Filter::LINEAR_MIPMAP_NEAREST : return "LINEAR_MIPMAP_NEAREST" ;
-		case Gltf::Sampler::Filter::NEAREST_MIPMAP_LINEAR : return "NEAREST_MIPMAP_LINEAR" ;
-		case Gltf::Sampler::Filter::LINEAR_MIPMAP_LINEAR  : return "LINEAR_MIPMAP_LINEAR"  ;
-		default: return "UNDEFINED";
+		case Gltf::Sampler::Filter::NONE:
+			return "NONE";
+		case Gltf::Sampler::Filter::NEAREST:
+			return "NEAREST";
+		case Gltf::Sampler::Filter::LINEAR:
+			return "LINEAR";
+		case Gltf::Sampler::Filter::NEAREST_MIPMAP_NEAREST:
+			return "NEAREST_MIPMAP_NEAREST";
+		case Gltf::Sampler::Filter::LINEAR_MIPMAP_NEAREST:
+			return "LINEAR_MIPMAP_NEAREST";
+		case Gltf::Sampler::Filter::NEAREST_MIPMAP_LINEAR:
+			return "NEAREST_MIPMAP_LINEAR";
+		case Gltf::Sampler::Filter::LINEAR_MIPMAP_LINEAR:
+			return "LINEAR_MIPMAP_LINEAR";
+		default:
+			return "UNDEFINED";
 	}
 }
 
 
-template<>
-string to_string<Gltf::Sampler::Wrapping>(const Gltf::Sampler::Wrapping& w)
+template <>
+string to_string<Gltf::Sampler::Wrapping>( const Gltf::Sampler::Wrapping& w )
 {
-	switch (w)
+	switch ( w )
 	{
-		case Gltf::Sampler::Wrapping::CLAMP_TO_EDGE  : return "CLAMP_TO_EDGE"  ;
-		case Gltf::Sampler::Wrapping::MIRRORED_REPEAT: return "MIRRORED_REPEAT";
-		case Gltf::Sampler::Wrapping::REPEAT         : return "REPEAT"         ;
-		default: return "UNDEFINED";
+		case Gltf::Sampler::Wrapping::CLAMP_TO_EDGE:
+			return "CLAMP_TO_EDGE";
+		case Gltf::Sampler::Wrapping::MIRRORED_REPEAT:
+			return "MIRRORED_REPEAT";
+		case Gltf::Sampler::Wrapping::REPEAT:
+			return "REPEAT";
+		default:
+			return "UNDEFINED";
 	}
 }
 
 
-template<>
-string to_string<Gltf::Mesh::Primitive::Mode>(const Gltf::Mesh::Primitive::Mode& m)
+template <>
+string to_string<Gltf::Mesh::Primitive::Mode>( const Gltf::Mesh::Primitive::Mode& m )
 {
-	switch (m)
+	switch ( m )
 	{
-		case Gltf::Mesh::Primitive::Mode::POINTS        : return "POINTS"        ;
-		case Gltf::Mesh::Primitive::Mode::LINES         : return "LINES"         ;
-		case Gltf::Mesh::Primitive::Mode::LINE_LOOP     : return "LINE_LOOP"     ;
-		case Gltf::Mesh::Primitive::Mode::LINE_STRIP    : return "LINE_STRIP"    ;
-		case Gltf::Mesh::Primitive::Mode::TRIANGLES     : return "TRIANGLES"     ;
-		case Gltf::Mesh::Primitive::Mode::TRIANGLE_STRIP: return "TRIANGLE_STRIP";
-		case Gltf::Mesh::Primitive::Mode::TRIANGLE_FAN  : return "TRIANGLE_FAN"  ;
-		default: return "UNDEFINED";
+		case Gltf::Mesh::Primitive::Mode::POINTS:
+			return "POINTS";
+		case Gltf::Mesh::Primitive::Mode::LINES:
+			return "LINES";
+		case Gltf::Mesh::Primitive::Mode::LINE_LOOP:
+			return "LINE_LOOP";
+		case Gltf::Mesh::Primitive::Mode::LINE_STRIP:
+			return "LINE_STRIP";
+		case Gltf::Mesh::Primitive::Mode::TRIANGLES:
+			return "TRIANGLES";
+		case Gltf::Mesh::Primitive::Mode::TRIANGLE_STRIP:
+			return "TRIANGLE_STRIP";
+		case Gltf::Mesh::Primitive::Mode::TRIANGLE_FAN:
+			return "TRIANGLE_FAN";
+		default:
+			return "UNDEFINED";
 	}
 }
 
-void Gltf::initSamplers(const json& j)
+void Gltf::initSamplers( const json& j )
 {
-	for (const auto& s : j)
+	for ( const auto& s : j )
 	{
 		Sampler sampler;
 
 		// Mag Filter
-		if (s.count("magFilter"))
+		if ( s.count( "magFilter" ) )
 		{
-			sampler.magFilter = static_cast<Sampler::Filter>(s["magFilter"].get<int>());
+			sampler.magFilter = static_cast<Sampler::Filter>( s["magFilter"].get<int>() );
 		}
 
 		// Min Filter
-		if (s.count("minFilter"))
+		if ( s.count( "minFilter" ) )
 		{
-			sampler.minFilter = static_cast<Sampler::Filter>(s["minFilter"].get<int>());
+			sampler.minFilter = static_cast<Sampler::Filter>( s["minFilter"].get<int>() );
 		}
 
 		// WrapS
-		if (s.count("wrapS"))
+		if ( s.count( "wrapS" ) )
 		{
-			sampler.wrapS = static_cast<Sampler::Wrapping>(s["wrapS"].get<int>());
+			sampler.wrapS = static_cast<Sampler::Wrapping>( s["wrapS"].get<int>() );
 		}
 
 		// WrapT
-		if (s.count("wrapT"))
+		if ( s.count( "wrapT" ) )
 		{
-			sampler.wrapT = static_cast<Sampler::Wrapping>(s["wrapT"].get<int>());
+			sampler.wrapT = static_cast<Sampler::Wrapping>( s["wrapT"].get<int>() );
 		}
 
 		// Name
-		if (s.count("name"))
+		if ( s.count( "name" ) )
 		{
 			sampler.name = s["name"].get<string>();
 		}
 
-		mSamplers.push_back(sampler);
+		mSamplers.push_back( sampler );
 	}
 }
 
 
-void Gltf::initImages(const json& j)
+void Gltf::initImages( const json& j )
 {
-	for (const auto& i : j)
+	for ( const auto& i : j )
 	{
 		Image image;
 
-		if (i.count("uri"))
+		if ( i.count( "uri" ) )
 		{
 			image.uri = i["uri"].get<string>();
 		}
 
-		mImages.push_back(image);
+		if ( i.count( "mimeType" ) )
+		{
+			image.mime_type = i["mimeType"].get<string>();
+		}
+
+		if ( i.count( "bufferView" ) )
+		{
+			image.buffer_view = i["bufferView"].get<uint32_t>();
+		}
+
+		if ( i.count( "name" ) )
+		{
+			image.name = i["name"].get<string>();
+		}
+
+		mImages.push_back( std::move( image ) );
 	}
 }
 
 
-void Gltf::initTextures(const json& j)
+void Gltf::initTextures( const json& j )
 {
-	for (const auto& t : j)
+	for ( const auto& t : j )
 	{
 		Texture texture;
 
 		// Sampler
-		if (t.count("sampler"))
+		if ( t.count( "sampler" ) )
 		{
 			size_t index{ t["sampler"].get<size_t>() };
 			texture.sampler = &mSamplers[index];
 		}
 
 		// Image
-		if (t.count("source"))
+		if ( t.count( "source" ) )
 		{
 			size_t index{ t["source"].get<size_t>() };
 			texture.source = &mImages[index];
 		}
 
 		// Name
-		if (t.count("name"))
+		if ( t.count( "name" ) )
 		{
 			texture.name = t["name"].get<string>();
 		}
 
-		mTextures.push_back(texture);
+		mTextures.push_back( texture );
 	}
 }
 
 
-template<>
-Gltf::Accessor::Type from_string<Gltf::Accessor::Type>(const string& s)
+template <>
+Gltf::Accessor::Type from_string<Gltf::Accessor::Type>( const string& s )
 {
-	if (s == "SCALAR")
+	if ( s == "SCALAR" )
 	{
 		return Gltf::Accessor::Type::SCALAR;
 	}
-	else if (s == "VEC2")
+	else if ( s == "VEC2" )
 	{
 		return Gltf::Accessor::Type::VEC2;
 	}
-	else if (s == "VEC3")
+	else if ( s == "VEC3" )
 	{
 		return Gltf::Accessor::Type::VEC3;
 	}
-	else if (s == "VEC4")
+	else if ( s == "VEC4" )
 	{
 		return Gltf::Accessor::Type::VEC4;
 	}
-	else if (s == "MAT2")
+	else if ( s == "MAT2" )
 	{
 		return Gltf::Accessor::Type::MAT2;
 	}
-	else if (s == "MAT3")
+	else if ( s == "MAT3" )
 	{
 		return Gltf::Accessor::Type::MAT3;
 	}
-	else if (s == "MAT4")
+	else if ( s == "MAT4" )
 	{
 		return Gltf::Accessor::Type::MAT4;
 	}
 	else
 	{
-		assert(true);
+		assert( true );
 		return Gltf::Accessor::Type::NONE;
 	}
 }
 
 
-template<>
-std::string to_string<Gltf::Accessor::Type>(const Gltf::Accessor::Type& t)
+template <>
+std::string to_string<Gltf::Accessor::Type>( const Gltf::Accessor::Type& t )
 {
-	if (t == Gltf::Accessor::Type::SCALAR)
+	if ( t == Gltf::Accessor::Type::SCALAR )
 	{
 		return "SCALAR";
 	}
-	else if (t == Gltf::Accessor::Type::VEC2)
+	else if ( t == Gltf::Accessor::Type::VEC2 )
 	{
 		return "VEC2";
 	}
-	else if (t == Gltf::Accessor::Type::VEC3)
+	else if ( t == Gltf::Accessor::Type::VEC3 )
 	{
 		return "VEC3";
 	}
-	else if (t == Gltf::Accessor::Type::VEC4)
+	else if ( t == Gltf::Accessor::Type::VEC4 )
 	{
 		return "VEC4";
 	}
-	else if (t == Gltf::Accessor::Type::MAT2)
+	else if ( t == Gltf::Accessor::Type::MAT2 )
 	{
 		return "MAT2";
 	}
-	else if (t == Gltf::Accessor::Type::MAT3)
+	else if ( t == Gltf::Accessor::Type::MAT3 )
 	{
 		return "MAT3";
 	}
-	else if (t == Gltf::Accessor::Type::MAT4)
+	else if ( t == Gltf::Accessor::Type::MAT4 )
 	{
 		return "MAT4";
 	}
 	else
 	{
-		assert(true);
+		assert( true );
 		return "NONE";
 	}
 }
 
 
-void Gltf::initAccessors(const json& j)
+void Gltf::initAccessors( const json& j )
 {
-	for (const auto& a : j)
+	for ( const auto& a : j )
 	{
 		Accessor accessor;
 
 		// Buffer view
-		if (a.count("bufferView"))
+		if ( a.count( "bufferView" ) )
 		{
 			accessor.bufferView = a["bufferView"].get<size_t>();
 		}
 
 		// Byte offset
-		if (a.count("byteOffset"))
+		if ( a.count( "byteOffset" ) )
 		{
 			accessor.byteOffset = a["byteOffset"].get<size_t>();
 		}
@@ -461,241 +502,241 @@ void Gltf::initAccessors(const json& j)
 		accessor.count = a["count"].get<size_t>();
 
 		// Type
-		accessor.type = from_string<Gltf::Accessor::Type>(a["type"].get<string>());
+		accessor.type = from_string<Gltf::Accessor::Type>( a["type"].get<string>() );
 
 		// Max
-		if (a.count("max"))
+		if ( a.count( "max" ) )
 		{
-			for (const auto& value : a["max"])
+			for ( const auto& value : a["max"] )
 			{
-				accessor.max.push_back(value.get<float>());
+				accessor.max.push_back( value.get<float>() );
 			}
 		}
 
 		// Min
-		if (a.count("min"))
+		if ( a.count( "min" ) )
 		{
-			for (const auto& value : a["min"])
+			for ( const auto& value : a["min"] )
 			{
-				accessor.min.push_back(value.get<float>());
+				accessor.min.push_back( value.get<float>() );
 			}
 		}
 
-		mAccessors.push_back(accessor);
+		mAccessors.push_back( accessor );
 	}
 }
 
 
-void Gltf::initMaterials(const json& j)
+void Gltf::initMaterials( const json& j )
 {
-	for (const auto& m : j)
+	for ( const auto& m : j )
 	{
 		Gltf::Material material;
 
 		// Name
-		if (m.count("name"))
+		if ( m.count( "name" ) )
 		{
 			material.name = m["name"].get<string>();
 		}
 
 		// PbrMetallicRoughness
-		if (m.count("pbrMetallicRoughness"))
+		if ( m.count( "pbrMetallicRoughness" ) )
 		{
 			auto& mr = m["pbrMetallicRoughness"];
 
-			if (mr.count("baseColorFactor"))
+			if ( mr.count( "baseColorFactor" ) )
 			{
 				material.pbrMetallicRoughness.baseColorFactor = mr["baseColorFactor"].get<vector<float>>();
 			}
 
-			if (mr.count("baseColorTexture"))
+			if ( mr.count( "baseColorTexture" ) )
 			{
 				size_t index{ mr["baseColorTexture"]["index"].get<size_t>() };
 				material.pbrMetallicRoughness.baseColorTexture = &mTextures[index];
 			}
 
-			if (mr.count("metallicFactor"))
+			if ( mr.count( "metallicFactor" ) )
 			{
 				material.pbrMetallicRoughness.metallicFactor = mr["metallicFactor"].get<float>();
 			}
 
-			if (mr.count("roughnessFactor"))
+			if ( mr.count( "roughnessFactor" ) )
 			{
 				material.pbrMetallicRoughness.roughnessFactor = mr["roughnessFactor"].get<float>();
 			}
 		}
 
-		mMaterials.push_back(material);
+		mMaterials.push_back( material );
 	}
 }
 
 
-template<>
-Gltf::Mesh::Primitive::Semantic from_string<Gltf::Mesh::Primitive::Semantic>(const std::string& s)
+template <>
+Gltf::Mesh::Primitive::Semantic from_string<Gltf::Mesh::Primitive::Semantic>( const std::string& s )
 {
-	if (s == "POSITION")
+	if ( s == "POSITION" )
 	{
 		return Gltf::Mesh::Primitive::Semantic::POSITION;
 	}
-	else if (s == "NORMAL")
+	else if ( s == "NORMAL" )
 	{
 		return Gltf::Mesh::Primitive::Semantic::NORMAL;
 	}
-	else if (s == "TANGENT")
+	else if ( s == "TANGENT" )
 	{
 		return Gltf::Mesh::Primitive::Semantic::TANGENT;
 	}
-	else if (s == "TEXCOORD_0")
+	else if ( s == "TEXCOORD_0" )
 	{
 		return Gltf::Mesh::Primitive::Semantic::TEXCOORD_0;
 	}
-	else if (s == "TEXCOORD_1")
+	else if ( s == "TEXCOORD_1" )
 	{
 		return Gltf::Mesh::Primitive::Semantic::TEXCOORD_1;
 	}
-	else if (s == "COLOR_0")
+	else if ( s == "COLOR_0" )
 	{
 		return Gltf::Mesh::Primitive::Semantic::COLOR_0;
 	}
-	else if (s == "JOINTS_0")
+	else if ( s == "JOINTS_0" )
 	{
 		return Gltf::Mesh::Primitive::Semantic::JOINTS_0;
 	}
-	else if (s == "WEIGHTS_0")
+	else if ( s == "WEIGHTS_0" )
 	{
 		return Gltf::Mesh::Primitive::Semantic::WEIGHTS_0;
 	}
 	else
 	{
-		assert(true);
+		assert( true );
 		return Gltf::Mesh::Primitive::Semantic::NONE;
 	}
 }
 
 
-template<>
-std::string to_string<Gltf::Mesh::Primitive::Semantic>(const Gltf::Mesh::Primitive::Semantic& s)
+template <>
+std::string to_string<Gltf::Mesh::Primitive::Semantic>( const Gltf::Mesh::Primitive::Semantic& s )
 {
-	if (s == Gltf::Mesh::Primitive::Semantic::POSITION)
+	if ( s == Gltf::Mesh::Primitive::Semantic::POSITION )
 	{
 		return "POSITION";
 	}
-	else if (s == Gltf::Mesh::Primitive::Semantic::NORMAL)
+	else if ( s == Gltf::Mesh::Primitive::Semantic::NORMAL )
 	{
 		return "NORMAL";
 	}
-	else if (s == Gltf::Mesh::Primitive::Semantic::TANGENT)
+	else if ( s == Gltf::Mesh::Primitive::Semantic::TANGENT )
 	{
 		return "TANGENT";
 	}
-	else if (s == Gltf::Mesh::Primitive::Semantic::TEXCOORD_0)
+	else if ( s == Gltf::Mesh::Primitive::Semantic::TEXCOORD_0 )
 	{
 		return "TEXCOORD_0";
 	}
-	else if (s == Gltf::Mesh::Primitive::Semantic::TEXCOORD_1)
+	else if ( s == Gltf::Mesh::Primitive::Semantic::TEXCOORD_1 )
 	{
 		return "TEXCOORD_1";
 	}
-	else if (s == Gltf::Mesh::Primitive::Semantic::COLOR_0)
+	else if ( s == Gltf::Mesh::Primitive::Semantic::COLOR_0 )
 	{
 		return "COLOR_0";
 	}
-	else if (s == Gltf::Mesh::Primitive::Semantic::JOINTS_0)
+	else if ( s == Gltf::Mesh::Primitive::Semantic::JOINTS_0 )
 	{
 		return "JOINTS_0";
 	}
-	else if (s == Gltf::Mesh::Primitive::Semantic::WEIGHTS_0)
+	else if ( s == Gltf::Mesh::Primitive::Semantic::WEIGHTS_0 )
 	{
 		return "WEIGHTS_0";
 	}
 	else
 	{
-		assert(true);
+		assert( true );
 		return "NONE";
 	}
 }
 
 
-void Gltf::initMeshes(const json& j)
+void Gltf::initMeshes( const json& j )
 {
-	for (const auto& m : j)
+	for ( const auto& m : j )
 	{
 		Gltf::Mesh mesh;
 
 		// Name
-		if (m.count("name"))
+		if ( m.count( "name" ) )
 		{
 			mesh.name = m["name"].get<string>();
 		}
 
 		// Primitives
-		for (const auto& p : m["primitives"])
+		for ( const auto& p : m["primitives"] )
 		{
 			Gltf::Mesh::Primitive primitive;
 
 			auto attributes = p["attributes"].get<map<string, unsigned>>();
 
-			for (const auto& a : attributes)
+			for ( const auto& a : attributes )
 			{
-				auto semantic = from_string<Gltf::Mesh::Primitive::Semantic>(a.first);
-				primitive.attributes.emplace(semantic, a.second);
+				auto semantic = from_string<Gltf::Mesh::Primitive::Semantic>( a.first );
+				primitive.attributes.emplace( semantic, a.second );
 			}
 
-			if (p.count("indices"))
+			if ( p.count( "indices" ) )
 			{
 				primitive.indices = p["indices"].get<unsigned>();
 			}
 
-			if (p.count("material"))
+			if ( p.count( "material" ) )
 			{
 				primitive.material = p["material"].get<unsigned>();
 			}
 
-			if (p.count("mode"))
+			if ( p.count( "mode" ) )
 			{
 				primitive.mode = p["mode"].get<Gltf::Mesh::Primitive::Mode>();
 			}
 
-			mesh.primitives.push_back(primitive);
+			mesh.primitives.push_back( primitive );
 		}
 
-		mMeshes.push_back(mesh);
+		mMeshes.push_back( mesh );
 	}
 }
 
 
-void Gltf::initNodes(const json& j)
+void Gltf::initNodes( const json& j )
 {
-	for (const auto& n : j)
+	for ( const auto& n : j )
 	{
 		Gltf::Node node;
 
 		// Name
-		if (n.count("name"))
+		if ( n.count( "name" ) )
 		{
 			node.name = n["name"].get<string>();
 		}
 
 		// Camera
-		if (n.count("camera"))
+		if ( n.count( "camera" ) )
 		{
 			unsigned m   = n["camera"];
-			node.pCamera = &(mCameras[m]);
+			node.pCamera = &( mCameras[m] );
 		}
 
 		// Children
-		if (n.count("children"))
+		if ( n.count( "children" ) )
 		{
 			node.childrenIndices = n["children"].get<vector<unsigned>>();
 		}
 
 		// Matrix
-		if (n.count("matrix"))
+		if ( n.count( "matrix" ) )
 		{
 			// TODO Improve this
-			auto mvec = n["matrix"].get<vector<float>>();
+			auto             mvec = n["matrix"].get<vector<float>>();
 			array<float, 16> marr;
-			for (unsigned i{ 0 }; i < 16; ++i)
+			for ( unsigned i{ 0 }; i < 16; ++i )
 			{
 				marr[i] = mvec[i];
 			}
@@ -703,114 +744,199 @@ void Gltf::initNodes(const json& j)
 		}
 
 		// Mesh
-		if (n.count("mesh"))
+		if ( n.count( "mesh" ) )
 		{
 			unsigned m = n["mesh"];
-			node.pMesh = &(mMeshes[m]);
+			node.pMesh = &( mMeshes[m] );
 		}
 
 		// Rotation
-		if (n.count("rotation"))
+		if ( n.count( "rotation" ) )
 		{
-			auto qvec = n["rotation"].get<vector<float>>();
+			auto qvec     = n["rotation"].get<vector<float>>();
 			node.rotation = mathspot::Quat{ qvec[0], qvec[1], qvec[2], qvec[3] };
 		}
 
 		// Scale
-		if (n.count("scale"))
+		if ( n.count( "scale" ) )
 		{
-			auto s = n["scale"].get<vector<float>>();
+			auto s     = n["scale"].get<vector<float>>();
 			node.scale = mathspot::Vec3{ s[0], s[1], s[2] };
 		}
 
 		// Translation
-		if (n.count("translation"))
+		if ( n.count( "translation" ) )
 		{
-			auto t = n["translation"].get<vector<float>>();
+			auto t           = n["translation"].get<vector<float>>();
 			node.translation = mathspot::Vec3{ t[0], t[1], t[2] };
 		}
 
-		mNodes.push_back(node);
+		mNodes.push_back( node );
 	}
 
 	// Solve nodes children
-	for (auto& node : mNodes)
+	for ( auto& node : mNodes )
 	{
-		for (auto nodeIndex : node.childrenIndices)
+		for ( auto nodeIndex : node.childrenIndices )
 		{
 			auto pNode = &mNodes[nodeIndex];
 			// A node should not be its own parent
-			if (pNode != &node)
+			if ( pNode != &node )
 			{
-				node.children.push_back(pNode);
+				node.children.push_back( pNode );
 			}
 		}
 	}
 }
 
 
-void Gltf::initScenes(const json& j)
+void Gltf::initScenes( const json& j )
 {
-	for (const auto& s : j)
+	for ( const auto& s : j )
 	{
 		Gltf::Scene scene;
 
 		// Name
-		if (s.count("name"))
+		if ( s.count( "name" ) )
 		{
 			scene.name = s["name"].get<string>();
 		}
 
 		// Nodes
-		if (s.count("nodes"))
+		if ( s.count( "nodes" ) )
 		{
 			auto nodesIndices = s["nodes"].get<vector<uint64_t>>();
-			for (auto nodeIndex : nodesIndices)
+			for ( auto nodeIndex : nodesIndices )
 			{
-				auto pNode = &(mNodes[static_cast<const unsigned>(nodeIndex)]);
-				scene.nodes.push_back(pNode);
+				auto pNode = &( mNodes[static_cast<const unsigned>( nodeIndex )] );
+				scene.nodes.push_back( pNode );
 			}
 		}
 
-		mScenes.push_back(scene);
+		mScenes.push_back( scene );
 	}
 }
 
 
-auto Gltf::loadBuffer(const size_t i)
+const std::string base64_chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz"
+    "0123456789+/";
+
+
+inline bool is_base64( const char c )
 {
-	Buffer& b{ mBuffers[i] };
+	return ( isalnum( c ) || ( c == '+' ) || ( c == '/' ) );
+}
 
-	fst::Ifstream file{ b.uri, ios::binary };
-	auto buffer = file.Read(b.byteLength);
+std::vector<char> base64_decode( const std::string& encoded_string )
+{
+	auto              in_len = encoded_string.size();
+	int               i      = 0;
+	int               j      = 0;
+	int               in_    = 0;
+	char              char_array_4[4], char_array_3[3];
+	std::vector<char> ret;
 
-	return mBuffersCache.emplace(i, move(buffer));
+	while ( in_len-- && ( encoded_string[in_] != '=' ) && is_base64( encoded_string[in_] ) )
+	{
+		char_array_4[i++] = encoded_string[in_];
+		in_++;
+		if ( i == 4 )
+		{
+			for ( i = 0; i < 4; i++ )
+			{
+				char_array_4[i] = base64_chars.find( char_array_4[i] );
+			}
+
+			char_array_3[0] = ( char_array_4[0] << 2 ) + ( ( char_array_4[1] & 0x30 ) >> 4 );
+			char_array_3[1] = ( ( char_array_4[1] & 0xf ) << 4 ) + ( ( char_array_4[2] & 0x3c ) >> 2 );
+			char_array_3[2] = ( ( char_array_4[2] & 0x3 ) << 6 ) + char_array_4[3];
+
+			for ( i = 0; ( i < 3 ); i++ )
+			{
+				ret.push_back( char_array_3[i] );
+			}
+			i = 0;
+		}
+	}
+
+	if ( i )
+	{
+		for ( j = i; j < 4; j++ )
+		{
+			char_array_4[j] = 0;
+		}
+
+		for ( j = 0; j < 4; j++ )
+		{
+			char_array_4[j] = base64_chars.find( char_array_4[j] );
+		}
+
+		char_array_3[0] = ( char_array_4[0] << 2 ) + ( ( char_array_4[1] & 0x30 ) >> 4 );
+		char_array_3[1] = ( ( char_array_4[1] & 0xf ) << 4 ) + ( ( char_array_4[2] & 0x3c ) >> 2 );
+		char_array_3[2] = ( ( char_array_4[2] & 0x3 ) << 6 ) + char_array_4[3];
+
+		for ( j = 0; ( j < i - 1 ); j++ )
+		{
+			ret.push_back( char_array_3[j] );
+		}
+	}
+
+	return ret;
 }
 
 
-Gltf Gltf::Load(const string& path)
+auto Gltf::loadBuffer( const size_t i )
+{
+	auto& b = mBuffers[i];
+
+	// Check if it is data
+	if ( b.uri.rfind( "data:", 0 ) == 0 )
+	{
+		// It is data, find the position of comma
+		auto comma_pos = b.uri.find_first_of( ',', 5 );
+		if ( comma_pos == std::string::npos )
+		{
+			// Error, data not good
+			throw std::runtime_error{ "Data URI not valid" };
+		}
+
+		// Assume it is base64
+		auto buffer = base64_decode( b.uri.substr( comma_pos + 1 ) );
+		return mBuffersCache.emplace( i, move( buffer ) );
+	}
+
+	fst::Ifstream file{ b.uri, ios::binary };
+	auto          buffer = file.Read( b.byteLength );
+
+	return mBuffersCache.emplace( i, move( buffer ) );
+}
+
+
+Gltf Gltf::Load( const string& path )
 {
 	// read a JSON file
 	fst::Ifstream i{ path };
-	json j;
+	json          j;
 	i >> j;
 	Gltf model{ path, j };
 	return model;
 }
 
 
-vector<char>& Gltf::GetBuffer(const size_t i)
+vector<char>& Gltf::GetBuffer( const size_t i )
 {
-	if (mBuffersCache.count(i))
+	if ( mBuffersCache.count( i ) )
 	{
 		return mBuffersCache[i];
 	}
 
-	auto pair = loadBuffer(i); // (iterator, bool)
-	if (pair.second) // success
+	auto pair = loadBuffer( i );  // (iterator, bool)
+	if ( pair.second )            // success
 	{
 		// (key, value)
-		return (pair.first->second);
+		return ( pair.first->second );
 	}
 
 	throw out_of_range{ "Could not find the buffer" };

@@ -7,12 +7,10 @@
 
 namespace gltfspot
 {
-
 /// GL Transmission Format
 class Gltf
 {
   public:
-
 	/// Metadata about the glTF asset
 	struct Asset
 	{
@@ -45,7 +43,7 @@ class Gltf
 		};
 
 		/// Index of the buffer
-		size_t buffer     = 0;
+		size_t buffer = 0;
 		/// Offset into the buffer in bytes
 		size_t byteOffset = 0;
 		/// Length of the bufferView in bytes
@@ -53,7 +51,7 @@ class Gltf
 		/// Stride, in bytes
 		size_t byteStride = 0;
 		/// Target that the GPU buffer should be bound to
-		Target target     = Target::ARRAY_BUFFER;
+		Target target = Target::ARRAY_BUFFER;
 	};
 
 	/// Camera's projection.
@@ -64,11 +62,11 @@ class Gltf
 		struct Ortographic
 		{
 			/// Horizontal magnification
-			float xmag  = 0.0f;
+			float xmag = 0.0f;
 			/// Vertical magnification
-			float ymag  = 0.0f;
+			float ymag = 0.0f;
 			/// Distance to the far clipping plane
-			float zfar  = 0.0f;
+			float zfar = 0.0f;
 			/// Distance to the near clipping plane
 			float znear = 0.0f;
 		};
@@ -79,11 +77,11 @@ class Gltf
 			/// Aspect ratio of the field of view
 			float aspectRatio = 1.0f;
 			/// Vertical field of view in radians
-			float yfov        = 0.0f;
+			float yfov = 0.0f;
 			/// Distance to the far clipping plane
-			float zfar        = 0.0f;
+			float zfar = 0.0f;
 			/// Distance to the near clipping plane
-			float znear       = 0.0f;
+			float znear = 0.0f;
 		};
 
 		/// Orthographic camera
@@ -94,7 +92,6 @@ class Gltf
 		std::string type;
 		/// Name
 		std::string name;
-
 	};
 
 	/// Texture sampler properties for filtering and wrapping modes
@@ -103,9 +100,9 @@ class Gltf
 		/// Magnification/Minification filter
 		enum class Filter
 		{
-			NONE    = 0,
-			NEAREST = 9728,
-			LINEAR  = 9729,
+			NONE                   = 0,
+			NEAREST                = 9728,
+			LINEAR                 = 9729,
 			NEAREST_MIPMAP_NEAREST = 9984,
 			LINEAR_MIPMAP_NEAREST  = 9985,
 			NEAREST_MIPMAP_LINEAR  = 9986,
@@ -117,7 +114,7 @@ class Gltf
 		{
 			CLAMP_TO_EDGE   = 33071,
 			MIRRORED_REPEAT = 33648,
-			REPEAT = 10497
+			REPEAT          = 10497
 		};
 
 		/// Magnification filter
@@ -136,7 +133,16 @@ class Gltf
 	struct Image
 	{
 		/// Uri of the image
-		std::string uri;
+		std::string uri = "";
+
+		/// MIME type
+		std::string mime_type = "";
+
+		/// Buffer view index
+		uint32_t buffer_view = 0;
+
+		/// Name
+		std::string name = "";
 	};
 
 	/// Texture and its sampler
@@ -145,7 +151,7 @@ class Gltf
 		/// Sampler used by this texture
 		Sampler* sampler = nullptr;
 		/// Image used by this texture
-		Image*   source   = nullptr;
+		Image* source = nullptr;
 		/// User-defined name of this object
 		std::string name;
 	};
@@ -256,9 +262,9 @@ class Gltf
 			unsigned material;
 			/// Type of primitives to render
 			Mode mode = Mode::TRIANGLES;
-			/// targets TODO An array of Morph Targets, each Morph Target is a dictionary mapping attributes (only POSITION, NORMAL, and TANGENT supported) to their deviations in the Morph Target
-			/// extensions TODO Dictionary object with extension-specific objects
-			/// Application-specific data
+			/// targets TODO An array of Morph Targets, each Morph Target is a dictionary mapping attributes (only POSITION,
+			/// NORMAL, and TANGENT supported) to their deviations in the Morph Target extensions TODO Dictionary object with
+			/// extension-specific objects Application-specific data
 			void* extras;
 		};
 
@@ -291,7 +297,7 @@ class Gltf
 		/// Non-uniform scale
 		mathspot::Vec3 scale = mathspot::Vec3{ 1.0f, 1.0f, 1.0f };
 		/// Translation
-		mathspot::Vec3 translation = mathspot::Vec3{ 0.0f, 0.0f , 0.0f };
+		mathspot::Vec3 translation = mathspot::Vec3{ 0.0f, 0.0f, 0.0f };
 		/// User-defined name of this object
 		std::string name;
 	};
@@ -307,28 +313,28 @@ class Gltf
 
 	/// Move contructs a Gltf object
 	/// @param[in] g Gltf object
-	Gltf(Gltf&& g);
+	Gltf( Gltf&& g );
 
 	/// Constructs a Gltf object
 	/// @param[in] path Gltf file path
 	/// @param[in] j Json object describing the model
-	Gltf(const std::string& path, const nlohmann::json& j);
+	Gltf( const std::string& path, const nlohmann::json& j );
 
 	// Delete copy constructor and assignment
-	Gltf(const Gltf&) = delete;
-	Gltf& operator=(const Gltf&) = delete;
+	Gltf( const Gltf& ) = delete;
+	Gltf& operator=( const Gltf& ) = delete;
 
 	/// Loads a GLtf model from path
 	/// @param[in] path Gltf file path
 	/// @return A Gltf model
-	static Gltf Load(const std::string& path);
+	static Gltf Load( const std::string& path );
 
 	/// @return The Path
 	const std::string& GetPath();
 
 	/// @param[in] i Index of the buffer
 	/// @return Buffer number i
-	std::vector<char>& GetBuffer(const size_t i);
+	std::vector<char>& GetBuffer( const size_t i );
 
 	/// @return Buffer views
 	std::vector<BufferView>& GetBufferViews();
@@ -367,58 +373,57 @@ class Gltf
 	Asset asset;
 
   private:
-
 	/// Initializes asset
 	/// @param[in] j Json object describing the asset
-	void initAsset(const nlohmann::json& j);
+	void initAsset( const nlohmann::json& j );
 
 	/// Initializes buffers
 	/// @param[in] j Json object describing the buffers
-	void initBuffers(const nlohmann::json& j);
+	void initBuffers( const nlohmann::json& j );
 
 	/// Initializes bufferViews
 	/// @param[in] j Json object describing the bufferViews
-	void initBufferViews(const nlohmann::json& j);
+	void initBufferViews( const nlohmann::json& j );
 
 	/// Initializes cameras
 	/// @param[in] j Json object describing the cameras
-	void initCameras(const nlohmann::json& j);
+	void initCameras( const nlohmann::json& j );
 
 	/// Initializes samplers
 	/// @param[in] j Json object describing the samplers
-	void initSamplers(const nlohmann::json& j);
+	void initSamplers( const nlohmann::json& j );
 
 	/// Initializes images
 	/// @param[in] j Json object describing the images
-	void initImages(const nlohmann::json& j);
+	void initImages( const nlohmann::json& j );
 
 	/// Initializes textures
 	/// @param[in] j Json object describing the textures
-	void initTextures(const nlohmann::json& j);
+	void initTextures( const nlohmann::json& j );
 
 	/// Initializes accessors
 	/// @param[in] j Json object describing the accessors
-	void initAccessors(const nlohmann::json& j);
+	void initAccessors( const nlohmann::json& j );
 
 	/// Initializes materials
 	/// @param[in] j Json object describing the materials
-	void initMaterials(const nlohmann::json& j);
+	void initMaterials( const nlohmann::json& j );
 
 	/// Initializes meshes
 	/// @param[in] j Json object describing the meshes
-	void initMeshes(const nlohmann::json& j);
+	void initMeshes( const nlohmann::json& j );
 
 	/// Initializes nodes
 	/// @param[in] j Json object describing the nodes
-	void initNodes(const nlohmann::json& j);
+	void initNodes( const nlohmann::json& j );
 
 	/// Initializes scenes
 	/// @param[in] j Json object describing the scenes
-	void initScenes(const nlohmann::json& j);
+	void initScenes( const nlohmann::json& j );
 
 	/// Loads a buffer in the cache
 	/// @param[in] i Index of the buffer
-	auto loadBuffer(const size_t i);
+	auto loadBuffer( const size_t i );
 
 	/// Directory path of the gltf file
 	std::string mPath{};
@@ -464,33 +469,33 @@ class Gltf
 };
 
 
-}
+}  // namespace gltfspot
 
-template<typename T>
-T from_string(const std::string& s);
+template <typename T>
+T from_string( const std::string& s );
 
-template<typename T>
-std::string to_string(const T& t);
+template <typename T>
+std::string to_string( const T& t );
 
-template<>
-gltfspot::Gltf::Accessor::Type from_string<gltfspot::Gltf::Accessor::Type>(const std::string& s);
+template <>
+gltfspot::Gltf::Accessor::Type from_string<gltfspot::Gltf::Accessor::Type>( const std::string& s );
 
-template<>
-std::string to_string<gltfspot::Gltf::Accessor::Type>(const gltfspot::Gltf::Accessor::Type& t);
+template <>
+std::string to_string<gltfspot::Gltf::Accessor::Type>( const gltfspot::Gltf::Accessor::Type& t );
 
-template<>
-gltfspot::Gltf::Mesh::Primitive::Semantic from_string<gltfspot::Gltf::Mesh::Primitive::Semantic>(const std::string& s);
+template <>
+gltfspot::Gltf::Mesh::Primitive::Semantic from_string<gltfspot::Gltf::Mesh::Primitive::Semantic>( const std::string& s );
 
-template<>
-std::string to_string<gltfspot::Gltf::Mesh::Primitive::Semantic>(const gltfspot::Gltf::Mesh::Primitive::Semantic& s);
+template <>
+std::string to_string<gltfspot::Gltf::Mesh::Primitive::Semantic>( const gltfspot::Gltf::Mesh::Primitive::Semantic& s );
 
-template<>
-std::string to_string<gltfspot::Gltf::Sampler::Filter>(const gltfspot::Gltf::Sampler::Filter& f);
+template <>
+std::string to_string<gltfspot::Gltf::Sampler::Filter>( const gltfspot::Gltf::Sampler::Filter& f );
 
-template<>
-std::string to_string<gltfspot::Gltf::Sampler::Wrapping>(const gltfspot::Gltf::Sampler::Wrapping& w);
+template <>
+std::string to_string<gltfspot::Gltf::Sampler::Wrapping>( const gltfspot::Gltf::Sampler::Wrapping& w );
 
-template<>
-std::string to_string<gltfspot::Gltf::Mesh::Primitive::Mode>(const gltfspot::Gltf::Mesh::Primitive::Mode& m);
+template <>
+std::string to_string<gltfspot::Gltf::Mesh::Primitive::Mode>( const gltfspot::Gltf::Mesh::Primitive::Mode& m );
 
-#endif // GST_GLTF_H_
+#endif  // GST_GLTF_H_
