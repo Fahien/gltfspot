@@ -30,7 +30,7 @@ Gltf::Gltf( Gltf&& g )
 }
 
 
-Gltf::Gltf( const string& path, const json& j )
+Gltf::Gltf( const json& j, const string& path )
 {
 	// Get the directory path
 	auto index = path.find_last_of( "/\\" );
@@ -920,7 +920,7 @@ Gltf Gltf::Load( const string& path )
 	fst::Ifstream i{ path };
 	json          j;
 	i >> j;
-	Gltf model{ path, j };
+	Gltf model{ j, path };
 	return model;
 }
 

@@ -316,9 +316,9 @@ class Gltf
 	Gltf( Gltf&& g );
 
 	/// Constructs a Gltf object
-	/// @param[in] path Gltf file path
 	/// @param[in] j Json object describing the model
-	Gltf( const std::string& path, const nlohmann::json& j );
+	/// @param[in] path Gltf file path
+	Gltf( const nlohmann::json& j, const std::string& path = "." );
 
 	// Delete copy constructor and assignment
 	Gltf( const Gltf& ) = delete;
