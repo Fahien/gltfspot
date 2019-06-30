@@ -91,7 +91,7 @@ class Gltf
 		/// Specifies if the camera uses a perspective or orthographic projection
 		std::string type;
 		/// Name
-		std::string name;
+		std::string name = "unknown";
 	};
 
 	/// Texture sampler properties for filtering and wrapping modes
@@ -126,7 +126,7 @@ class Gltf
 		/// T wrapping mode
 		Wrapping wrapT = Wrapping::REPEAT;
 		/// User-defined name of this object
-		std::string name;
+		std::string name = "unknown";
 	};
 
 	/// Image data used to create a texture
@@ -142,7 +142,7 @@ class Gltf
 		uint32_t buffer_view = 0;
 
 		/// Name
-		std::string name = "";
+		std::string name = "unknown";
 	};
 
 	/// Texture and its sampler
@@ -153,7 +153,7 @@ class Gltf
 		/// Image used by this texture
 		Image* source = nullptr;
 		/// User-defined name of this object
-		std::string name;
+		std::string name = "unknown";
 	};
 
 	/// Typed view into a bufferView
@@ -216,7 +216,7 @@ class Gltf
 		};
 
 		/// User-defined name of this object
-		std::string name;
+		std::string name = "unknown";
 		/// Metallic-Roughness Material
 		PbrMetallicRoughness pbrMetallicRoughness;
 	};
@@ -273,7 +273,7 @@ class Gltf
 		/// Array of weights to be applied to the Morph Targets
 		std::vector<float> weights;
 		/// User-defined name of this object
-		std::string name;
+		std::string name = "unknown";
 		/// extensions TODO Dictionary object with extension-specific objects
 		/// extras TODO Application-specific data
 		void* extras;
@@ -299,7 +299,7 @@ class Gltf
 		/// Translation
 		mathspot::Vec3 translation = mathspot::Vec3{ 0.0f, 0.0f, 0.0f };
 		/// User-defined name of this object
-		std::string name;
+		std::string name = "unknown";
 	};
 
 	/// Root nodes of a scene
