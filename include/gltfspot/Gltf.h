@@ -313,7 +313,11 @@ class Gltf
 
 	/// Move contructs a Gltf object
 	/// @param[in] g Gltf object
-	Gltf( Gltf&& g );
+	Gltf( Gltf&& g ) = default;
+
+	/// Move assign a Gltf object
+	/// @param[in] g Gltf object
+	Gltf& operator=( Gltf&& g ) = default;
 
 	/// Constructs a Gltf object
 	/// @param[in] j Json object describing the model

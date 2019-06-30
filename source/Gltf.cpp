@@ -10,26 +10,6 @@ using namespace nlohmann;
 namespace fst = filespot;
 
 
-Gltf::Gltf( Gltf&& g )
-    : mPath{ move( g.mPath ) }
-    , mBuffers{ move( g.mBuffers ) }
-    , mBuffersCache{ move( g.mBuffersCache ) }
-    , mBufferViews{ move( g.mBufferViews ) }
-    , mCameras{ move( g.mCameras ) }
-    , mSamplers{ move( g.mSamplers ) }
-    , mImages{ move( g.mImages ) }
-    , mTextures{ move( g.mTextures ) }
-    , mAccessors{ move( g.mAccessors ) }
-    , mMaterials{ move( g.mMaterials ) }
-    , mMeshes{ move( g.mMeshes ) }
-    , mNodes{ move( g.mNodes ) }
-    , mScenes{ move( g.mScenes ) }
-    , mScene{ g.mScene }
-    , asset{ move( g.asset ) }
-{
-}
-
-
 Gltf::Gltf( const json& j, const string& path )
 {
 	// Get the directory path
