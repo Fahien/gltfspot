@@ -181,10 +181,11 @@ void Gltf::initCameras( const json& j )
 		Camera camera;
 
 		// Type
-		camera.type = c["type"].get<string>();
+		auto type   = c["type"].get<string>();
+		camera.type = ( type == "orthographic" ) ? Camera::Type::Ortographic : Camera::Type::Perspective;
 
 		// Camera
-		if ( camera.type == "orthographic" )
+		if ( camera.type == Camera::Type::Ortographic )
 		{
 			camera.orthographic.xmag  = c["orthographic"]["xmag"].get<float>();
 			camera.orthographic.ymag  = c["orthographic"]["ymag"].get<float>();
@@ -707,7 +708,7 @@ void Gltf::initNodes( const json& j )
 		// Children
 		if ( n.count( "children" ) )
 		{
-			node.childrenIndices = n["children"].get<vector<unsigned>>();
+			node.children_indices = n["children"].get<vector<size_t>>();
 		}
 
 		// Matrix
@@ -753,18 +754,35 @@ void Gltf::initNodes( const json& j )
 
 		mNodes.push_back( node );
 	}
+}
 
+void Gltf::load_nodes()
+{
 	// Solve nodes children
 	for ( auto& node : mNodes )
 	{
-		for ( auto nodeIndex : node.childrenIndices )
+		node.children.clear();
+
+		for ( auto node_index : node.children_indices )
 		{
-			auto pNode = &mNodes[nodeIndex];
+			auto pNode = &mNodes[node_index];
 			// A node should not be its own parent
 			if ( pNode != &node )
 			{
 				node.children.push_back( pNode );
 			}
+		}
+	}
+
+	// Solve scene nodes
+	for ( auto& scene : mScenes )
+	{
+		scene.nodes.clear();
+
+		for ( auto node_index : scene.nodes_indices )
+		{
+			auto node = &mNodes[node_index];
+			scene.nodes.push_back( node );
 		}
 	}
 }
@@ -785,18 +803,14 @@ void Gltf::initScenes( const json& j )
 		// Nodes
 		if ( s.count( "nodes" ) )
 		{
-			auto nodesIndices = s["nodes"].get<vector<uint64_t>>();
-			for ( auto nodeIndex : nodesIndices )
-			{
-				auto pNode = &( mNodes[static_cast<const unsigned>( nodeIndex )] );
-				scene.nodes.push_back( pNode );
-			}
+			scene.nodes_indices = s["nodes"].get<vector<size_t>>();
 		}
 
 		mScenes.push_back( scene );
 	}
-}
 
+	load_nodes();
+}
 
 const std::string base64_chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

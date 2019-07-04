@@ -84,12 +84,19 @@ class Gltf
 			float znear = 0.0f;
 		};
 
+		/// Type of the camera
+		enum class Type
+		{
+			Ortographic,
+			Perspective
+		};
+
 		/// Orthographic camera
 		Ortographic orthographic;
 		/// Perspective camera
 		Perspective perspective;
 		/// Specifies if the camera uses a perspective or orthographic projection
-		std::string type;
+		Type type;
 		/// Name
 		std::string name = "unknown";
 	};
@@ -287,7 +294,7 @@ class Gltf
 		/// This node's children
 		std::vector<Node*> children;
 		// This node's children indices
-		std::vector<unsigned> childrenIndices;
+		std::vector<size_t> children_indices;
 		/// Floating-point 4x4 transformation matrix stored in column-major order
 		mathspot::Mat4 matrix = mathspot::Mat4::identity;
 		/// Mesh in this node
@@ -305,8 +312,10 @@ class Gltf
 	/// Root nodes of a scene
 	struct Scene
 	{
-		/// Indices of each root node
+		/// Pointers to root nodes to be generated
 		std::vector<Node*> nodes;
+		/// Indices of each root node
+		std::vector<size_t> nodes_indices;
 		/// User-defined name of this object
 		std::string name = "default";
 	};
@@ -372,6 +381,9 @@ class Gltf
 
 	/// @return Current scene
 	Scene* GetScene();
+
+	/// Load the nodes pointer using node indices
+	void load_nodes();
 
 	/// glTF asset
 	Asset asset;

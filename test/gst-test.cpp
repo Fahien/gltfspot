@@ -71,7 +71,7 @@ void printBufferViews(Gltf& model)
 			default:
 			{
 				cerr << "Invalid BufferView::Target " << static_cast<size_t>(view.target) << endl;
-				assert(true);
+				assert(false);
 			}
 		}
 	}
@@ -84,7 +84,24 @@ void printCameras(Gltf& model)
 
 	for (auto& camera : model.GetCameras())
 	{
-		cout << camera.type << endl;
+		switch (camera.type)
+		{
+			case Gltf::Camera::Type::Ortographic:
+			{
+				cout << "orthographic" << endl;
+				break;
+			}
+			case Gltf::Camera::Type::Perspective:
+			{
+				cout << "perspective" << endl;
+				break;
+			}
+			default:
+			{
+				cerr << "Invalid Camera::Type " << static_cast<uint32_t>(camera.type) << endl;
+				assert(false);
+			}
+		}
 	}
 }
 
