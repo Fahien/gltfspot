@@ -98,7 +98,7 @@ class Gltf
 		/// Specifies if the camera uses a perspective or orthographic projection
 		Type type;
 		/// Name
-		std::string name = "unknown";
+		std::string name = "Unknown";
 	};
 
 	/// Texture sampler properties for filtering and wrapping modes
@@ -133,7 +133,7 @@ class Gltf
 		/// T wrapping mode
 		Wrapping wrapT = Wrapping::REPEAT;
 		/// User-defined name of this object
-		std::string name = "unknown";
+		std::string name = "Unknown";
 	};
 
 	/// Image data used to create a texture
@@ -149,7 +149,7 @@ class Gltf
 		uint32_t buffer_view = 0;
 
 		/// Name
-		std::string name = "unknown";
+		std::string name = "Unknown";
 	};
 
 	/// Texture and its sampler
@@ -160,7 +160,7 @@ class Gltf
 		/// Image used by this texture
 		Image* source = nullptr;
 		/// User-defined name of this object
-		std::string name = "unknown";
+		std::string name = "Unknown";
 	};
 
 	/// Typed view into a bufferView
@@ -223,7 +223,7 @@ class Gltf
 		};
 
 		/// User-defined name of this object
-		std::string name = "unknown";
+		std::string name = "Unknown";
 		/// Metallic-Roughness Material
 		PbrMetallicRoughness pbrMetallicRoughness;
 	};
@@ -280,10 +280,47 @@ class Gltf
 		/// Array of weights to be applied to the Morph Targets
 		std::vector<float> weights;
 		/// User-defined name of this object
-		std::string name = "unknown";
+		std::string name = "Unknown";
 		/// extensions TODO Dictionary object with extension-specific objects
 		/// extras TODO Application-specific data
 		void* extras;
+	};
+
+	/// Punctual light that emit light in well-defined directions and intensities
+	struct Light
+	{
+		/// Type of light
+		enum class Type
+		{
+			Point,
+			Directional,
+			Spot
+		};
+
+		/// Spot light which emits light in a cone in the direction of the local -z axis
+		struct Spot
+		{
+			/// Angle in radians, from center where falloff begins
+			float inner_cone_angle = 0.0f;
+			/// Angle in radians, from center where falloff ends
+			float outer_cone_angle = mathspot::kPi / 4.0f;
+		};
+
+		/// Name of the light
+		std::string name = "Unknown";
+		/// Color of the light
+		mathspot::Vec3 color = mathspot::Vec3{ 1.0f, 1.0f, 1.0f };
+		/// Unit depending on the type of light
+		/// Point and spot lights use luminous intensity in candela (lm/sr)
+		/// Directional lights use illuminance in lux (lm/m^2)
+		float intensity = 1.0f;
+		/// Type of light
+		Type type = Type::Point;
+		/// Distance cutoff where intensity reaches zero (point and spot)
+		/// If <= 0 it is assumed to be infinite
+		float range = 0.0f;
+		/// Spot light values
+		Spot spot = {};
 	};
 
 	/// Node in the node hierarchy
@@ -306,7 +343,11 @@ class Gltf
 		/// Translation
 		mathspot::Vec3 translation = mathspot::Vec3{ 0.0f, 0.0f, 0.0f };
 		/// User-defined name of this object
-		std::string name = "unknown";
+		std::string name = "Unknown";
+		/// If not negative, index of light contained by this node
+		int32_t light_index = -1;
+		/// Light referenced by this node
+		Light* light = nullptr;
 	};
 
 	/// Root nodes of a scene
@@ -373,6 +414,9 @@ class Gltf
 	/// @return Meshes
 	std::vector<Mesh>& GetMeshes();
 
+	/// @return Lights
+	std::vector<Light>& get_lights();
+
 	/// @return Nodes
 	std::vector<Node>& GetNodes();
 
@@ -429,6 +473,10 @@ class Gltf
 	/// @param[in] j Json object describing the meshes
 	void initMeshes( const nlohmann::json& j );
 
+	/// Initializes lights
+	/// @param[in] j Json object describing the lights
+	void init_lights( const nlohmann::json& j );
+
 	/// Initializes nodes
 	/// @param[in] j Json object describing the nodes
 	void initNodes( const nlohmann::json& j );
@@ -442,43 +490,46 @@ class Gltf
 	auto loadBuffer( const size_t i );
 
 	/// Directory path of the gltf file
-	std::string mPath{};
+	std::string mPath;
 
 	/// List of buffers
-	std::vector<Buffer> mBuffers{};
+	std::vector<Buffer> mBuffers;
 
 	/// Cache of buffers
-	std::map<const size_t, std::vector<char>> mBuffersCache{};
+	std::map<const size_t, std::vector<char>> mBuffersCache;
 
 	/// List of buffer views
-	std::vector<BufferView> mBufferViews{};
+	std::vector<BufferView> mBufferViews;
 
 	/// List of cameras
 	std::vector<Camera> mCameras;
 
 	/// List of samplers
-	std::vector<Sampler> mSamplers{};
+	std::vector<Sampler> mSamplers;
 
 	/// List of images
-	std::vector<Image> mImages{};
+	std::vector<Image> mImages;
 
 	/// List of textures
-	std::vector<Texture> mTextures{};
+	std::vector<Texture> mTextures;
 
 	/// List of accessors
-	std::vector<Accessor> mAccessors{};
+	std::vector<Accessor> mAccessors;
 
 	/// List of materials
-	std::vector<Material> mMaterials{};
+	std::vector<Material> mMaterials;
 
 	/// List of meshes
-	std::vector<Mesh> mMeshes{};
+	std::vector<Mesh> mMeshes;
+
+	/// List of lights
+	std::vector<Light> lights;
 
 	/// List of nodes
-	std::vector<Node> mNodes{};
+	std::vector<Node> mNodes;
 
 	/// List of scenes
-	std::vector<Scene> mScenes{};
+	std::vector<Scene> mScenes;
 
 	/// Current scene
 	Scene* mScene = nullptr;

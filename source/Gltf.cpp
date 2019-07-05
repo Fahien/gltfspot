@@ -89,6 +89,18 @@ Gltf::Gltf( const json& j, const string& path )
 		}
 		mScene = &mScenes[static_cast<const unsigned>( uIndex )];
 	}
+
+	// Extensions
+	if ( j.count( "extensions" ) )
+	{
+		auto extensions = j["extensions"];
+
+		// Lights
+		if ( extensions.count( "KHR_lights_punctual" ) )
+		{
+			init_lights( extensions["KHR_lights_punctual"]["lights"] );
+		}
+	}
 }
 
 
@@ -686,6 +698,77 @@ void Gltf::initMeshes( const json& j )
 }
 
 
+void Gltf::init_lights( const json& j )
+{
+	for ( const auto& l : j )
+	{
+		Gltf::Light light;
+
+		// Name
+		if ( l.count( "name" ) )
+		{
+			light.name = l["name"].get<string>();
+		}
+
+		// Color
+		if ( l.count( "color" ) )
+		{
+			auto color = l["color"].get<vector<float>>();
+			light.color.Set( color[0], color[1], color[2] );
+		}
+
+		// Intensity
+		if ( l.count( "intensity" ) )
+		{
+			light.intensity = l["intensity"].get<float>();
+		}
+
+		// Range
+		if ( l.count( "range" ) )
+		{
+			light.range = l["range"].get<float>();
+		}
+
+		// Type
+		if ( l.count( "type" ) )
+		{
+			auto type = l["type"].get<string>();
+			if ( type == "point" )
+			{
+				light.type = Light::Type::Point;
+			}
+			else if ( type == "directional" )
+			{
+				light.type = Light::Type::Directional;
+			}
+			else if ( type == "spot" )
+			{
+				light.type = Light::Type::Spot;
+
+				if ( l.count( "spot" ) )
+				{
+					const auto& spot = l["spot"];
+					if ( spot.count( "innerConeAngle" ) )
+					{
+						light.spot.inner_cone_angle = l["spot"]["innerConeAngle"].get<float>();
+					}
+					if ( spot.count( "innerConeAngle" ) )
+					{
+						light.spot.outer_cone_angle = l["spot"]["outerConeAngle"].get<float>();
+					}
+				}
+			}
+			else
+			{
+				assert( false && "Invalid light type" );
+			}
+		}
+
+		lights.push_back( light );
+	}
+}
+
+
 void Gltf::initNodes( const json& j )
 {
 	for ( const auto& n : j )
@@ -752,15 +835,26 @@ void Gltf::initNodes( const json& j )
 			node.translation = mathspot::Vec3{ t[0], t[1], t[2] };
 		}
 
+		// Estensions
+		if ( n.count( "extensions" ) )
+		{
+			auto& extensions = n["extensions"];
+			// Lights
+			if ( extensions.count( "KHR_lights_punctual" ) )
+			{
+				node.light_index = extensions["KHR_lights_punctual"]["light"].get<int32_t>();
+			}
+		}
+
 		mNodes.push_back( node );
 	}
 }
 
 void Gltf::load_nodes()
 {
-	// Solve nodes children
 	for ( auto& node : mNodes )
 	{
+		// Solve nodes children
 		node.children.clear();
 
 		for ( auto node_index : node.children_indices )
@@ -771,6 +865,12 @@ void Gltf::load_nodes()
 			{
 				node.children.push_back( pNode );
 			}
+		}
+
+		// Solve node light
+		if ( node.light_index >= 0 )
+		{
+			node.light = &lights[node.light_index];
 		}
 	}
 
@@ -981,6 +1081,11 @@ vector<Gltf::Material>& Gltf::GetMaterials()
 vector<Gltf::Mesh>& Gltf::GetMeshes()
 {
 	return mMeshes;
+}
+
+vector<Gltf::Light>& Gltf::get_lights()
+{
+	return lights;
 }
 
 vector<Gltf::Node>& Gltf::GetNodes()
