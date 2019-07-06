@@ -9,6 +9,54 @@ using namespace gltfspot;
 using namespace nlohmann;
 namespace fst = filespot;
 
+Gltf::Gltf( Gltf&& other )
+    : asset{ std::move( other.asset ) }
+    , mPath{ std::move( other.mPath ) }
+    , mBuffers{ std::move( other.mBuffers ) }
+    , mBuffersCache{ std::move( other.mBuffersCache ) }
+    , mBufferViews{ std::move( other.mBufferViews ) }
+    , mCameras{ std::move( other.mCameras ) }
+    , mSamplers{ std::move( other.mSamplers ) }
+    , mImages{ std::move( other.mImages ) }
+    , mTextures{ std::move( other.mTextures ) }
+    , mAccessors{ std::move( other.mAccessors ) }
+    , mMaterials{ std::move( other.mMaterials ) }
+    , mMeshes{ std::move( other.mMeshes ) }
+    , lights{ std::move( other.lights ) }
+    , mNodes{ std::move( other.mNodes ) }
+    , mScenes{ std::move( other.mScenes ) }
+    , mScene{ std::move( other.mScene ) }
+{
+	std::for_each( std::begin( mNodes ), std::end( mNodes ), [this]( auto& node ) { node.gltf = this; } );
+	std::for_each( std::begin( mScenes ), std::end( mScenes ), [this]( auto& scene ) { scene.gltf = this; } );
+}
+
+
+Gltf& Gltf::operator=( Gltf&& other )
+{
+	asset         = std::move( other.asset );
+	mPath         = std::move( other.mPath );
+	mBuffers      = std::move( other.mBuffers );
+	mBuffersCache = std::move( other.mBuffersCache );
+	mBufferViews  = std::move( other.mBufferViews );
+	mCameras      = std::move( other.mCameras );
+	mSamplers     = std::move( other.mSamplers );
+	mImages       = std::move( other.mImages );
+	mTextures     = std::move( other.mTextures );
+	mAccessors    = std::move( other.mAccessors );
+	mMaterials    = std::move( other.mMaterials );
+	mMeshes       = std::move( other.mMeshes );
+	lights        = std::move( other.lights );
+	mNodes        = std::move( other.mNodes );
+	mScenes       = std::move( other.mScenes );
+	mScene        = std::move( other.mScene );
+
+	std::for_each( std::begin( mNodes ), std::end( mNodes ), [this]( auto& node ) { node.gltf = this; } );
+	std::for_each( std::begin( mScenes ), std::end( mScenes ), [this]( auto& scene ) { scene.gltf = this; } );
+
+	return *this;
+}
+
 
 Gltf::Gltf( const json& j, const string& path )
 {
@@ -776,6 +824,7 @@ void Gltf::initNodes( const json& j )
 	for ( const auto& n : j )
 	{
 		Gltf::Node node;
+		node.gltf = this;
 
 		// Index
 		node.index = i++;
@@ -896,12 +945,84 @@ void Gltf::load_nodes()
 	}
 }
 
+Gltf::Node Gltf::create_node( const std::string& name )
+{
+	auto node = Node();
+	node.name = name;
+	node.gltf = this;
+
+	// Assign next index as vector position
+	node.index = mNodes.size();
+
+	return node;
+}
+
+Gltf::Node& Gltf::add_node( Node&& node )
+{
+	// Add it to the vector which triggers need to recalculate node references
+	mNodes.emplace_back( std::move( node ) );
+	load_nodes();
+	return mNodes.back();
+}
+
+Gltf::Node& Gltf::Scene::create_node( const std::string& name )
+{
+	auto node = gltf->create_node( name );
+	nodes_indices.push_back( node.index );
+	return gltf->add_node( std::move( node ) );
+}
+
+Gltf::Node& Gltf::Node::create_child( const std::string& name )
+{
+	auto node = gltf->create_node( name );
+	children_indices.push_back( node.index );
+	return gltf->add_node( std::move( node ) );
+}
+
+
+void Gltf::Node::remove_from_parent()
+{
+	if ( parent )
+	{
+		// Remove node from parent's children
+		auto index_it = std::find( std::begin( parent->children_indices ), std::end( parent->children_indices ), index );
+		if ( index_it != std::end( parent->children_indices ) )
+		{
+			parent->children_indices.erase( index_it );
+		}
+
+		auto node_it = std::find( std::begin( parent->children ), std::end( parent->children ), this );
+		if ( node_it != std::end( parent->children ) )
+		{
+			parent->children.erase( node_it );
+		}
+
+		parent = nullptr;
+	}
+	else if ( auto scene = gltf->GetScene() )
+	{
+		// Remove node from the scene
+		auto index_it = std::find( std::begin( scene->nodes_indices ), std::end( scene->nodes_indices ), index );
+		if ( index_it != std::end( scene->nodes_indices ) )
+		{
+			scene->nodes_indices.erase( index_it );
+		}
+
+		auto node_it = std::find( std::begin( scene->nodes ), std::end( scene->nodes ), this );
+		if ( node_it != std::end( scene->nodes ) )
+		{
+			scene->nodes.erase( node_it );
+		}
+	}
+}
+
 
 void Gltf::initScenes( const json& j )
 {
 	for ( const auto& s : j )
 	{
 		Gltf::Scene scene;
+		scene.gltf = this;
 
 		// Name
 		if ( s.count( "name" ) )

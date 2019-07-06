@@ -326,6 +326,8 @@ class Gltf
 	/// Node in the node hierarchy
 	struct Node
 	{
+		/// Gltf owning the node
+		Gltf* gltf = nullptr;
 		/// Index of this node within the nodes vector
 		size_t index = 0;
 		/// Parent of this node
@@ -352,34 +354,52 @@ class Gltf
 		int32_t light_index = -1;
 		/// Light referenced by this node
 		Light* light = nullptr;
+
+		/// @return A newly created Node as a child of this
+		/// @param[in] name Name of the node
+		Node& create_child( const std::string& name );
+
+		void remove_from_parent();
 	};
+
+	friend class Node;
 
 	/// Root nodes of a scene
 	struct Scene
 	{
+		/// Gltf owning the scene
+		Gltf* gltf = nullptr;
 		/// Pointers to root nodes to be generated
 		std::vector<Node*> nodes;
 		/// Indices of each root node
 		std::vector<size_t> nodes_indices;
 		/// User-defined name of this object
 		std::string name = "default";
+
+		/// @return A newly created Node as root of a scene
+		/// @param[in] name Name of the node
+		Node& create_node( const std::string& name );
 	};
+
+	friend class Scene;
 
 	/// Move contructs a Gltf object
 	/// @param[in] g Gltf object
-	Gltf( Gltf&& g ) = default;
+	Gltf( Gltf&& g );
 
 	/// Move assign a Gltf object
 	/// @param[in] g Gltf object
-	Gltf& operator=( Gltf&& g ) = default;
+	Gltf& operator=( Gltf&& g );
 
 	/// Constructs a Gltf object
 	/// @param[in] j Json object describing the model
 	/// @param[in] path Gltf file path
 	Gltf( const nlohmann::json& j, const std::string& path = "." );
 
-	// Delete copy constructor and assignment
+	/// Delete copy constructor
 	Gltf( const Gltf& ) = delete;
+
+	/// Delete copy assignment
 	Gltf& operator=( const Gltf& ) = delete;
 
 	/// Loads a GLtf model from path
@@ -429,6 +449,13 @@ class Gltf
 
 	/// @return Current scene
 	Scene* GetScene();
+
+	/// @return A newly created Node
+	/// @param[in] name Name of the node
+	Node create_node( const std::string& name );
+
+	/// @param[in] node Node to add
+	Node& add_node( Node&& node );
 
 	/// Load the nodes pointer using node indices
 	void load_nodes();
