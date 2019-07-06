@@ -771,9 +771,14 @@ void Gltf::init_lights( const json& j )
 
 void Gltf::initNodes( const json& j )
 {
+	size_t i = 0;
+
 	for ( const auto& n : j )
 	{
 		Gltf::Node node;
+
+		// Index
+		node.index = i++;
 
 		// Name
 		if ( n.count( "name" ) )
@@ -852,18 +857,22 @@ void Gltf::initNodes( const json& j )
 
 void Gltf::load_nodes()
 {
+	// Reset parents
+	std::for_each( std::begin( mNodes ), std::end( mNodes ), []( auto& node ) { node.parent = nullptr; } );
+
 	for ( auto& node : mNodes )
 	{
 		// Solve nodes children
 		node.children.clear();
 
-		for ( auto node_index : node.children_indices )
+		for ( auto child_index : node.children_indices )
 		{
-			auto pNode = &mNodes[node_index];
+			auto child = &mNodes[child_index];
 			// A node should not be its own parent
-			if ( pNode != &node )
+			if ( child != &node )
 			{
-				node.children.push_back( pNode );
+				child->parent = &node;
+				node.children.push_back( child );
 			}
 		}
 

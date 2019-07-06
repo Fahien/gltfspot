@@ -326,6 +326,10 @@ class Gltf
 	/// Node in the node hierarchy
 	struct Node
 	{
+		/// Index of this node within the nodes vector
+		size_t index = 0;
+		/// Parent of this node
+		Node* parent = nullptr;
 		/// Camera referenced by this node
 		Camera* pCamera = nullptr;
 		/// This node's children
