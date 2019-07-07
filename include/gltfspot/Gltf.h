@@ -364,6 +364,68 @@ class Gltf
 
 	friend class Node;
 
+	/// Keyframe animation
+	struct Animation
+	{
+		/// Identifies which node to animate
+		struct Target
+		{
+			enum class Path
+			{
+				None,
+				Translation,
+				Rotation,
+				Scale,
+				Weights
+			};
+
+			/// Index of the target node
+			int32_t node_index = -1;
+			/// Target node
+			Node* node = nullptr;
+			/// Property of the node to animate
+			Path path;
+		};
+
+		/// Animation sampler at a node property
+		struct Channel
+		{
+			/// Index of the sampler
+			size_t sampler = 0;
+			/// Target of the animation
+			Target target;
+		};
+
+		/// Input and output accessors with an interpolation
+		/// algorithm which define a keyframe graph
+		struct Sampler
+		{
+			/// Interpolation algorithm
+			enum class Interpolation
+			{
+				Linear,
+				Step,
+				Cubicspline
+			};
+
+			/// Index of accessor with keyframe input
+			size_t input;
+			/// Index of accessor with keyframe output
+			size_t output;
+			/// Interpolation method used between keyframes
+			Interpolation interpolation = Interpolation::Linear;
+		};
+
+
+		/// Name of the animation
+		std::string name = "Unknown";
+		/// Channels
+		std::vector<Channel> channels;
+		/// Samplers
+		std::vector<Sampler> samplers;
+	};
+
+
 	/// Root nodes of a scene
 	struct Scene
 	{
@@ -444,6 +506,9 @@ class Gltf
 	/// @return Nodes
 	std::vector<Node>& GetNodes();
 
+	/// @return Animations
+	std::vector<Animation>& get_animations();
+
 	/// @return Scenes
 	std::vector<Scene>& GetScenes();
 
@@ -512,6 +577,10 @@ class Gltf
 	/// @param[in] j Json object describing the nodes
 	void initNodes( const nlohmann::json& j );
 
+	/// Initializes animations
+	/// @param[in] j Json object describing the animations
+	void init_animations( const nlohmann::json& j );
+
 	/// Initializes scenes
 	/// @param[in] j Json object describing the scenes
 	void initScenes( const nlohmann::json& j );
@@ -559,6 +628,9 @@ class Gltf
 	/// List of nodes
 	std::vector<Node> mNodes;
 
+	/// List of animations
+	std::vector<Animation> animations;
+
 	/// List of scenes
 	std::vector<Scene> mScenes;
 
@@ -566,20 +638,27 @@ class Gltf
 	Scene* mScene = nullptr;
 };
 
-template <typename T>
-T from_string( const std::string& s );
 
 template <typename T>
-std::string to_string( const T& t );
+T from_string( const std::string& s );
 
 template <>
 gltfspot::Gltf::Accessor::Type from_string<gltfspot::Gltf::Accessor::Type>( const std::string& s );
 
 template <>
-std::string to_string<gltfspot::Gltf::Accessor::Type>( const gltfspot::Gltf::Accessor::Type& t );
+gltfspot::Gltf::Mesh::Primitive::Semantic from_string<gltfspot::Gltf::Mesh::Primitive::Semantic>( const std::string& s );
 
 template <>
-gltfspot::Gltf::Mesh::Primitive::Semantic from_string<gltfspot::Gltf::Mesh::Primitive::Semantic>( const std::string& s );
+gltfspot::Gltf::Animation::Sampler::Interpolation from_string<gltfspot::Gltf::Animation::Sampler::Interpolation>( const std::string& i );
+
+template <>
+gltfspot::Gltf::Animation::Target::Path from_string<gltfspot::Gltf::Animation::Target::Path>( const std::string& p );
+
+template <typename T>
+std::string to_string( const T& t );
+
+template <>
+std::string to_string<gltfspot::Gltf::Accessor::Type>( const gltfspot::Gltf::Accessor::Type& t );
 
 template <>
 std::string to_string<gltfspot::Gltf::Mesh::Primitive::Semantic>( const gltfspot::Gltf::Mesh::Primitive::Semantic& s );

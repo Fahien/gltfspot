@@ -125,6 +125,12 @@ Gltf::Gltf( const json& j, const string& path )
 		initNodes( j["nodes"] );
 	}
 
+	// Animations
+	if ( j.count( "animations" ) )
+	{
+		init_animations( j["animations"] );
+	}
+
 	// Scenes
 	if ( j.count( "scenes" ) )
 	{
@@ -474,7 +480,7 @@ Gltf::Accessor::Type from_string<Gltf::Accessor::Type>( const string& s )
 	}
 	else
 	{
-		assert( true );
+		assert( false );
 		return Gltf::Accessor::Type::NONE;
 	}
 }
@@ -513,7 +519,7 @@ std::string to_string<Gltf::Accessor::Type>( const Gltf::Accessor::Type& t )
 	}
 	else
 	{
-		assert( true );
+		assert( false );
 		return "NONE";
 	}
 }
@@ -650,7 +656,7 @@ Gltf::Mesh::Primitive::Semantic from_string<Gltf::Mesh::Primitive::Semantic>( co
 	}
 	else
 	{
-		assert( true );
+		assert( false );
 		return Gltf::Mesh::Primitive::Semantic::NONE;
 	}
 }
@@ -693,7 +699,7 @@ std::string to_string<Gltf::Mesh::Primitive::Semantic>( const Gltf::Mesh::Primit
 	}
 	else
 	{
-		assert( true );
+		assert( false );
 		return "None";
 	}
 }
@@ -905,6 +911,94 @@ void Gltf::initNodes( const json& j )
 	}
 }
 
+
+template <>
+gltfspot::Gltf::Animation::Sampler::Interpolation from_string<gltfspot::Gltf::Animation::Sampler::Interpolation>(
+    const std::string& i )
+{
+	if ( i == "LINEAR" )
+	{
+		return Gltf::Animation::Sampler::Interpolation::Linear;
+	}
+	else if ( i == "STEP" )
+	{
+		return Gltf::Animation::Sampler::Interpolation::Step;
+	}
+	else if ( i == "CUBICSPLINE" )
+	{
+		return Gltf::Animation::Sampler::Interpolation::Cubicspline;
+	}
+	assert( false );
+	return Gltf::Animation::Sampler::Interpolation::Linear;
+}
+
+template <>
+gltfspot::Gltf::Animation::Target::Path from_string<gltfspot::Gltf::Animation::Target::Path>( const std::string& p )
+{
+	if ( p == "translation" )
+	{
+		return Gltf::Animation::Target::Path::Translation;
+	}
+	else if ( p == "rotation" )
+	{
+		return Gltf::Animation::Target::Path::Rotation;
+	}
+	else if ( p == "scale" )
+	{
+		return Gltf::Animation::Target::Path::Scale;
+	}
+	else if ( p == "weights" )
+	{
+		return Gltf::Animation::Target::Path::Weights;
+	}
+	assert( false );
+	return Gltf::Animation::Target::Path::None;
+}
+
+void Gltf::init_animations( const nlohmann::json& j )
+{
+	for ( auto& a : j )
+	{
+		Animation animation;
+
+		if ( a.count( "name" ) )
+		{
+			animation.name = a["name"].get<std::string>();
+		}
+
+		for ( auto& s : a["samplers"] )
+		{
+			Animation::Sampler sampler;
+
+			sampler.input  = s["input"].get<size_t>();
+			sampler.output = s["output"].get<size_t>();
+
+			if ( s.count( "interpolation" ) )
+			{
+				sampler.interpolation =
+				    from_string<Animation::Sampler::Interpolation>( s["interpolation"].get<std::string>() );
+			}
+		}
+
+		for ( auto& c : a["channels"] )
+		{
+			Animation::Channel channel;
+
+			channel.sampler = c["sampler"].get<size_t>();
+
+			// Target
+			auto& t = c["target"];
+
+			if ( t.count( "name" ) )
+			{
+				channel.target.node_index = t["node"].get<int32_t>();
+			}
+
+			auto path = from_string<Animation::Target::Path>( t["path"].get<std::string>() );
+		}
+	}
+}
+
 void Gltf::load_nodes()
 {
 	// Reset parents
@@ -930,6 +1024,19 @@ void Gltf::load_nodes()
 		if ( node.light_index >= 0 )
 		{
 			node.light = &lights[node.light_index];
+		}
+	}
+
+	// Solve animations channels target
+	for ( auto& animation : animations )
+	{
+		for ( auto& channel : animation.channels )
+		{
+			if ( channel.target.node_index >= 0 )
+			{
+				auto node           = &mNodes[channel.target.node_index];
+				channel.target.node = node;
+			}
 		}
 	}
 

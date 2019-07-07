@@ -62,3 +62,8 @@ download_model(Cameras/glTF/simpleSquare.bin)
 # Triangle without indices
 download_model(TriangleWithoutIndices/glTF/TriangleWithoutIndices.gltf)
 download_model(TriangleWithoutIndices/glTF/triangleWithoutIndices.bin)
+
+# Animated triangle
+download_model(AnimatedTriangle/glTF/AnimatedTriangle.gltf)
+download_model(AnimatedTriangle/glTF/animation.bin)
+download_model(AnimatedTriangle/glTF/simpleTriangle.bin)
