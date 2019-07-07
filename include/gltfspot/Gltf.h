@@ -263,8 +263,8 @@ class Gltf
 			/// Dictionary object, where each key corresponds to mesh attribute semantic and
 			/// each value is the index of the accessor containing attribute's data (required)
 			std::map<Semantic, unsigned> attributes;
-			/// Index of the accessor that contains the indices
-			unsigned indices;
+			/// If >= 0, it is the index of the accessor that contains the indices
+			int32_t indices = -1;
 			/// Index of the material to apply to this primitive when rendering
 			unsigned material;
 			/// Type of primitives to render
@@ -566,9 +566,6 @@ class Gltf
 	Scene* mScene = nullptr;
 };
 
-
-}  // namespace gltfspot
-
 template <typename T>
 T from_string( const std::string& s );
 
@@ -595,5 +592,7 @@ std::string to_string<gltfspot::Gltf::Sampler::Wrapping>( const gltfspot::Gltf::
 
 template <>
 std::string to_string<gltfspot::Gltf::Mesh::Primitive::Mode>( const gltfspot::Gltf::Mesh::Primitive::Mode& m );
+
+}  // namespace gltfspot
 
 #endif  // GST_GLTF_H_

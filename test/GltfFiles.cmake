@@ -58,3 +58,7 @@ download_model(OrientationTest/glTF/OrientationTest.gltf)
 # Cameras
 download_model(Cameras/glTF/Cameras.gltf)
 download_model(Cameras/glTF/simpleSquare.bin)
+
+# Triangle without indices
+download_model(TriangleWithoutIndices/glTF/TriangleWithoutIndices.gltf)
+download_model(TriangleWithoutIndices/glTF/triangleWithoutIndices.bin)

@@ -5,10 +5,11 @@
 #include "gltfspot/Gltf.h"
 
 using namespace std;
-using namespace gltfspot;
 using namespace nlohmann;
 namespace fst = filespot;
 
+namespace gltfspot
+{
 Gltf::Gltf( Gltf&& other )
     : asset{ std::move( other.asset ) }
     , mPath{ std::move( other.mPath ) }
@@ -319,21 +320,21 @@ string to_string<Gltf::Mesh::Primitive::Mode>( const Gltf::Mesh::Primitive::Mode
 	switch ( m )
 	{
 		case Gltf::Mesh::Primitive::Mode::POINTS:
-			return "POINTS";
+			return "Points";
 		case Gltf::Mesh::Primitive::Mode::LINES:
-			return "LINES";
+			return "Lines";
 		case Gltf::Mesh::Primitive::Mode::LINE_LOOP:
-			return "LINE_LOOP";
+			return "LineLoop";
 		case Gltf::Mesh::Primitive::Mode::LINE_STRIP:
-			return "LINE_STRIP";
+			return "LineStrip";
 		case Gltf::Mesh::Primitive::Mode::TRIANGLES:
-			return "TRIANGLES";
+			return "Triangles";
 		case Gltf::Mesh::Primitive::Mode::TRIANGLE_STRIP:
-			return "TRIANGLE_STRIP";
+			return "TriangleStrip";
 		case Gltf::Mesh::Primitive::Mode::TRIANGLE_FAN:
-			return "TRIANGLE_FAN";
+			return "TriangleFan";
 		default:
-			return "UNDEFINED";
+			return "Undefined";
 	}
 }
 
@@ -660,40 +661,40 @@ std::string to_string<Gltf::Mesh::Primitive::Semantic>( const Gltf::Mesh::Primit
 {
 	if ( s == Gltf::Mesh::Primitive::Semantic::POSITION )
 	{
-		return "POSITION";
+		return "Position";
 	}
 	else if ( s == Gltf::Mesh::Primitive::Semantic::NORMAL )
 	{
-		return "NORMAL";
+		return "Normal";
 	}
 	else if ( s == Gltf::Mesh::Primitive::Semantic::TANGENT )
 	{
-		return "TANGENT";
+		return "Tangent";
 	}
 	else if ( s == Gltf::Mesh::Primitive::Semantic::TEXCOORD_0 )
 	{
-		return "TEXCOORD_0";
+		return "Texcoord0";
 	}
 	else if ( s == Gltf::Mesh::Primitive::Semantic::TEXCOORD_1 )
 	{
-		return "TEXCOORD_1";
+		return "Texcoord1";
 	}
 	else if ( s == Gltf::Mesh::Primitive::Semantic::COLOR_0 )
 	{
-		return "COLOR_0";
+		return "Color0";
 	}
 	else if ( s == Gltf::Mesh::Primitive::Semantic::JOINTS_0 )
 	{
-		return "JOINTS_0";
+		return "Joints0";
 	}
 	else if ( s == Gltf::Mesh::Primitive::Semantic::WEIGHTS_0 )
 	{
-		return "WEIGHTS_0";
+		return "Weights0";
 	}
 	else
 	{
 		assert( true );
-		return "NONE";
+		return "None";
 	}
 }
 
@@ -725,7 +726,7 @@ void Gltf::initMeshes( const json& j )
 
 			if ( p.count( "indices" ) )
 			{
-				primitive.indices = p["indices"].get<unsigned>();
+				primitive.indices = p["indices"].get<int32_t>();
 			}
 
 			if ( p.count( "material" ) )
@@ -1232,3 +1233,5 @@ Gltf::Scene* Gltf::GetScene()
 {
 	return mScene;
 }
+
+}  // namespace gltfspot
