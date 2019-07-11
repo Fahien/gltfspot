@@ -390,6 +390,8 @@ class Gltf
 		/// Animation sampler at a node property
 		struct Channel
 		{
+			/// Keep track of time
+			float time = 0.0f;
 			/// Index of the sampler
 			size_t sampler = 0;
 			/// Target of the animation

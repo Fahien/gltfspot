@@ -25,6 +25,7 @@ Gltf::Gltf( Gltf&& other )
     , mMeshes{ std::move( other.mMeshes ) }
     , lights{ std::move( other.lights ) }
     , mNodes{ std::move( other.mNodes ) }
+    , animations{ std::move( other.animations ) }
     , mScenes{ std::move( other.mScenes ) }
     , mScene{ std::move( other.mScene ) }
 {
@@ -49,6 +50,7 @@ Gltf& Gltf::operator=( Gltf&& other )
 	mMeshes       = std::move( other.mMeshes );
 	lights        = std::move( other.lights );
 	mNodes        = std::move( other.mNodes );
+	animations    = std::move( other.animations );
 	mScenes       = std::move( other.mScenes );
 	mScene        = std::move( other.mScene );
 
@@ -978,6 +980,8 @@ void Gltf::init_animations( const nlohmann::json& j )
 				sampler.interpolation =
 				    from_string<Animation::Sampler::Interpolation>( s["interpolation"].get<std::string>() );
 			}
+
+			animation.samplers.push_back(std::move(sampler));
 		}
 
 		for ( auto& c : a["channels"] )
@@ -989,13 +993,17 @@ void Gltf::init_animations( const nlohmann::json& j )
 			// Target
 			auto& t = c["target"];
 
-			if ( t.count( "name" ) )
+			if ( t.count( "node" ) )
 			{
 				channel.target.node_index = t["node"].get<int32_t>();
 			}
 
-			auto path = from_string<Animation::Target::Path>( t["path"].get<std::string>() );
+			channel.target.path = from_string<Animation::Target::Path>( t["path"].get<std::string>() );
+
+			animation.channels.push_back(std::move(channel));
 		}
+
+		animations.push_back(std::move(animation));
 	}
 }
 
@@ -1324,6 +1332,11 @@ vector<Gltf::Mesh>& Gltf::GetMeshes()
 vector<Gltf::Light>& Gltf::get_lights()
 {
 	return lights;
+}
+
+vector<Gltf::Animation>& Gltf::get_animations()
+{
+	return animations;
 }
 
 vector<Gltf::Node>& Gltf::GetNodes()
