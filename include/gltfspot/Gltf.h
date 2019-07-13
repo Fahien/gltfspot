@@ -390,8 +390,6 @@ class Gltf
 		/// Animation sampler at a node property
 		struct Channel
 		{
-			/// Keep track of time
-			float time = 0.0f;
 			/// Index of the sampler
 			size_t sampler = 0;
 			/// Target of the animation
@@ -421,6 +419,12 @@ class Gltf
 
 		/// Name of the animation
 		std::string name = "Unknown";
+		/// Keep track of time
+		struct Time
+		{
+			float current = 0.0f;
+			float max     = 0.0f;
+		} time;
 		/// Channels
 		std::vector<Channel> channels;
 		/// Samplers
@@ -651,7 +655,8 @@ template <>
 gltfspot::Gltf::Mesh::Primitive::Semantic from_string<gltfspot::Gltf::Mesh::Primitive::Semantic>( const std::string& s );
 
 template <>
-gltfspot::Gltf::Animation::Sampler::Interpolation from_string<gltfspot::Gltf::Animation::Sampler::Interpolation>( const std::string& i );
+gltfspot::Gltf::Animation::Sampler::Interpolation from_string<gltfspot::Gltf::Animation::Sampler::Interpolation>(
+    const std::string& i );
 
 template <>
 gltfspot::Gltf::Animation::Target::Path from_string<gltfspot::Gltf::Animation::Target::Path>( const std::string& p );
