@@ -80,16 +80,16 @@ void printCameras( Gltf& model )
 {
 	cout << endl << "# Cameras" << endl;
 
-	for ( auto& camera : model.GetCameras() )
+	for ( auto& camera : model.get_cameras() )
 	{
 		switch ( camera.type )
 		{
-			case Gltf::Camera::Type::Ortographic:
+			case Camera::Type::Ortographic:
 			{
 				cout << "orthographic" << endl;
 				break;
 			}
-			case Gltf::Camera::Type::Perspective:
+			case Camera::Type::Perspective:
 			{
 				cout << "perspective" << endl;
 				break;
@@ -189,7 +189,7 @@ void printMeshes( Gltf& model )
 {
 	cout << endl << "# Meshes" << endl;
 
-	for ( auto& mesh : model.GetMeshes() )
+	for ( auto& mesh : model.get_meshes() )
 	{
 		cout << mesh.name << endl;
 
@@ -233,7 +233,7 @@ void printNodes( Gltf& model )
 {
 	cout << endl << "# Nodes" << endl;
 
-	for ( const auto& node : model.GetNodes() )
+	for ( const auto& node : model.get_nodes() )
 	{
 		cout << node.name << endl;
 

@@ -16,20 +16,21 @@ Gltf::Gltf( Gltf&& other )
     , mBuffers{ std::move( other.mBuffers ) }
     , mBuffersCache{ std::move( other.mBuffersCache ) }
     , mBufferViews{ std::move( other.mBufferViews ) }
-    , mCameras{ std::move( other.mCameras ) }
+    , cameras{ std::move( other.cameras ) }
     , mSamplers{ std::move( other.mSamplers ) }
     , mImages{ std::move( other.mImages ) }
     , mTextures{ std::move( other.mTextures ) }
     , mAccessors{ std::move( other.mAccessors ) }
     , mMaterials{ std::move( other.mMaterials ) }
-    , mMeshes{ std::move( other.mMeshes ) }
+    , meshes{ std::move( other.meshes ) }
     , lights{ std::move( other.lights ) }
-    , mNodes{ std::move( other.mNodes ) }
+    , nodes{ std::move( other.nodes ) }
     , animations{ std::move( other.animations ) }
+    , scripts{ std::move( other.scripts ) }
     , mScenes{ std::move( other.mScenes ) }
     , mScene{ std::move( other.mScene ) }
 {
-	std::for_each( std::begin( mNodes ), std::end( mNodes ), [this]( auto& node ) { node.gltf = this; } );
+	std::for_each( std::begin( nodes ), std::end( nodes ), [this]( auto& node ) { node.gltf = this; } );
 	std::for_each( std::begin( mScenes ), std::end( mScenes ), [this]( auto& scene ) { scene.gltf = this; } );
 }
 
@@ -41,20 +42,21 @@ Gltf& Gltf::operator=( Gltf&& other )
 	mBuffers      = std::move( other.mBuffers );
 	mBuffersCache = std::move( other.mBuffersCache );
 	mBufferViews  = std::move( other.mBufferViews );
-	mCameras      = std::move( other.mCameras );
+	cameras      = std::move( other.cameras );
 	mSamplers     = std::move( other.mSamplers );
 	mImages       = std::move( other.mImages );
 	mTextures     = std::move( other.mTextures );
 	mAccessors    = std::move( other.mAccessors );
 	mMaterials    = std::move( other.mMaterials );
-	mMeshes       = std::move( other.mMeshes );
+	meshes       = std::move( other.meshes );
 	lights        = std::move( other.lights );
-	mNodes        = std::move( other.mNodes );
+	nodes        = std::move( other.nodes );
 	animations    = std::move( other.animations );
+	scripts       = std::move( other.scripts );
 	mScenes       = std::move( other.mScenes );
 	mScene        = std::move( other.mScene );
 
-	std::for_each( std::begin( mNodes ), std::end( mNodes ), [this]( auto& node ) { node.gltf = this; } );
+	std::for_each( std::begin( nodes ), std::end( nodes ), [this]( auto& node ) { node.gltf = this; } );
 	std::for_each( std::begin( mScenes ), std::end( mScenes ), [this]( auto& scene ) { scene.gltf = this; } );
 
 	return *this;
@@ -142,6 +144,18 @@ Gltf::Gltf( const json& j, const string& path )
 		if ( extensions.count( "KHR_lights_punctual" ) )
 		{
 			init_lights( extensions["KHR_lights_punctual"]["lights"] );
+		}
+	}
+
+	// Extras
+	if ( j.count( "extras" ) )
+	{
+		auto& extras = j["extras"];
+
+		// Scripts
+		if ( extras.count( "scripts" ) )
+		{
+			init_scripts( extras["scripts"] );
 		}
 	}
 
@@ -266,7 +280,7 @@ void Gltf::initCameras( const json& j )
 			auto& perspective = c["perspective"];
 			if ( perspective.count( "aspectRatio" ) )
 			{
-				camera.perspective.aspectRatio = perspective["aspectRatio"].get<float>();
+				camera.perspective.aspect_ratio = perspective["aspectRatio"].get<float>();
 			}
 			camera.perspective.yfov  = c["perspective"]["yfov"].get<float>();
 			camera.perspective.zfar  = c["perspective"]["zfar"].get<float>();
@@ -279,7 +293,7 @@ void Gltf::initCameras( const json& j )
 			camera.name = c["name"].get<string>();
 		}
 
-		mCameras.push_back( move( camera ) );
+		cameras.push_back( move( camera ) );
 	}
 }
 
@@ -327,23 +341,23 @@ string to_string<Gltf::Sampler::Wrapping>( const Gltf::Sampler::Wrapping& w )
 
 
 template <>
-string to_string<Gltf::Mesh::Primitive::Mode>( const Gltf::Mesh::Primitive::Mode& m )
+string to_string<Mesh::Primitive::Mode>( const Mesh::Primitive::Mode& m )
 {
 	switch ( m )
 	{
-		case Gltf::Mesh::Primitive::Mode::POINTS:
+		case Mesh::Primitive::Mode::POINTS:
 			return "Points";
-		case Gltf::Mesh::Primitive::Mode::LINES:
+		case Mesh::Primitive::Mode::LINES:
 			return "Lines";
-		case Gltf::Mesh::Primitive::Mode::LINE_LOOP:
+		case Mesh::Primitive::Mode::LINE_LOOP:
 			return "LineLoop";
-		case Gltf::Mesh::Primitive::Mode::LINE_STRIP:
+		case Mesh::Primitive::Mode::LINE_STRIP:
 			return "LineStrip";
-		case Gltf::Mesh::Primitive::Mode::TRIANGLES:
+		case Mesh::Primitive::Mode::TRIANGLES:
 			return "Triangles";
-		case Gltf::Mesh::Primitive::Mode::TRIANGLE_STRIP:
+		case Mesh::Primitive::Mode::TRIANGLE_STRIP:
 			return "TriangleStrip";
-		case Gltf::Mesh::Primitive::Mode::TRIANGLE_FAN:
+		case Mesh::Primitive::Mode::TRIANGLE_FAN:
 			return "TriangleFan";
 		default:
 			return "Undefined";
@@ -626,80 +640,80 @@ void Gltf::initMaterials( const json& j )
 
 
 template <>
-Gltf::Mesh::Primitive::Semantic from_string<Gltf::Mesh::Primitive::Semantic>( const std::string& s )
+Mesh::Primitive::Semantic from_string<Mesh::Primitive::Semantic>( const std::string& s )
 {
 	if ( s == "POSITION" )
 	{
-		return Gltf::Mesh::Primitive::Semantic::POSITION;
+		return Mesh::Primitive::Semantic::POSITION;
 	}
 	else if ( s == "NORMAL" )
 	{
-		return Gltf::Mesh::Primitive::Semantic::NORMAL;
+		return Mesh::Primitive::Semantic::NORMAL;
 	}
 	else if ( s == "TANGENT" )
 	{
-		return Gltf::Mesh::Primitive::Semantic::TANGENT;
+		return Mesh::Primitive::Semantic::TANGENT;
 	}
 	else if ( s == "TEXCOORD_0" )
 	{
-		return Gltf::Mesh::Primitive::Semantic::TEXCOORD_0;
+		return Mesh::Primitive::Semantic::TEXCOORD_0;
 	}
 	else if ( s == "TEXCOORD_1" )
 	{
-		return Gltf::Mesh::Primitive::Semantic::TEXCOORD_1;
+		return Mesh::Primitive::Semantic::TEXCOORD_1;
 	}
 	else if ( s == "COLOR_0" )
 	{
-		return Gltf::Mesh::Primitive::Semantic::COLOR_0;
+		return Mesh::Primitive::Semantic::COLOR_0;
 	}
 	else if ( s == "JOINTS_0" )
 	{
-		return Gltf::Mesh::Primitive::Semantic::JOINTS_0;
+		return Mesh::Primitive::Semantic::JOINTS_0;
 	}
 	else if ( s == "WEIGHTS_0" )
 	{
-		return Gltf::Mesh::Primitive::Semantic::WEIGHTS_0;
+		return Mesh::Primitive::Semantic::WEIGHTS_0;
 	}
 	else
 	{
 		assert( false );
-		return Gltf::Mesh::Primitive::Semantic::NONE;
+		return Mesh::Primitive::Semantic::NONE;
 	}
 }
 
 
 template <>
-std::string to_string<Gltf::Mesh::Primitive::Semantic>( const Gltf::Mesh::Primitive::Semantic& s )
+std::string to_string<Mesh::Primitive::Semantic>( const Mesh::Primitive::Semantic& s )
 {
-	if ( s == Gltf::Mesh::Primitive::Semantic::POSITION )
+	if ( s == Mesh::Primitive::Semantic::POSITION )
 	{
 		return "Position";
 	}
-	else if ( s == Gltf::Mesh::Primitive::Semantic::NORMAL )
+	else if ( s == Mesh::Primitive::Semantic::NORMAL )
 	{
 		return "Normal";
 	}
-	else if ( s == Gltf::Mesh::Primitive::Semantic::TANGENT )
+	else if ( s == Mesh::Primitive::Semantic::TANGENT )
 	{
 		return "Tangent";
 	}
-	else if ( s == Gltf::Mesh::Primitive::Semantic::TEXCOORD_0 )
+	else if ( s == Mesh::Primitive::Semantic::TEXCOORD_0 )
 	{
 		return "Texcoord0";
 	}
-	else if ( s == Gltf::Mesh::Primitive::Semantic::TEXCOORD_1 )
+	else if ( s == Mesh::Primitive::Semantic::TEXCOORD_1 )
 	{
 		return "Texcoord1";
 	}
-	else if ( s == Gltf::Mesh::Primitive::Semantic::COLOR_0 )
+	else if ( s == Mesh::Primitive::Semantic::COLOR_0 )
 	{
 		return "Color0";
 	}
-	else if ( s == Gltf::Mesh::Primitive::Semantic::JOINTS_0 )
+	else if ( s == Mesh::Primitive::Semantic::JOINTS_0 )
 	{
 		return "Joints0";
 	}
-	else if ( s == Gltf::Mesh::Primitive::Semantic::WEIGHTS_0 )
+	else if ( s == Mesh::Primitive::Semantic::WEIGHTS_0 )
 	{
 		return "Weights0";
 	}
@@ -715,7 +729,7 @@ void Gltf::initMeshes( const json& j )
 {
 	for ( const auto& m : j )
 	{
-		Gltf::Mesh mesh;
+		Mesh mesh;
 
 		// Name
 		if ( m.count( "name" ) )
@@ -726,13 +740,13 @@ void Gltf::initMeshes( const json& j )
 		// Primitives
 		for ( const auto& p : m["primitives"] )
 		{
-			Gltf::Mesh::Primitive primitive;
+			Mesh::Primitive primitive;
 
 			auto attributes = p["attributes"].get<map<string, unsigned>>();
 
 			for ( const auto& a : attributes )
 			{
-				auto semantic = from_string<Gltf::Mesh::Primitive::Semantic>( a.first );
+				auto semantic = from_string<Mesh::Primitive::Semantic>( a.first );
 				primitive.attributes.emplace( semantic, a.second );
 			}
 
@@ -748,13 +762,13 @@ void Gltf::initMeshes( const json& j )
 
 			if ( p.count( "mode" ) )
 			{
-				primitive.mode = p["mode"].get<Gltf::Mesh::Primitive::Mode>();
+				primitive.mode = p["mode"].get<Mesh::Primitive::Mode>();
 			}
 
 			mesh.primitives.push_back( primitive );
 		}
 
-		mMeshes.push_back( mesh );
+		meshes.push_back( mesh );
 	}
 }
 
@@ -763,7 +777,7 @@ void Gltf::init_lights( const json& j )
 {
 	for ( const auto& l : j )
 	{
-		Gltf::Light light;
+		Light light;
 
 		// Name
 		if ( l.count( "name" ) )
@@ -836,7 +850,7 @@ void Gltf::initNodes( const json& j )
 
 	for ( const auto& n : j )
 	{
-		Gltf::Node node;
+		Node node;
 		node.gltf = this;
 
 		// Index
@@ -851,8 +865,8 @@ void Gltf::initNodes( const json& j )
 		// Camera
 		if ( n.count( "camera" ) )
 		{
-			unsigned m   = n["camera"];
-			node.pCamera = &( mCameras[m] );
+			unsigned m  = n["camera"];
+			node.camera = &( cameras[m] );
 		}
 
 		// Children
@@ -878,7 +892,7 @@ void Gltf::initNodes( const json& j )
 		if ( n.count( "mesh" ) )
 		{
 			unsigned m = n["mesh"];
-			node.pMesh = &( mMeshes[m] );
+			node.mesh  = &( meshes[m] );
 		}
 
 		// Rotation
@@ -913,7 +927,19 @@ void Gltf::initNodes( const json& j )
 			}
 		}
 
-		mNodes.push_back( node );
+		// Extras
+		if ( n.count( "extras" ) )
+		{
+			auto& extras = n["extras"];
+
+			// Scripts
+			if ( extras.count( "scripts" ) )
+			{
+				node.scripts_indices = extras["scripts"].get<vector<size_t>>();
+			}
+		}
+
+		nodes.push_back( node );
 	}
 }
 
@@ -1011,19 +1037,43 @@ void Gltf::init_animations( const nlohmann::json& j )
 	}
 }
 
+
+void Gltf::init_scripts( const nlohmann::json& ss )
+{
+	// Init scripts
+	Script script;
+
+	for ( auto& s : ss )
+	{
+		script.uri = s["uri"].get<std::string>();
+
+		if ( s.count( "name" ) )
+		{
+			script.name = s["name"].get<std::string>();
+		}
+		else
+		{
+			script.name = script.uri;
+		}
+
+		scripts.push_back( script );
+	}
+}
+
+
 void Gltf::load_nodes()
 {
 	// Reset parents
-	std::for_each( std::begin( mNodes ), std::end( mNodes ), []( auto& node ) { node.parent = nullptr; } );
+	std::for_each( std::begin( nodes ), std::end( nodes ), []( auto& node ) { node.parent = nullptr; } );
 
-	for ( auto& node : mNodes )
+	for ( auto& node : nodes )
 	{
 		// Solve nodes children
 		node.children.clear();
 
 		for ( auto child_index : node.children_indices )
 		{
-			auto child = &mNodes[child_index];
+			auto child = &nodes[child_index];
 			// A node should not be its own parent
 			if ( child != &node )
 			{
@@ -1037,6 +1087,18 @@ void Gltf::load_nodes()
 		{
 			node.light = &lights[node.light_index];
 		}
+
+		// Solve node script
+		node.scripts.clear();
+
+		if ( !node.scripts_indices.empty() )
+		{
+			for ( auto script_index : node.scripts_indices )
+			{
+				auto script = &scripts[script_index];
+				node.scripts.push_back( script );
+			}
+		}
 	}
 
 	// Solve animations channels target
@@ -1046,7 +1108,7 @@ void Gltf::load_nodes()
 		{
 			if ( channel.target.node_index >= 0 )
 			{
-				auto node           = &mNodes[channel.target.node_index];
+				auto node           = &nodes[channel.target.node_index];
 				channel.target.node = node;
 			}
 		}
@@ -1059,81 +1121,37 @@ void Gltf::load_nodes()
 
 		for ( auto node_index : scene.nodes_indices )
 		{
-			auto node = &mNodes[node_index];
+			auto node = &nodes[node_index];
 			scene.nodes.push_back( node );
 		}
 	}
 }
 
-Gltf::Node Gltf::create_node( const std::string& name )
+Node Gltf::create_node( const std::string& name )
 {
 	auto node = Node();
 	node.name = name;
 	node.gltf = this;
 
 	// Assign next index as vector position
-	node.index = mNodes.size();
+	node.index = nodes.size();
 
 	return node;
 }
 
-Gltf::Node& Gltf::add_node( Node&& node )
+Node& Gltf::add_node( Node&& node )
 {
 	// Add it to the vector which triggers need to recalculate node references
-	mNodes.emplace_back( std::move( node ) );
+	nodes.emplace_back( std::move( node ) );
 	load_nodes();
-	return mNodes.back();
+	return nodes.back();
 }
 
-Gltf::Node& Gltf::Scene::create_node( const std::string& name )
+Node& Gltf::Scene::create_node( const std::string& name )
 {
 	auto node = gltf->create_node( name );
 	nodes_indices.push_back( node.index );
 	return gltf->add_node( std::move( node ) );
-}
-
-Gltf::Node& Gltf::Node::create_child( const std::string& name )
-{
-	auto node = gltf->create_node( name );
-	children_indices.push_back( node.index );
-	return gltf->add_node( std::move( node ) );
-}
-
-
-void Gltf::Node::remove_from_parent()
-{
-	if ( parent )
-	{
-		// Remove node from parent's children
-		auto index_it = std::find( std::begin( parent->children_indices ), std::end( parent->children_indices ), index );
-		if ( index_it != std::end( parent->children_indices ) )
-		{
-			parent->children_indices.erase( index_it );
-		}
-
-		auto node_it = std::find( std::begin( parent->children ), std::end( parent->children ), this );
-		if ( node_it != std::end( parent->children ) )
-		{
-			parent->children.erase( node_it );
-		}
-
-		parent = nullptr;
-	}
-	else if ( auto scene = gltf->GetScene() )
-	{
-		// Remove node from the scene
-		auto index_it = std::find( std::begin( scene->nodes_indices ), std::end( scene->nodes_indices ), index );
-		if ( index_it != std::end( scene->nodes_indices ) )
-		{
-			scene->nodes_indices.erase( index_it );
-		}
-
-		auto node_it = std::find( std::begin( scene->nodes ), std::end( scene->nodes ), this );
-		if ( node_it != std::end( scene->nodes ) )
-		{
-			scene->nodes.erase( node_it );
-		}
-	}
 }
 
 
@@ -1328,12 +1346,12 @@ vector<Gltf::Material>& Gltf::GetMaterials()
 	return mMaterials;
 }
 
-vector<Gltf::Mesh>& Gltf::GetMeshes()
+vector<Mesh>& Gltf::get_meshes()
 {
-	return mMeshes;
+	return meshes;
 }
 
-vector<Gltf::Light>& Gltf::get_lights()
+vector<Light>& Gltf::get_lights()
 {
 	return lights;
 }
@@ -1343,9 +1361,9 @@ vector<Gltf::Animation>& Gltf::get_animations()
 	return animations;
 }
 
-vector<Gltf::Node>& Gltf::GetNodes()
+vector<Node>& Gltf::get_nodes()
 {
-	return mNodes;
+	return nodes;
 }
 
 vector<Gltf::Scene>& Gltf::GetScenes()
