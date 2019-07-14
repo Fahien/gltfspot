@@ -38,8 +38,9 @@ class Gltf
 		/// Target that the GPU buffer should be bound to
 		enum class Target
 		{
-			ARRAY_BUFFER         = 34962,
-			ELEMENT_ARRAY_BUFFER = 34963
+			None,
+			ArrayBuffer        = 34962,
+			ElementArrayBuffer = 34963
 		};
 
 		/// Index of the buffer
@@ -51,7 +52,7 @@ class Gltf
 		/// Stride, in bytes
 		size_t byteStride = 0;
 		/// Target that the GPU buffer should be bound to
-		Target target = Target::ARRAY_BUFFER;
+		Target target = Target::None;
 	};
 
 	/// Camera's projection.
@@ -75,7 +76,7 @@ class Gltf
 		struct Perspective
 		{
 			/// Aspect ratio of the field of view
-			float aspectRatio = 1.0f;
+			float aspectRatio = 0.0f;
 			/// Vertical field of view in radians
 			float yfov = 0.0f;
 			/// Distance to the far clipping plane

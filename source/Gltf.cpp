@@ -263,10 +263,14 @@ void Gltf::initCameras( const json& j )
 		}
 		else
 		{
-			camera.perspective.aspectRatio = c["perspective"]["aspectRatio"].get<float>();
-			camera.perspective.yfov        = c["perspective"]["yfov"].get<float>();
-			camera.perspective.zfar        = c["perspective"]["zfar"].get<float>();
-			camera.perspective.znear       = c["perspective"]["znear"].get<float>();
+			auto& perspective = c["perspective"];
+			if ( perspective.count( "aspectRatio" ) )
+			{
+				camera.perspective.aspectRatio = perspective["aspectRatio"].get<float>();
+			}
+			camera.perspective.yfov  = c["perspective"]["yfov"].get<float>();
+			camera.perspective.zfar  = c["perspective"]["zfar"].get<float>();
+			camera.perspective.znear = c["perspective"]["znear"].get<float>();
 		}
 
 		// Name
@@ -981,7 +985,7 @@ void Gltf::init_animations( const nlohmann::json& j )
 				    from_string<Animation::Sampler::Interpolation>( s["interpolation"].get<std::string>() );
 			}
 
-			animation.samplers.push_back(std::move(sampler));
+			animation.samplers.push_back( std::move( sampler ) );
 		}
 
 		for ( auto& c : a["channels"] )
@@ -1000,10 +1004,10 @@ void Gltf::init_animations( const nlohmann::json& j )
 
 			channel.target.path = from_string<Animation::Target::Path>( t["path"].get<std::string>() );
 
-			animation.channels.push_back(std::move(channel));
+			animation.channels.push_back( std::move( channel ) );
 		}
 
-		animations.push_back(std::move(animation));
+		animations.push_back( std::move( animation ) );
 	}
 }
 
