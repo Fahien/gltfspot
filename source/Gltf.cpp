@@ -133,6 +133,18 @@ Gltf::Gltf( const json& j, const string& path )
 		init_animations( j["animations"] );
 	}
 
+	// Extensions
+	if ( j.count( "extensions" ) )
+	{
+		auto extensions = j["extensions"];
+
+		// Lights
+		if ( extensions.count( "KHR_lights_punctual" ) )
+		{
+			init_lights( extensions["KHR_lights_punctual"]["lights"] );
+		}
+	}
+
 	// Scenes
 	if ( j.count( "scenes" ) )
 	{
@@ -145,18 +157,6 @@ Gltf::Gltf( const json& j, const string& path )
 			uIndex = j["scene"].get<uint64_t>();
 		}
 		mScene = &mScenes[static_cast<const unsigned>( uIndex )];
-	}
-
-	// Extensions
-	if ( j.count( "extensions" ) )
-	{
-		auto extensions = j["extensions"];
-
-		// Lights
-		if ( extensions.count( "KHR_lights_punctual" ) )
-		{
-			init_lights( extensions["KHR_lights_punctual"]["lights"] );
-		}
 	}
 }
 
