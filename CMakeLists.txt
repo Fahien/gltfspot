@@ -43,6 +43,7 @@ set(GST_SOURCE_DIR ${PROJECT_SOURCE_DIR}/source)
 set(GST_SOURCES
 	${GST_SOURCE_DIR}/Gltf.cpp
 	${GST_SOURCE_DIR}/Node.cpp
+	${GST_SOURCE_DIR}/Bounds.cpp
 )
 source_group(Source FILES ${GST_SOURCES})
 

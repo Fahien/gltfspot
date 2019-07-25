@@ -11,11 +11,13 @@ class Camera;
 class Mesh;
 class Light;
 class Script;
+class Shape;
 
 
 /// Node in the node hierarchy
-struct PYSPOT_EXPORT Node
+class PYSPOT_EXPORT Node
 {
+  public:
 	/// Gltf owning the node
 	Gltf* gltf = nullptr;
 
@@ -57,6 +59,12 @@ struct PYSPOT_EXPORT Node
 
 	/// Light referenced by this node
 	Light* light = nullptr;
+
+	/// This node's bounds indices
+	int32_t bounds_index = -1;
+
+	/// Bounds referenced by this node
+	Shape* bounds = nullptr;
 
 	/// This node's scripts indices
 	std::vector<size_t> scripts_indices;

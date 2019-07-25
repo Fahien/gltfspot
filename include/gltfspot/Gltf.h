@@ -4,6 +4,7 @@
 #include <mathspot/Math.h>
 #include <nlohmann/json.hpp>
 
+#include "gltfspot/Bounds.h"
 #include "gltfspot/Camera.h"
 #include "gltfspot/Light.h"
 #include "gltfspot/Mesh.h"
@@ -13,11 +14,11 @@
 namespace gltfspot
 {
 /// GL Transmission Format
-class Gltf
+class PYSPOT_EXPORT Gltf
 {
   public:
 	/// Metadata about the glTF asset
-	struct Asset
+	struct PYSPOT_EXPORT Asset
 	{
 		/// glTF version that this asset targets
 		std::string version;
@@ -339,8 +340,14 @@ class Gltf
 	/// @return Animations
 	std::vector<Animation>& get_animations();
 
+	/// @return Shapes
+	std::vector<std::unique_ptr<Shape>>& get_shapes() { return shapes; }
+
+	/// @return Bounds
+	std::vector<Bounds>& get_bounds() { return bounds; }
+
 	/// @return Extras
-	std::vector<Script>& get_scripts() { return scripts; };
+	std::vector<Script>& get_scripts() { return scripts; }
 
 	/// @return Scenes
 	std::vector<Scene>& GetScenes();
@@ -414,6 +421,14 @@ class Gltf
 	/// @param[in] j Json object describing the animations
 	void init_animations( const nlohmann::json& j );
 
+	/// Initializes shapes
+	/// @param[in] j Json object describing the shapes
+	void init_shapes( const nlohmann::json& j );
+
+	/// Initializes bounds
+	/// @param[in] j Json Object describing the bounds
+	void init_bounds( const nlohmann::json& j );
+
 	/// Initializes scripts
 	/// @param[in] j Json object describing scripts
 	void init_scripts( const nlohmann::json& j );
@@ -468,9 +483,14 @@ class Gltf
 	/// List of animations
 	std::vector<Animation> animations;
 
+	/// List of shapes (abstract)
+	std::vector<std::unique_ptr<Shape>> shapes;
+
+	/// List of bounds
+	std::vector<Bounds> bounds;
+
 	/// List of scripts
 	std::vector<Script> scripts;
-
 
 	/// List of scenes
 	std::vector<Scene> mScenes;
@@ -495,6 +515,9 @@ gltfspot::Gltf::Animation::Sampler::Interpolation from_string<gltfspot::Gltf::An
 
 template <>
 gltfspot::Gltf::Animation::Target::Path from_string<gltfspot::Gltf::Animation::Target::Path>( const std::string& p );
+
+template <>
+gltfspot::Bounds::Type from_string<gltfspot::Bounds::Type>( const std::string& b );
 
 template <typename T>
 std::string to_string( const T& t );

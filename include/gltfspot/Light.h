@@ -8,7 +8,7 @@
 namespace gltfspot
 {
 /// Punctual light that emit light in well-defined directions and intensities
-struct Light
+struct PYSPOT_EXPORT Light
 {
 	/// Type of light
 	enum class Type

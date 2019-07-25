@@ -26,6 +26,8 @@ Gltf::Gltf( Gltf&& other )
     , lights{ std::move( other.lights ) }
     , nodes{ std::move( other.nodes ) }
     , animations{ std::move( other.animations ) }
+    , bounds{ std::move( other.bounds ) }
+    , shapes{ std::move( other.shapes ) }
     , scripts{ std::move( other.scripts ) }
     , mScenes{ std::move( other.mScenes ) }
     , mScene{ std::move( other.mScene ) }
@@ -42,16 +44,17 @@ Gltf& Gltf::operator=( Gltf&& other )
 	mBuffers      = std::move( other.mBuffers );
 	mBuffersCache = std::move( other.mBuffersCache );
 	mBufferViews  = std::move( other.mBufferViews );
-	cameras      = std::move( other.cameras );
+	cameras       = std::move( other.cameras );
 	mSamplers     = std::move( other.mSamplers );
 	mImages       = std::move( other.mImages );
 	mTextures     = std::move( other.mTextures );
 	mAccessors    = std::move( other.mAccessors );
 	mMaterials    = std::move( other.mMaterials );
-	meshes       = std::move( other.meshes );
+	meshes        = std::move( other.meshes );
 	lights        = std::move( other.lights );
-	nodes        = std::move( other.nodes );
+	nodes         = std::move( other.nodes );
 	animations    = std::move( other.animations );
+	shapes        = std::move( other.shapes );
 	scripts       = std::move( other.scripts );
 	mScenes       = std::move( other.mScenes );
 	mScene        = std::move( other.mScene );
@@ -156,6 +159,17 @@ Gltf::Gltf( const json& j, const string& path )
 		if ( extras.count( "scripts" ) )
 		{
 			init_scripts( extras["scripts"] );
+		}
+
+		// Shapes
+		if ( extras.count( "shapes" ) )
+		{
+			init_shapes( extras["shapes"] );
+		}
+		// Bounds
+		if ( extras.count( "bounds" ) )
+		{
+			init_bounds( extras["bounds"] );
 		}
 	}
 
@@ -932,6 +946,12 @@ void Gltf::initNodes( const json& j )
 		{
 			auto& extras = n["extras"];
 
+			// Bounds
+			if ( extras.count( "bounds" ) )
+			{
+				node.bounds_index = extras["bounds"].get<int32_t>();
+			}
+
 			// Scripts
 			if ( extras.count( "scripts" ) )
 			{
@@ -1038,6 +1058,65 @@ void Gltf::init_animations( const nlohmann::json& j )
 }
 
 
+template <>
+gltfspot::Bounds::Type from_string<gltfspot::Bounds::Type>( const std::string& b )
+{
+	if ( b == "box" )
+	{
+		return Bounds::Type::Box;
+	}
+	else if ( b == "sphere" )
+	{
+		return Bounds::Type::Sphere;
+	}
+	else
+	{
+		throw std::runtime_error{ "Bounds not valid: " + b };
+	}
+}
+
+void Gltf::init_shapes( const nlohmann::json& ss )
+{
+	for ( auto& s : ss )
+	{
+		auto type = s["type"].get<std::string>();
+		if ( type == "box" )
+		{
+			auto aa = s["box"]["a"].get<std::vector<float>>();
+			auto a  = mathspot::Vec3{ aa };
+			auto bb = s["box"]["b"].get<std::vector<float>>();
+			auto b  = mathspot::Vec3{ bb };
+
+			shapes.emplace_back( std::unique_ptr<Shape>{ new Box{ a, b } } );
+		}
+		else if ( type == "sphere" )
+		{
+			auto oo = s["sphere"]["o"].get<std::vector<float>>();
+			auto o  = mathspot::Vec3{ oo };
+
+			auto r = s["sphere"]["r"].get<float>();
+
+			shapes.emplace_back( std::unique_ptr<Shape>{ new Sphere{ o, r } } );
+		}
+		else
+		{
+			throw std::runtime_error{ "Type not supported: " + type };
+		}
+	}
+}
+
+void Gltf::init_bounds( const nlohmann::json& bs )
+{
+	for ( auto& bb : bs )
+	{
+		auto   shape_index = bb["shape"].get<size_t>();
+		Bounds bound;
+		bound.shape = shapes[shape_index].get();
+		bounds.push_back( std::move( bound ) );
+	}
+}
+
+
 void Gltf::init_scripts( const nlohmann::json& ss )
 {
 	// Init scripts
@@ -1086,6 +1165,13 @@ void Gltf::load_nodes()
 		if ( node.light_index >= 0 )
 		{
 			node.light = &lights[node.light_index];
+		}
+
+		// Solve node bounds
+		if ( node.bounds_index >= 0 )
+		{
+			node.bounds       = shapes[node.bounds_index].get();
+			node.bounds->node = &node;
 		}
 
 		// Solve node script

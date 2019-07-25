@@ -5,10 +5,12 @@
 #include <string>
 #include <vector>
 
+#define PYSPOT_EXPORT __attribute__( ( annotate( "pyspot" ) ) )
+
 namespace gltfspot
 {
 /// Set of primitives to be rendered
-struct Mesh
+struct PYSPOT_EXPORT Mesh
 {
 	/// Geometry to be rendered with the given material
 	struct Primitive
