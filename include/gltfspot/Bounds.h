@@ -43,8 +43,10 @@ struct Box : public Shape
 {
 	Box( const mathspot::Vec3& a = {}, const mathspot::Vec3& b = {} );
 
-	bool intersects( const Shape& s ) const override;
+	mathspot::Vec3 get_abs_a() const;
+	mathspot::Vec3 get_abs_b() const;
 
+	bool intersects( const Shape& s ) const override;
 	bool intersects( const Box& b ) const override;
 
 	mathspot::Vec3 a = {};

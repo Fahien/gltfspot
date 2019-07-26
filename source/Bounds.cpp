@@ -47,26 +47,28 @@ bool Box::intersects( const Shape& s ) const
 }
 
 
+mathspot::Vec3 Box::get_abs_a() const
+{
+	return matrix * a;
+}
+
+
+mathspot::Vec3 Box::get_abs_b() const
+{
+	return matrix * b;
+}
+
+
 bool Box::intersects( const Box& other ) const
 {
-	auto temp_a = matrix * a;
-	auto temp_b = matrix * b;
+	auto temp_a = get_abs_a();
+	auto temp_b = get_abs_b();
 
-	auto other_a = other.matrix * other.a;
-	auto other_b = other.matrix * other.b;
-
-	auto x      = std::min( temp_a.x, temp_b.x );
-	auto y      = std::min( temp_a.y, temp_b.y );
-	auto width  = std::fabs( temp_b.x - temp_a.x );
-	auto height = std::fabs( temp_b.y - temp_a.y );
-
-	auto other_x      = std::min( other_a.x, other_b.x );
-	auto other_y      = std::min( other_a.y, other_b.y );
-	auto other_width  = std::fabs( other_b.x - other.a.x );
-	auto other_height = std::fabs( other_b.y - other_a.y );
+	auto other_a = other.get_abs_a();
+	auto other_b = other.get_abs_b();
 
 	// TODO add depth
-	return ( fabs( x - other_x ) * 2 < ( width + other_width ) ) && ( fabs( y - other_y ) * 2 < ( height + other_height ) );
+	return temp_a.x < other_b.x && temp_b.x > other_a.x && temp_b.y > other_a.y && temp_a.y < other_b.y;
 }
 
 
