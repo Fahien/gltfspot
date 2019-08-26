@@ -108,7 +108,7 @@ void printSamplers( Gltf& model )
 {
 	cout << endl << "# Samplers" << endl;
 
-	for ( auto& sampler : model.GetSamplers() )
+	for ( auto& sampler : model.get_samplers() )
 	{
 		cout << "MinFilter[" << to_string( sampler.minFilter ) << "] "
 		     << "MagFiler[" << to_string( sampler.magFilter ) << "] "
@@ -122,7 +122,7 @@ void printImages( Gltf& model )
 {
 	cout << endl << "# Images" << endl;
 
-	for ( auto& image : model.GetImages() )
+	for ( auto& image : model.get_images() )
 	{
 		cout << "Uri[" << image.uri << "]" << endl;
 	}
@@ -133,7 +133,7 @@ void printTextures( Gltf& model )
 {
 	cout << endl << "# Textures" << endl;
 
-	for ( auto& texture : model.GetTextures() )
+	for ( auto& texture : model.get_textures() )
 	{
 		cout << "Sampler[..." << to_string( texture.sampler->minFilter ) << "] "
 		     << "Source[..." << texture.source->uri << "]" << endl;
@@ -168,19 +168,19 @@ void printMaterials( Gltf& model )
 		cout << material.name << endl;
 
 		cout << "[ ";
-		for ( auto val : material.pbrMetallicRoughness.baseColorFactor )
+		for ( auto val : material.pbr_metallic_roughness.base_color_factor )
 		{
 			cout << val << " ";
 		}
 		cout << "]" << endl;
 
-		if ( material.pbrMetallicRoughness.baseColorTexture )
+		if ( material.pbr_metallic_roughness.base_color_texture )
 		{
-			cout << "Texture  :" << material.pbrMetallicRoughness.baseColorTexture->source->uri << endl;
+			cout << "Texture  :" << material.pbr_metallic_roughness.base_color_texture->source->uri << endl;
 		}
 
-		cout << "Metallic :" << material.pbrMetallicRoughness.metallicFactor << endl;
-		cout << "Roughness:" << material.pbrMetallicRoughness.roughnessFactor << endl;
+		cout << "Metallic :" << material.pbr_metallic_roughness.metallic_factor << endl;
+		cout << "Roughness:" << material.pbr_metallic_roughness.roughness_factor << endl;
 	}
 }
 

@@ -6,10 +6,14 @@
 
 #include "gltfspot/Bounds.h"
 #include "gltfspot/Camera.h"
+#include "gltfspot/Image.h"
 #include "gltfspot/Light.h"
+#include "gltfspot/Material.h"
 #include "gltfspot/Mesh.h"
 #include "gltfspot/Node.h"
+#include "gltfspot/Sampler.h"
 #include "gltfspot/Script.h"
+#include "gltfspot/Texture.h"
 
 namespace gltfspot
 {
@@ -61,68 +65,6 @@ class PYSPOT_EXPORT Gltf
 		Target target = Target::None;
 	};
 
-	/// Texture sampler properties for filtering and wrapping modes
-	struct Sampler
-	{
-		/// Magnification/Minification filter
-		enum class Filter
-		{
-			NONE                   = 0,
-			NEAREST                = 9728,
-			LINEAR                 = 9729,
-			NEAREST_MIPMAP_NEAREST = 9984,
-			LINEAR_MIPMAP_NEAREST  = 9985,
-			NEAREST_MIPMAP_LINEAR  = 9986,
-			LINEAR_MIPMAP_LINEAR   = 9987
-		};
-
-		/// Wrapping mode
-		enum class Wrapping
-		{
-			CLAMP_TO_EDGE   = 33071,
-			MIRRORED_REPEAT = 33648,
-			REPEAT          = 10497
-		};
-
-		/// Magnification filter
-		Filter magFilter = Filter::NONE;
-		/// Minification filter
-		Filter minFilter = Filter::NONE;
-		/// S wrapping mode
-		Wrapping wrapS = Wrapping::REPEAT;
-		/// T wrapping mode
-		Wrapping wrapT = Wrapping::REPEAT;
-		/// User-defined name of this object
-		std::string name = "Unknown";
-	};
-
-	/// Image data used to create a texture
-	struct Image
-	{
-		/// Uri of the image
-		std::string uri = "";
-
-		/// MIME type
-		std::string mime_type = "";
-
-		/// Buffer view index
-		uint32_t buffer_view = 0;
-
-		/// Name
-		std::string name = "Unknown";
-	};
-
-	/// Texture and its sampler
-	struct Texture
-	{
-		/// Sampler used by this texture
-		Sampler* sampler = nullptr;
-		/// Image used by this texture
-		Image* source = nullptr;
-		/// User-defined name of this object
-		std::string name = "Unknown";
-	};
-
 	/// Typed view into a bufferView
 	struct Accessor
 	{
@@ -164,28 +106,6 @@ class PYSPOT_EXPORT Gltf
 		std::vector<float> max;
 		/// Minimum value of each component in this attribute
 		std::vector<float> min;
-	};
-
-	/// Material appearance of a primitive
-	struct Material
-	{
-		/// Metallic-Roughness Material
-		struct PbrMetallicRoughness
-		{
-			/// Base color of the material
-			std::vector<float> baseColorFactor = { 1.0f, 1.0f, 1.0f, 1.0f };
-			/// Base color texture
-			Texture* baseColorTexture = nullptr;
-			/// Metalness of the material
-			float metallicFactor = 1.0f;
-			/// Roughness of the material
-			float roughnessFactor = 1.0f;
-		};
-
-		/// User-defined name of this object
-		std::string name = "Unknown";
-		/// Metallic-Roughness Material
-		PbrMetallicRoughness pbrMetallicRoughness;
 	};
 
 	friend class Node;
@@ -314,13 +234,13 @@ class PYSPOT_EXPORT Gltf
 	std::vector<Camera>& get_cameras() { return cameras; }
 
 	/// @return Samplers
-	std::vector<Sampler>& GetSamplers();
+	std::vector<Sampler>& get_samplers() { return samplers; }
 
 	/// @return Images
-	std::vector<Image>& GetImages();
+	std::vector<Image>& get_images() { return images; }
 
 	/// @return Textures
-	std::vector<Texture>& GetTextures();
+	std::vector<Texture>& get_textures() { return textures; }
 
 	/// @return Accessors
 	std::vector<Accessor>& GetAccessors();
@@ -329,16 +249,16 @@ class PYSPOT_EXPORT Gltf
 	std::vector<Material>& GetMaterials();
 
 	/// @return Meshes
-	std::vector<Mesh>& get_meshes();
+	std::vector<Mesh>& get_meshes() { return meshes; }
 
 	/// @return Lights
-	std::vector<Light>& get_lights();
-
-	/// @return Nodes
-	std::vector<Node>& get_nodes();
+	std::vector<Light>& get_lights() { return lights; }
 
 	/// @return Animations
-	std::vector<Animation>& get_animations();
+	std::vector<Gltf::Animation>& get_animations() { return animations; }
+
+	/// @return Nodes
+	std::vector<Node>& get_nodes() { return nodes; }
 
 	/// @return Shapes
 	std::vector<std::unique_ptr<Shape>>& get_shapes() { return shapes; }
@@ -364,6 +284,9 @@ class PYSPOT_EXPORT Gltf
 
 	/// Load the nodes pointer using node indices
 	void load_nodes();
+
+	/// Load meshes pointers using indices
+	void load_meshes();
 
 	/// glTF asset
 	Asset asset;
@@ -407,7 +330,7 @@ class PYSPOT_EXPORT Gltf
 
 	/// Initializes meshes
 	/// @param[in] j Json object describing the meshes
-	void initMeshes( const nlohmann::json& j );
+	void init_meshes( const nlohmann::json& j );
 
 	/// Initializes lights
 	/// @param[in] j Json object describing the lights
@@ -457,13 +380,13 @@ class PYSPOT_EXPORT Gltf
 	std::vector<Camera> cameras;
 
 	/// List of samplers
-	std::vector<Sampler> mSamplers;
+	std::vector<Sampler> samplers;
 
 	/// List of images
-	std::vector<Image> mImages;
+	std::vector<Image> images;
 
 	/// List of textures
-	std::vector<Texture> mTextures;
+	std::vector<Texture> textures;
 
 	/// List of accessors
 	std::vector<Accessor> mAccessors;
@@ -529,10 +452,10 @@ template <>
 std::string to_string<gltfspot::Mesh::Primitive::Semantic>( const gltfspot::Mesh::Primitive::Semantic& s );
 
 template <>
-std::string to_string<gltfspot::Gltf::Sampler::Filter>( const gltfspot::Gltf::Sampler::Filter& f );
+std::string to_string<gltfspot::Sampler::Filter>( const gltfspot::Sampler::Filter& f );
 
 template <>
-std::string to_string<gltfspot::Gltf::Sampler::Wrapping>( const gltfspot::Gltf::Sampler::Wrapping& w );
+std::string to_string<gltfspot::Sampler::Wrapping>( const gltfspot::Sampler::Wrapping& w );
 
 template <>
 std::string to_string<gltfspot::Mesh::Primitive::Mode>( const gltfspot::Mesh::Primitive::Mode& m );

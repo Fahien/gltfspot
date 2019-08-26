@@ -9,6 +9,8 @@
 
 namespace gltfspot
 {
+struct Material;
+
 /// Set of primitives to be rendered
 struct PYSPOT_EXPORT Mesh
 {
@@ -49,7 +51,10 @@ struct PYSPOT_EXPORT Mesh
 		int32_t indices = -1;
 
 		/// Index of the material to apply to this primitive when rendering
-		unsigned material;
+		int32_t material_index = -1;
+
+		/// Pointer to the material to apply to this primitive when rendering
+		Material* material = nullptr;
 
 		/// Type of primitives to render
 		Mode mode = Mode::TRIANGLES;

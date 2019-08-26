@@ -17,9 +17,9 @@ Gltf::Gltf( Gltf&& other )
     , mBuffersCache{ std::move( other.mBuffersCache ) }
     , mBufferViews{ std::move( other.mBufferViews ) }
     , cameras{ std::move( other.cameras ) }
-    , mSamplers{ std::move( other.mSamplers ) }
-    , mImages{ std::move( other.mImages ) }
-    , mTextures{ std::move( other.mTextures ) }
+    , samplers{ std::move( other.samplers ) }
+    , images{ std::move( other.images ) }
+    , textures{ std::move( other.textures ) }
     , mAccessors{ std::move( other.mAccessors ) }
     , mMaterials{ std::move( other.mMaterials ) }
     , meshes{ std::move( other.meshes ) }
@@ -34,6 +34,8 @@ Gltf::Gltf( Gltf&& other )
 {
 	std::for_each( std::begin( nodes ), std::end( nodes ), [this]( auto& node ) { node.gltf = this; } );
 	std::for_each( std::begin( mScenes ), std::end( mScenes ), [this]( auto& scene ) { scene.gltf = this; } );
+	load_meshes();
+	load_nodes();
 }
 
 
@@ -45,9 +47,9 @@ Gltf& Gltf::operator=( Gltf&& other )
 	mBuffersCache = std::move( other.mBuffersCache );
 	mBufferViews  = std::move( other.mBufferViews );
 	cameras       = std::move( other.cameras );
-	mSamplers     = std::move( other.mSamplers );
-	mImages       = std::move( other.mImages );
-	mTextures     = std::move( other.mTextures );
+	samplers      = std::move( other.samplers );
+	images        = std::move( other.images );
+	textures      = std::move( other.textures );
 	mAccessors    = std::move( other.mAccessors );
 	mMaterials    = std::move( other.mMaterials );
 	meshes        = std::move( other.meshes );
@@ -61,6 +63,8 @@ Gltf& Gltf::operator=( Gltf&& other )
 
 	std::for_each( std::begin( nodes ), std::end( nodes ), [this]( auto& node ) { node.gltf = this; } );
 	std::for_each( std::begin( mScenes ), std::end( mScenes ), [this]( auto& scene ) { scene.gltf = this; } );
+	load_meshes();
+	load_nodes();
 
 	return *this;
 }
@@ -123,7 +127,7 @@ Gltf::Gltf( const json& j, const string& path )
 	// Meshes
 	if ( j.count( "meshes" ) )
 	{
-		initMeshes( j["meshes"] );
+		init_meshes( j["meshes"] );
 	}
 
 	// Nodes
@@ -313,23 +317,23 @@ void Gltf::initCameras( const json& j )
 
 
 template <>
-string to_string<Gltf::Sampler::Filter>( const Gltf::Sampler::Filter& f )
+string to_string<Sampler::Filter>( const Sampler::Filter& f )
 {
 	switch ( f )
 	{
-		case Gltf::Sampler::Filter::NONE:
+		case Sampler::Filter::NONE:
 			return "NONE";
-		case Gltf::Sampler::Filter::NEAREST:
+		case Sampler::Filter::NEAREST:
 			return "NEAREST";
-		case Gltf::Sampler::Filter::LINEAR:
+		case Sampler::Filter::LINEAR:
 			return "LINEAR";
-		case Gltf::Sampler::Filter::NEAREST_MIPMAP_NEAREST:
+		case Sampler::Filter::NEAREST_MIPMAP_NEAREST:
 			return "NEAREST_MIPMAP_NEAREST";
-		case Gltf::Sampler::Filter::LINEAR_MIPMAP_NEAREST:
+		case Sampler::Filter::LINEAR_MIPMAP_NEAREST:
 			return "LINEAR_MIPMAP_NEAREST";
-		case Gltf::Sampler::Filter::NEAREST_MIPMAP_LINEAR:
+		case Sampler::Filter::NEAREST_MIPMAP_LINEAR:
 			return "NEAREST_MIPMAP_LINEAR";
-		case Gltf::Sampler::Filter::LINEAR_MIPMAP_LINEAR:
+		case Sampler::Filter::LINEAR_MIPMAP_LINEAR:
 			return "LINEAR_MIPMAP_LINEAR";
 		default:
 			return "UNDEFINED";
@@ -338,15 +342,15 @@ string to_string<Gltf::Sampler::Filter>( const Gltf::Sampler::Filter& f )
 
 
 template <>
-string to_string<Gltf::Sampler::Wrapping>( const Gltf::Sampler::Wrapping& w )
+string to_string<Sampler::Wrapping>( const Sampler::Wrapping& w )
 {
 	switch ( w )
 	{
-		case Gltf::Sampler::Wrapping::CLAMP_TO_EDGE:
+		case Sampler::Wrapping::CLAMP_TO_EDGE:
 			return "CLAMP_TO_EDGE";
-		case Gltf::Sampler::Wrapping::MIRRORED_REPEAT:
+		case Sampler::Wrapping::MIRRORED_REPEAT:
 			return "MIRRORED_REPEAT";
-		case Gltf::Sampler::Wrapping::REPEAT:
+		case Sampler::Wrapping::REPEAT:
 			return "REPEAT";
 		default:
 			return "UNDEFINED";
@@ -414,7 +418,7 @@ void Gltf::initSamplers( const json& j )
 			sampler.name = s["name"].get<string>();
 		}
 
-		mSamplers.push_back( sampler );
+		samplers.push_back( sampler );
 	}
 }
 
@@ -445,7 +449,7 @@ void Gltf::initImages( const json& j )
 			image.name = i["name"].get<string>();
 		}
 
-		mImages.push_back( std::move( image ) );
+		images.push_back( std::move( image ) );
 	}
 }
 
@@ -460,14 +464,14 @@ void Gltf::initTextures( const json& j )
 		if ( t.count( "sampler" ) )
 		{
 			size_t index{ t["sampler"].get<size_t>() };
-			texture.sampler = &mSamplers[index];
+			texture.sampler = &samplers[index];
 		}
 
 		// Image
 		if ( t.count( "source" ) )
 		{
 			size_t index{ t["source"].get<size_t>() };
-			texture.source = &mImages[index];
+			texture.source = &images[index];
 		}
 
 		// Name
@@ -476,7 +480,7 @@ void Gltf::initTextures( const json& j )
 			texture.name = t["name"].get<string>();
 		}
 
-		mTextures.push_back( texture );
+		textures.push_back( texture );
 	}
 }
 
@@ -613,7 +617,7 @@ void Gltf::initMaterials( const json& j )
 {
 	for ( const auto& m : j )
 	{
-		Gltf::Material material;
+		Material material;
 
 		// Name
 		if ( m.count( "name" ) )
@@ -628,23 +632,23 @@ void Gltf::initMaterials( const json& j )
 
 			if ( mr.count( "baseColorFactor" ) )
 			{
-				material.pbrMetallicRoughness.baseColorFactor = mr["baseColorFactor"].get<vector<float>>();
+				material.pbr_metallic_roughness.base_color_factor = mr["baseColorFactor"].get<vector<float>>();
 			}
 
 			if ( mr.count( "baseColorTexture" ) )
 			{
 				size_t index{ mr["baseColorTexture"]["index"].get<size_t>() };
-				material.pbrMetallicRoughness.baseColorTexture = &mTextures[index];
+				material.pbr_metallic_roughness.base_color_texture = &textures[index];
 			}
 
 			if ( mr.count( "metallicFactor" ) )
 			{
-				material.pbrMetallicRoughness.metallicFactor = mr["metallicFactor"].get<float>();
+				material.pbr_metallic_roughness.metallic_factor = mr["metallicFactor"].get<float>();
 			}
 
 			if ( mr.count( "roughnessFactor" ) )
 			{
-				material.pbrMetallicRoughness.roughnessFactor = mr["roughnessFactor"].get<float>();
+				material.pbr_metallic_roughness.roughness_factor = mr["roughnessFactor"].get<float>();
 			}
 		}
 
@@ -739,7 +743,7 @@ std::string to_string<Mesh::Primitive::Semantic>( const Mesh::Primitive::Semanti
 }
 
 
-void Gltf::initMeshes( const json& j )
+void Gltf::init_meshes( const json& j )
 {
 	for ( const auto& m : j )
 	{
@@ -771,7 +775,8 @@ void Gltf::initMeshes( const json& j )
 
 			if ( p.count( "material" ) )
 			{
-				primitive.material = p["material"].get<unsigned>();
+				primitive.material_index = p["material"].get<unsigned>();
+				primitive.material       = &mMaterials[primitive.material_index];
 			}
 
 			if ( p.count( "mode" ) )
@@ -783,6 +788,21 @@ void Gltf::initMeshes( const json& j )
 		}
 
 		meshes.push_back( mesh );
+	}
+}
+
+
+void Gltf::load_meshes()
+{
+	for ( auto& mesh : meshes )
+	{
+		for ( auto& primitive : mesh.primitives )
+		{
+			if ( primitive.material_index >= 0 )
+			{
+				primitive.material = &mMaterials[primitive.material_index];
+			}
+		}
 	}
 }
 
@@ -1142,7 +1162,7 @@ void Gltf::init_scripts( const nlohmann::json& ss )
 
 void Gltf::load_nodes()
 {
-	// Reset parents
+	// Reset parents as a pre-step
 	std::for_each( std::begin( nodes ), std::end( nodes ), []( auto& node ) { node.parent = nullptr; } );
 
 	for ( auto& node : nodes )
@@ -1403,54 +1423,17 @@ vector<Gltf::BufferView>& Gltf::GetBufferViews()
 }
 
 
-vector<Gltf::Sampler>& Gltf::GetSamplers()
-{
-	return mSamplers;
-}
-
-
-vector<Gltf::Image>& Gltf::GetImages()
-{
-	return mImages;
-}
-
-
-vector<Gltf::Texture>& Gltf::GetTextures()
-{
-	return mTextures;
-}
-
-
 vector<Gltf::Accessor>& Gltf::GetAccessors()
 {
 	return mAccessors;
 }
 
 
-vector<Gltf::Material>& Gltf::GetMaterials()
+vector<Material>& Gltf::GetMaterials()
 {
 	return mMaterials;
 }
 
-vector<Mesh>& Gltf::get_meshes()
-{
-	return meshes;
-}
-
-vector<Light>& Gltf::get_lights()
-{
-	return lights;
-}
-
-vector<Gltf::Animation>& Gltf::get_animations()
-{
-	return animations;
-}
-
-vector<Node>& Gltf::get_nodes()
-{
-	return nodes;
-}
 
 vector<Gltf::Scene>& Gltf::GetScenes()
 {
