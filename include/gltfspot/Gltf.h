@@ -338,7 +338,7 @@ class Gltf
 
 	/// Initializes nodes
 	/// @param[in] j Json object describing the nodes
-	void initNodes( const nlohmann::json& j );
+	void init_nodes( const nlohmann::json& j );
 
 	/// Initializes animations
 	/// @param[in] j Json object describing the animations

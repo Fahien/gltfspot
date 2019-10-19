@@ -133,7 +133,7 @@ Gltf::Gltf( const json& j, const string& path )
 	// Nodes
 	if ( j.count( "nodes" ) )
 	{
-		initNodes( j["nodes"] );
+		init_nodes( j["nodes"] );
 	}
 
 	// Animations
@@ -878,7 +878,7 @@ void Gltf::init_lights( const json& j )
 }
 
 
-void Gltf::initNodes( const json& j )
+void Gltf::init_nodes( const json& j )
 {
 	size_t i = 0;
 
@@ -925,8 +925,7 @@ void Gltf::initNodes( const json& j )
 		// Mesh
 		if ( n.count( "mesh" ) )
 		{
-			unsigned m = n["mesh"];
-			node.mesh  = &( meshes[m] );
+			node.mesh_index = n["mesh"];
 		}
 
 		// Rotation
@@ -1179,6 +1178,12 @@ void Gltf::load_nodes()
 				child->parent = &node;
 				node.children.push_back( child );
 			}
+		}
+
+		// Solve node meshes
+		if ( node.mesh_index >= 0 )
+		{
+			node.mesh = &meshes[node.mesh_index];
 		}
 
 		// Solve node light

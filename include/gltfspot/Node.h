@@ -39,6 +39,9 @@ class Node
 	/// Floating-point 4x4 transformation matrix stored in column-major order
 	mathspot::Mat4 matrix = mathspot::Mat4::identity;
 
+	/// If not negative, index of mesh of the node
+	int32_t mesh_index = -1;
+
 	/// Mesh in this node
 	Mesh* mesh = nullptr;
 
