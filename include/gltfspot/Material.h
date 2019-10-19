@@ -1,7 +1,6 @@
 #ifndef GST_MATERIAL_H_
 #define GST_MATERIAL_H_
 
-#define PYSPOT_EXPORT __attribute__( ( annotate( "pyspot" ) ) )
 
 #include <string>
 #include <vector>
@@ -11,7 +10,7 @@ namespace gltfspot
 struct Texture;
 
 /// Material appearance of a primitive
-struct PYSPOT_EXPORT Material
+struct Material
 {
 	/// Metallic-Roughness Material
 	struct PbrMetallicRoughness

@@ -15,7 +15,7 @@ class Shape;
 
 
 /// Node in the node hierarchy
-class PYSPOT_EXPORT Node
+class Node
 {
   public:
 	/// Gltf owning the node

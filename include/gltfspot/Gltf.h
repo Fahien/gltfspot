@@ -18,11 +18,11 @@
 namespace gltfspot
 {
 /// GL Transmission Format
-class PYSPOT_EXPORT Gltf
+class Gltf
 {
   public:
 	/// Metadata about the glTF asset
-	struct PYSPOT_EXPORT Asset
+	struct Asset
 	{
 		/// glTF version that this asset targets
 		std::string version;

@@ -3,13 +3,12 @@
 
 #include <string>
 
-#define PYSPOT_EXPORT __attribute__( ( annotate( "pyspot" ) ) )
 
 namespace gltfspot
 {
 /// Camera's projection.
 /// A node can reference a camera to apply a transform to place the camera in the scene
-struct PYSPOT_EXPORT Camera
+struct Camera
 {
 	/// Orthographic Camera
 	struct Ortographic
