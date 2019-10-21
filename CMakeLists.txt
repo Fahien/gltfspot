@@ -42,6 +42,7 @@ set(GST_INCLUDE_DIRS ${GST_INCLUDE_DIR}
 set(GST_SOURCE_DIR ${PROJECT_SOURCE_DIR}/source)
 set(GST_SOURCES
 	${GST_SOURCE_DIR}/Gltf.cpp
+	${GST_SOURCE_DIR}/Mesh.cpp
 	${GST_SOURCE_DIR}/Node.cpp
 	${GST_SOURCE_DIR}/Bounds.cpp
 )

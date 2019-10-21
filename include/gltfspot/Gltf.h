@@ -92,18 +92,40 @@ class Gltf
 			MAT4
 		};
 
+		Accessor( Gltf& m );
+
+		Accessor( Accessor&& a );
+
+		/// @return The size of the buffer view pointed by this accessor
+		size_t get_size() const;
+
+		/// @return The address of the data pointed by this accessor
+		const void* get_data() const;
+
+		/// @return The stride of the buffer view pointed by this accessor
+		size_t get_stride() const;
+		
+		/// The model of the accessor
+		Gltf* model = nullptr;
+
 		/// Index of the buffer view
 		size_t bufferView;
+
 		/// Offset relative to the start of the bufferView in bytes
 		size_t byteOffset{ 0 };
+
 		/// Datatype of components in the attribute
 		ComponentType componentType;
+
 		/// Number of attributes referenced by this accessor
 		size_t count;
+
 		/// Specifies if the attribute is a scalar, vector, or matrix
 		Type type;
+
 		/// Maximum value of each component in this attribute
 		std::vector<float> max;
+
 		/// Minimum value of each component in this attribute
 		std::vector<float> min;
 	};

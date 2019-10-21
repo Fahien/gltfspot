@@ -34,6 +34,7 @@ Gltf::Gltf( Gltf&& other )
 {
 	std::for_each( std::begin( nodes ), std::end( nodes ), [this]( auto& node ) { node.gltf = this; } );
 	std::for_each( std::begin( mScenes ), std::end( mScenes ), [this]( auto& scene ) { scene.gltf = this; } );
+	std::for_each( std::begin( mAccessors ), std::end( mAccessors ), [this]( auto& acc ) { acc.model = this; } );
 	load_meshes();
 	load_nodes();
 }
@@ -63,6 +64,7 @@ Gltf& Gltf::operator=( Gltf&& other )
 
 	std::for_each( std::begin( nodes ), std::end( nodes ), [this]( auto& node ) { node.gltf = this; } );
 	std::for_each( std::begin( mScenes ), std::end( mScenes ), [this]( auto& scene ) { scene.gltf = this; } );
+	std::for_each( std::begin( mAccessors ), std::end( mAccessors ), [this]( auto& acc ) { acc.model = this; } );
 	load_meshes();
 	load_nodes();
 
@@ -563,11 +565,52 @@ std::string to_string<Gltf::Accessor::Type>( const Gltf::Accessor::Type& t )
 }
 
 
+Gltf::Accessor::Accessor( Gltf& g )
+: model { &g }
+{}
+
+
+Gltf::Accessor::Accessor( Gltf::Accessor&& other )
+: model { other.model }
+, bufferView { other.bufferView }
+, byteOffset { other.byteOffset }
+, componentType { other.componentType }
+, count { other.count }
+, type { other.type }
+, max { std::move( other.max ) }
+, min { std::move( other.min ) }
+{
+	other.model = nullptr;
+}
+
+
+size_t Gltf::Accessor::get_size() const
+{
+	auto& buffer_view = model->GetBufferViews().at( bufferView );
+	return buffer_view.byteLength;
+}
+
+
+const void* Gltf::Accessor::get_data() const
+{
+	auto& buffer_view = model->GetBufferViews().at( bufferView );
+	auto  buffer      = model->GetBuffer( buffer_view.buffer );
+	return &( buffer[buffer_view.byteOffset] );
+}
+
+
+size_t Gltf::Accessor::get_stride() const
+{
+	auto& buffer_view = model->GetBufferViews().at( bufferView );
+	return buffer_view.byteStride;
+}
+
+
 void Gltf::initAccessors( const json& j )
 {
 	for ( const auto& a : j )
 	{
-		Accessor accessor;
+		Accessor accessor { *this };
 
 		// Buffer view
 		if ( a.count( "bufferView" ) )
@@ -608,7 +651,7 @@ void Gltf::initAccessors( const json& j )
 			}
 		}
 
-		mAccessors.push_back( accessor );
+		mAccessors.push_back( std::move( accessor ) );
 	}
 }
 
@@ -747,7 +790,7 @@ void Gltf::init_meshes( const json& j )
 {
 	for ( const auto& m : j )
 	{
-		Mesh mesh;
+		Mesh mesh { *this };
 
 		// Name
 		if ( m.count( "name" ) )
@@ -758,7 +801,7 @@ void Gltf::init_meshes( const json& j )
 		// Primitives
 		for ( const auto& p : m["primitives"] )
 		{
-			Mesh::Primitive primitive;
+			Mesh::Primitive primitive { mesh };
 
 			auto attributes = p["attributes"].get<map<string, unsigned>>();
 
@@ -784,10 +827,10 @@ void Gltf::init_meshes( const json& j )
 				primitive.mode = p["mode"].get<Mesh::Primitive::Mode>();
 			}
 
-			mesh.primitives.push_back( primitive );
+			mesh.primitives.push_back( std::move( primitive ) );
 		}
 
-		meshes.push_back( mesh );
+		meshes.push_back( std::move( mesh ) );
 	}
 }
 
@@ -803,6 +846,8 @@ void Gltf::load_meshes()
 				primitive.material = &mMaterials[primitive.material_index];
 			}
 		}
+
+		mesh.model = this;
 	}
 }
 

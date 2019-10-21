@@ -8,6 +8,7 @@
 
 namespace gltfspot
 {
+class Gltf;
 struct Material;
 
 /// Set of primitives to be rendered
@@ -42,6 +43,15 @@ struct Mesh
 			TRIANGLE_FAN
 		};
 
+		Primitive( Mesh& m );
+
+		Primitive( Primitive&& p );
+
+		Primitive& operator=( Primitive&& p );
+
+		/// Mesh owning the primitive
+		Mesh* mesh = nullptr;
+
 		/// Dictionary object, where each key corresponds to mesh attribute semantic and
 		/// each value is the index of the accessor containing attribute's data (required)
 		std::map<Semantic, unsigned> attributes;
@@ -63,6 +73,13 @@ struct Mesh
 		/// extension-specific objects Application-specific data
 		void* extras;
 	};
+
+	Mesh( Gltf& g );
+
+	Mesh( Mesh&& m );
+
+	/// Gltf model owning the mesh
+	Gltf* model;
 
 	/// Array of primitives, each defining geometry to be rendered with a material (required)
 	std::vector<Primitive> primitives;

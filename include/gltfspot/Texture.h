@@ -1,12 +1,13 @@
-#ifndef GST_TEXTURE_H_
-#define GST_TEXTURE_H_
+#pragma once
 
 #include <string>
 
 namespace gltfspot
 {
+
 struct Sampler;
 struct Image;
+
 
 /// Texture and its sampler
 struct Texture
@@ -21,7 +22,5 @@ struct Texture
 	std::string name = "Unknown";
 };
 
+
 }  // namespace gltfspot
-
-
-#endif  // GST_TEXTURE_H_
