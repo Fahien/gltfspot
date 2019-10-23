@@ -285,9 +285,6 @@ class Gltf
 	/// @return Shapes
 	std::vector<std::unique_ptr<Shape>>& get_shapes() { return shapes; }
 
-	/// @return Bounds
-	std::vector<Bounds>& get_bounds() { return bounds; }
-
 	/// @return Extras
 	std::vector<Script>& get_scripts() { return scripts; }
 
@@ -370,10 +367,6 @@ class Gltf
 	/// @param[in] j Json object describing the shapes
 	void init_shapes( const nlohmann::json& j );
 
-	/// Initializes bounds
-	/// @param[in] j Json Object describing the bounds
-	void init_bounds( const nlohmann::json& j );
-
 	/// Initializes scripts
 	/// @param[in] j Json object describing scripts
 	void init_scripts( const nlohmann::json& j );
@@ -430,9 +423,6 @@ class Gltf
 
 	/// List of shapes (abstract)
 	std::vector<std::unique_ptr<Shape>> shapes;
-
-	/// List of bounds
-	std::vector<Bounds> bounds;
 
 	/// List of scripts
 	std::vector<Script> scripts;

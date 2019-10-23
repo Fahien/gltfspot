@@ -26,7 +26,6 @@ Gltf::Gltf( Gltf&& other )
     , lights{ std::move( other.lights ) }
     , nodes{ std::move( other.nodes ) }
     , animations{ std::move( other.animations ) }
-    , bounds{ std::move( other.bounds ) }
     , shapes{ std::move( other.shapes ) }
     , scripts{ std::move( other.scripts ) }
     , mScenes{ std::move( other.mScenes ) }
@@ -132,6 +131,24 @@ Gltf::Gltf( const json& j, const string& path )
 		init_meshes( j["meshes"] );
 	}
 
+	// Extras
+	if ( j.count( "extras" ) )
+	{
+		auto& extras = j["extras"];
+
+		// Scripts
+		if ( extras.count( "scripts" ) )
+		{
+			init_scripts( extras["scripts"] );
+		}
+
+		// Shapes
+		if ( extras.count( "shapes" ) )
+		{
+			init_shapes( extras["shapes"] );
+		}
+	}
+
 	// Nodes
 	if ( j.count( "nodes" ) )
 	{
@@ -153,29 +170,6 @@ Gltf::Gltf( const json& j, const string& path )
 		if ( extensions.count( "KHR_lights_punctual" ) )
 		{
 			init_lights( extensions["KHR_lights_punctual"]["lights"] );
-		}
-	}
-
-	// Extras
-	if ( j.count( "extras" ) )
-	{
-		auto& extras = j["extras"];
-
-		// Scripts
-		if ( extras.count( "scripts" ) )
-		{
-			init_scripts( extras["scripts"] );
-		}
-
-		// Shapes
-		if ( extras.count( "shapes" ) )
-		{
-			init_shapes( extras["shapes"] );
-		}
-		// Bounds
-		if ( extras.count( "bounds" ) )
-		{
-			init_bounds( extras["bounds"] );
 		}
 	}
 
@@ -1166,17 +1160,6 @@ void Gltf::init_shapes( const nlohmann::json& ss )
 		{
 			throw std::runtime_error{ "Type not supported: " + type };
 		}
-	}
-}
-
-void Gltf::init_bounds( const nlohmann::json& bs )
-{
-	for ( auto& bb : bs )
-	{
-		auto   shape_index = bb["shape"].get<size_t>();
-		Bounds bound;
-		bound.shape = shapes[shape_index].get();
-		bounds.push_back( std::move( bound ) );
 	}
 }
 
