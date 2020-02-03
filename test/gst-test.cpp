@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 
-#include <spot/gltf/Gltf.h>
+#include <spot/gltf/gltf.h>
 
 using namespace std;
 using namespace spot::gltf;

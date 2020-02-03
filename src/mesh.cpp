@@ -1,4 +1,4 @@
-#include "spot/gltf/Mesh.h"
+#include "spot/gltf/mesh.h"
 
 namespace spot::gltf
 {

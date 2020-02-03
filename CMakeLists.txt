@@ -39,12 +39,12 @@ set(GST_INCLUDE_DIRS ${GST_INCLUDE_DIR}
 	${FILESPOT_INCLUDE_DIRS})
 
 # Sources
-set(GST_SOURCE_DIR ${PROJECT_SOURCE_DIR}/source)
+set(GST_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src)
 set(GST_SOURCES
-	${GST_SOURCE_DIR}/Gltf.cpp
-	${GST_SOURCE_DIR}/Mesh.cpp
-	${GST_SOURCE_DIR}/Node.cpp
-	${GST_SOURCE_DIR}/Bounds.cpp
+	${GST_SOURCE_DIR}/gltf.cpp
+	${GST_SOURCE_DIR}/mesh.cpp
+	${GST_SOURCE_DIR}/node.cpp
+	${GST_SOURCE_DIR}/bounds.cpp
 )
 source_group(Source FILES ${GST_SOURCES})
 

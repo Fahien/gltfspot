@@ -1,6 +1,6 @@
-#include "spot/gltf/Node.h"
+#include "spot/gltf/node.h"
 
-#include "spot/gltf/Gltf.h"
+#include "spot/gltf/gltf.h"
 
 namespace spot::gltf
 {

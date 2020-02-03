@@ -3,16 +3,16 @@
 #include <spot/math/math.h>
 #include <nlohmann/json.hpp>
 
-#include "spot/gltf/Bounds.h"
-#include "spot/gltf/Camera.h"
-#include "spot/gltf/Image.h"
-#include "spot/gltf/Light.h"
-#include "spot/gltf/Material.h"
-#include "spot/gltf/Mesh.h"
-#include "spot/gltf/Node.h"
-#include "spot/gltf/Sampler.h"
-#include "spot/gltf/Script.h"
-#include "spot/gltf/Texture.h"
+#include "spot/gltf/bounds.h"
+#include "spot/gltf/camera.h"
+#include "spot/gltf/image.h"
+#include "spot/gltf/light.h"
+#include "spot/gltf/material.h"
+#include "spot/gltf/mesh.h"
+#include "spot/gltf/node.h"
+#include "spot/gltf/sampler.h"
+#include "spot/gltf/script.h"
+#include "spot/gltf/texture.h"
 
 namespace spot::gltf
 {

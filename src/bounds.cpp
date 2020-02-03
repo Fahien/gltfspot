@@ -1,6 +1,6 @@
-#include "spot/gltf/Bounds.h"
-#include "spot/gltf/Node.h"
-#include "spot/gltf/Script.h"
+#include "spot/gltf/bounds.h"
+#include "spot/gltf/node.h"
+#include "spot/gltf/script.h"
 
 #include <cmath>
 #include <algorithm>

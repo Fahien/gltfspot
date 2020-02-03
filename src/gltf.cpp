@@ -2,7 +2,7 @@
 #include <fstream>
 #include <stdexcept>
 
-#include "spot/gltf/Gltf.h"
+#include "spot/gltf/gltf.h"
 
 using namespace std;
 using namespace nlohmann;
