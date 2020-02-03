@@ -5,7 +5,7 @@
 
 #include <spot/math/math.h>
 
-namespace gltfspot
+namespace spot::gltf
 {
 class Node;
 class Box;
@@ -72,4 +72,4 @@ struct Bounds
 	Shape* shape = nullptr;
 };
 
-}  // namespace gltfspot
+}  // namespace spot::gltf

@@ -4,7 +4,7 @@
 #include <string>
 
 
-namespace gltfspot
+namespace spot::gltf
 {
 /// Camera's projection.
 /// A node can reference a camera to apply a transform to place the camera in the scene
@@ -61,6 +61,6 @@ struct Camera
 	/// Name
 	std::string name = "Unknown";
 };
-}  // namespace gltfspot
+}  // namespace spot::gltf
 
 #endif  // GST_CAMERA_H_

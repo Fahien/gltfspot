@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace gltfspot
+namespace spot::gltf
 {
 
 struct Sampler;
@@ -23,4 +23,4 @@ struct Texture
 };
 
 
-}  // namespace gltfspot
+}  // namespace spot::gltf

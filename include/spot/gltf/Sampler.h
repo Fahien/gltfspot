@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace gltfspot
+namespace spot::gltf
 {
 /// Texture sampler properties for filtering and wrapping modes
 struct Sampler
@@ -45,7 +45,7 @@ struct Sampler
 };
 
 
-}  // namespace gltfspot
+}  // namespace spot::gltf
 
 
 #endif  // GST_SAMPLER_H_

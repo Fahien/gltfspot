@@ -6,7 +6,7 @@
 #include <vector>
 
 
-namespace gltfspot
+namespace spot::gltf
 {
 class Gltf;
 struct Material;
@@ -96,7 +96,7 @@ struct Mesh
 };
 
 
-}  // namespace gltfspot
+}  // namespace spot::gltf
 
 
 #endif  // GST_MESH_H_

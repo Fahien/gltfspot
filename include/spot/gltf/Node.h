@@ -3,7 +3,7 @@
 #include <spot/math/math.h>
 #include <vector>
 
-namespace gltfspot
+namespace spot::gltf
 {
 class Gltf;
 class Camera;
@@ -82,4 +82,4 @@ class Node
 };
 
 
-}  // namespace gltfspot
+}  // namespace spot::gltf

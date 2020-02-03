@@ -2,13 +2,13 @@
 #include <fstream>
 #include <stdexcept>
 
-#include "gltfspot/Gltf.h"
+#include "spot/gltf/Gltf.h"
 
 using namespace std;
 using namespace nlohmann;
 namespace fst = filespot;
 
-namespace gltfspot
+namespace spot::gltf
 {
 Gltf::Gltf( Gltf&& other )
     : asset{ std::move( other.asset ) }
@@ -1023,7 +1023,7 @@ void Gltf::init_nodes( const json& j )
 
 
 template <>
-gltfspot::Gltf::Animation::Sampler::Interpolation from_string<gltfspot::Gltf::Animation::Sampler::Interpolation>(
+spot::gltf::Gltf::Animation::Sampler::Interpolation from_string<spot::gltf::Gltf::Animation::Sampler::Interpolation>(
     const std::string& i )
 {
 	if ( i == "LINEAR" )
@@ -1043,7 +1043,7 @@ gltfspot::Gltf::Animation::Sampler::Interpolation from_string<gltfspot::Gltf::An
 }
 
 template <>
-gltfspot::Gltf::Animation::Target::Path from_string<gltfspot::Gltf::Animation::Target::Path>( const std::string& p )
+spot::gltf::Gltf::Animation::Target::Path from_string<spot::gltf::Gltf::Animation::Target::Path>( const std::string& p )
 {
 	if ( p == "translation" )
 	{
@@ -1117,7 +1117,7 @@ void Gltf::init_animations( const nlohmann::json& j )
 
 
 template <>
-gltfspot::Bounds::Type from_string<gltfspot::Bounds::Type>( const std::string& b )
+spot::gltf::Bounds::Type from_string<spot::gltf::Bounds::Type>( const std::string& b )
 {
 	if ( b == "box" )
 	{
@@ -1478,4 +1478,4 @@ Gltf::Scene* Gltf::GetScene()
 	return mScene;
 }
 
-}  // namespace gltfspot
+}  // namespace spot::gltf

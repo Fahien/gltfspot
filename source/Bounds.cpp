@@ -1,11 +1,11 @@
-#include "gltfspot/Bounds.h"
-#include "gltfspot/Node.h"
-#include "gltfspot/Script.h"
+#include "spot/gltf/Bounds.h"
+#include "spot/gltf/Node.h"
+#include "spot/gltf/Script.h"
 
 #include <cmath>
 #include <algorithm>
 
-namespace gltfspot
+namespace spot::gltf
 {
 void Shape::set_matrix( const spot::math::Mat4& m )
 {
@@ -80,4 +80,4 @@ Sphere::Sphere( const spot::math::Vec3& oo, const float rr )
 }
 
 
-}  // namespace gltfspot
+}  // namespace spot::gltf

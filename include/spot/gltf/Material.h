@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace gltfspot
+namespace spot::gltf
 {
 struct Texture;
 
@@ -35,6 +35,6 @@ struct Material
 	PbrMetallicRoughness pbr_metallic_roughness;
 };
 
-}  // namespace gltfspot
+}  // namespace spot::gltf
 
 #endif  // GST_MATERIAL_H_

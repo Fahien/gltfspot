@@ -3,10 +3,10 @@
 #include <iostream>
 #include <string>
 
-#include <gltfspot/Gltf.h>
+#include <spot/gltf/Gltf.h>
 
 using namespace std;
-using namespace gltfspot;
+using namespace spot::gltf;
 using namespace nlohmann;
 
 

@@ -4,7 +4,7 @@
 
 #include <spot/math/math.h>
 
-namespace gltfspot
+namespace spot::gltf
 {
 /// Punctual light that emit light in well-defined directions and intensities
 struct Light
@@ -49,4 +49,4 @@ struct Light
 	Spot spot = {};
 };
 
-}  // namespace gltfspot
+}  // namespace spot::gltf

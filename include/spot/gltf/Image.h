@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace gltfspot
+namespace spot::gltf
 {
 /// Image data used to create a texture
 struct Image
@@ -22,7 +22,7 @@ struct Image
 };
 
 
-}  // namespace gltfspot
+}  // namespace spot::gltf
 
 
 #endif  // GST_IMAGE_H_

@@ -1,8 +1,8 @@
-#include "gltfspot/Node.h"
+#include "spot/gltf/Node.h"
 
-#include "gltfspot/Gltf.h"
+#include "spot/gltf/Gltf.h"
 
-namespace gltfspot
+namespace spot::gltf
 {
 Node& Node::create_child( const std::string& name )
 {
@@ -49,4 +49,4 @@ void Node::remove_from_parent()
 }
 
 
-}  // namespace gltfspot
+}  // namespace spot::gltf

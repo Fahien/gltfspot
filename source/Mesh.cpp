@@ -1,6 +1,6 @@
-#include "gltfspot/Mesh.h"
+#include "spot/gltf/Mesh.h"
 
-namespace gltfspot
+namespace spot::gltf
 {
 
 
@@ -63,4 +63,4 @@ Mesh::Mesh( Mesh&& other )
 }
 
 
-} // namespace gltfspot
+} // namespace spot::gltf

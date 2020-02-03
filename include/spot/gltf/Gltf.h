@@ -3,18 +3,18 @@
 #include <spot/math/math.h>
 #include <nlohmann/json.hpp>
 
-#include "gltfspot/Bounds.h"
-#include "gltfspot/Camera.h"
-#include "gltfspot/Image.h"
-#include "gltfspot/Light.h"
-#include "gltfspot/Material.h"
-#include "gltfspot/Mesh.h"
-#include "gltfspot/Node.h"
-#include "gltfspot/Sampler.h"
-#include "gltfspot/Script.h"
-#include "gltfspot/Texture.h"
+#include "spot/gltf/Bounds.h"
+#include "spot/gltf/Camera.h"
+#include "spot/gltf/Image.h"
+#include "spot/gltf/Light.h"
+#include "spot/gltf/Material.h"
+#include "spot/gltf/Mesh.h"
+#include "spot/gltf/Node.h"
+#include "spot/gltf/Sampler.h"
+#include "spot/gltf/Script.h"
+#include "spot/gltf/Texture.h"
 
-namespace gltfspot
+namespace spot::gltf
 {
 /// GL Transmission Format
 class Gltf
@@ -438,37 +438,37 @@ template <typename T>
 T from_string( const std::string& s );
 
 template <>
-gltfspot::Gltf::Accessor::Type from_string<gltfspot::Gltf::Accessor::Type>( const std::string& s );
+spot::gltf::Gltf::Accessor::Type from_string<spot::gltf::Gltf::Accessor::Type>( const std::string& s );
 
 template <>
-gltfspot::Mesh::Primitive::Semantic from_string<gltfspot::Mesh::Primitive::Semantic>( const std::string& s );
+spot::gltf::Mesh::Primitive::Semantic from_string<spot::gltf::Mesh::Primitive::Semantic>( const std::string& s );
 
 template <>
-gltfspot::Gltf::Animation::Sampler::Interpolation from_string<gltfspot::Gltf::Animation::Sampler::Interpolation>(
+spot::gltf::Gltf::Animation::Sampler::Interpolation from_string<spot::gltf::Gltf::Animation::Sampler::Interpolation>(
     const std::string& i );
 
 template <>
-gltfspot::Gltf::Animation::Target::Path from_string<gltfspot::Gltf::Animation::Target::Path>( const std::string& p );
+spot::gltf::Gltf::Animation::Target::Path from_string<spot::gltf::Gltf::Animation::Target::Path>( const std::string& p );
 
 template <>
-gltfspot::Bounds::Type from_string<gltfspot::Bounds::Type>( const std::string& b );
+spot::gltf::Bounds::Type from_string<spot::gltf::Bounds::Type>( const std::string& b );
 
 template <typename T>
 std::string to_string( const T& t );
 
 template <>
-std::string to_string<gltfspot::Gltf::Accessor::Type>( const gltfspot::Gltf::Accessor::Type& t );
+std::string to_string<spot::gltf::Gltf::Accessor::Type>( const spot::gltf::Gltf::Accessor::Type& t );
 
 template <>
-std::string to_string<gltfspot::Mesh::Primitive::Semantic>( const gltfspot::Mesh::Primitive::Semantic& s );
+std::string to_string<spot::gltf::Mesh::Primitive::Semantic>( const spot::gltf::Mesh::Primitive::Semantic& s );
 
 template <>
-std::string to_string<gltfspot::Sampler::Filter>( const gltfspot::Sampler::Filter& f );
+std::string to_string<spot::gltf::Sampler::Filter>( const spot::gltf::Sampler::Filter& f );
 
 template <>
-std::string to_string<gltfspot::Sampler::Wrapping>( const gltfspot::Sampler::Wrapping& w );
+std::string to_string<spot::gltf::Sampler::Wrapping>( const spot::gltf::Sampler::Wrapping& w );
 
 template <>
-std::string to_string<gltfspot::Mesh::Primitive::Mode>( const gltfspot::Mesh::Primitive::Mode& m );
+std::string to_string<spot::gltf::Mesh::Primitive::Mode>( const spot::gltf::Mesh::Primitive::Mode& m );
 
-}  // namespace gltfspot
+}  // namespace spot::gltf
