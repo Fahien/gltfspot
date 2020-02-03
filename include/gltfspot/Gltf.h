@@ -1,7 +1,6 @@
-#ifndef GST_GLTF_H_
-#define GST_GLTF_H_
+#pragma once
 
-#include <mathspot/Math.h>
+#include <spot/math/math.h>
 #include <nlohmann/json.hpp>
 
 #include "gltfspot/Bounds.h"
@@ -473,5 +472,3 @@ template <>
 std::string to_string<gltfspot::Mesh::Primitive::Mode>( const gltfspot::Mesh::Primitive::Mode& m );
 
 }  // namespace gltfspot
-
-#endif  // GST_GLTF_H_

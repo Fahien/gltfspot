@@ -862,7 +862,7 @@ void Gltf::init_lights( const json& j )
 		if ( l.count( "color" ) )
 		{
 			auto color = l["color"].get<vector<float>>();
-			light.color.Set( color[0], color[1], color[2] );
+			light.color.set( color[0], color[1], color[2] );
 		}
 
 		// Intensity
@@ -958,7 +958,7 @@ void Gltf::init_nodes( const json& j )
 			{
 				marr[i] = mvec[i];
 			}
-			node.matrix = mathspot::Mat4{ marr.data() };
+			node.matrix = spot::math::Mat4{ marr.data() };
 		}
 
 		// Mesh
@@ -971,21 +971,21 @@ void Gltf::init_nodes( const json& j )
 		if ( n.count( "rotation" ) )
 		{
 			auto qvec     = n["rotation"].get<vector<float>>();
-			node.rotation = mathspot::Quat{ qvec[0], qvec[1], qvec[2], qvec[3] };
+			node.rotation = spot::math::Quat{ qvec[0], qvec[1], qvec[2], qvec[3] };
 		}
 
 		// Scale
 		if ( n.count( "scale" ) )
 		{
 			auto s     = n["scale"].get<vector<float>>();
-			node.scale = mathspot::Vec3{ s[0], s[1], s[2] };
+			node.scale = spot::math::Vec3{ s[0], s[1], s[2] };
 		}
 
 		// Translation
 		if ( n.count( "translation" ) )
 		{
 			auto t           = n["translation"].get<vector<float>>();
-			node.translation = mathspot::Vec3{ t[0], t[1], t[2] };
+			node.translation = spot::math::Vec3{ t[0], t[1], t[2] };
 		}
 
 		// Estensions
@@ -1141,16 +1141,16 @@ void Gltf::init_shapes( const nlohmann::json& ss )
 		if ( type == "box" )
 		{
 			auto aa = s["box"]["a"].get<std::vector<float>>();
-			auto a  = mathspot::Vec3{ aa };
+			auto a  = spot::math::Vec3{ aa };
 			auto bb = s["box"]["b"].get<std::vector<float>>();
-			auto b  = mathspot::Vec3{ bb };
+			auto b  = spot::math::Vec3{ bb };
 
 			shapes.emplace_back( std::unique_ptr<Shape>{ new Box{ a, b } } );
 		}
 		else if ( type == "sphere" )
 		{
 			auto oo = s["sphere"]["o"].get<std::vector<float>>();
-			auto o  = mathspot::Vec3{ oo };
+			auto o  = spot::math::Vec3{ oo };
 
 			auto r = s["sphere"]["r"].get<float>();
 

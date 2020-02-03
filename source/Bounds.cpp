@@ -3,10 +3,11 @@
 #include "gltfspot/Script.h"
 
 #include <cmath>
+#include <algorithm>
 
 namespace gltfspot
 {
-void Shape::set_matrix( const mathspot::Mat4& m )
+void Shape::set_matrix( const spot::math::Mat4& m )
 {
 	matrix = m;
 }
@@ -35,7 +36,7 @@ void Shape::remove_collision( const Shape& s )
 }
 
 
-Box::Box( const mathspot::Vec3& aa, const mathspot::Vec3& bb )
+Box::Box( const spot::math::Vec3& aa, const spot::math::Vec3& bb )
     : a{ aa }
     , b{ bb }
 {
@@ -47,13 +48,13 @@ bool Box::intersects( const Shape& s ) const
 }
 
 
-mathspot::Vec3 Box::get_abs_a() const
+spot::math::Vec3 Box::get_abs_a() const
 {
 	return matrix * a;
 }
 
 
-mathspot::Vec3 Box::get_abs_b() const
+spot::math::Vec3 Box::get_abs_b() const
 {
 	return matrix * b;
 }
@@ -72,7 +73,7 @@ bool Box::intersects( const Box& other ) const
 }
 
 
-Sphere::Sphere( const mathspot::Vec3& oo, const float rr )
+Sphere::Sphere( const spot::math::Vec3& oo, const float rr )
     : o{ oo }
     , r{ rr }
 {

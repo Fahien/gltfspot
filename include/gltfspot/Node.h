@@ -1,7 +1,6 @@
-#ifndef GST_NODE_H_
-#define GST_NODE_H_
+#pragma once
 
-#include <mathspot/Math.h>
+#include <spot/math/math.h>
 #include <vector>
 
 namespace gltfspot
@@ -37,7 +36,7 @@ class Node
 	std::vector<size_t> children_indices;
 
 	/// Floating-point 4x4 transformation matrix stored in column-major order
-	mathspot::Mat4 matrix = mathspot::Mat4::identity;
+	spot::math::Mat4 matrix = spot::math::Mat4::identity;
 
 	/// If not negative, index of mesh of the node
 	int32_t mesh_index = -1;
@@ -46,13 +45,13 @@ class Node
 	Mesh* mesh = nullptr;
 
 	/// Unit quaternion rotation in the order (x, y, z, w), where w is the scalar
-	mathspot::Quat rotation = mathspot::Quat::identity;
+	spot::math::Quat rotation = spot::math::Quat::identity;
 
 	/// Non-uniform scale
-	mathspot::Vec3 scale = mathspot::Vec3{ 1.0f, 1.0f, 1.0f };
+	spot::math::Vec3 scale = spot::math::Vec3{ 1.0f, 1.0f, 1.0f };
 
 	/// Translation
-	mathspot::Vec3 translation = mathspot::Vec3{ 0.0f, 0.0f, 0.0f };
+	spot::math::Vec3 translation = spot::math::Vec3{ 0.0f, 0.0f, 0.0f };
 
 	/// User-defined name of this object
 	std::string name = "Unknown";
@@ -84,5 +83,3 @@ class Node
 
 
 }  // namespace gltfspot
-
-#endif  // GST_NODE_H_

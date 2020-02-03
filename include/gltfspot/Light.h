@@ -1,9 +1,8 @@
-#ifndef GST_LIGHT_H_
-#define GST_LIGHT_H_
+#pragma once
 
 #include <string>
 
-#include <mathspot/Math.h>
+#include <spot/math/math.h>
 
 namespace gltfspot
 {
@@ -25,14 +24,14 @@ struct Light
 		float inner_cone_angle = 0.0f;
 
 		/// Angle in radians, from center where falloff ends
-		float outer_cone_angle = mathspot::kPi / 4.0f;
+		float outer_cone_angle = spot::math::kPi / 4.0f;
 	};
 
 	/// Name of the light
 	std::string name = "Unknown";
 
 	/// Color of the light
-	mathspot::Vec3 color = mathspot::Vec3{ 1.0f, 1.0f, 1.0f };
+	spot::math::Vec3 color = spot::math::Vec3{ 1.0f, 1.0f, 1.0f };
 
 	/// Unit depending on the type of light
 	/// Point and spot lights use luminous intensity in candela (lm/sr)
@@ -51,6 +50,3 @@ struct Light
 };
 
 }  // namespace gltfspot
-
-
-#endif  // GST_LIGHT_H_

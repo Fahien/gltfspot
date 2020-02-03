@@ -1,10 +1,9 @@
-#ifndef GST_BOUNDS_H_
-#define GST_BOUNDS_H_
+#pragma once
 
 #include <vector>
 #include <functional>
 
-#include <mathspot/Math.h>
+#include <spot/math/math.h>
 
 namespace gltfspot
 {
@@ -17,7 +16,7 @@ struct Shape
 	Shape()          = default;
 	virtual ~Shape() = default;
 
-	void set_matrix( const mathspot::Mat4& m );
+	void set_matrix( const spot::math::Mat4& m );
 
 	bool is_colliding_with( const Shape& s ) const;
 	void add_collision( const Shape& s );
@@ -29,7 +28,7 @@ struct Shape
 
 	Node* node = nullptr;
 
-	mathspot::Mat4 matrix = {};
+	spot::math::Mat4 matrix = {};
 
 	std::vector<const Shape*> collisions = {};
 
@@ -41,24 +40,24 @@ struct Shape
 
 struct Box : public Shape
 {
-	Box( const mathspot::Vec3& a = {}, const mathspot::Vec3& b = {} );
+	Box( const spot::math::Vec3& a = {}, const spot::math::Vec3& b = {} );
 
-	mathspot::Vec3 get_abs_a() const;
-	mathspot::Vec3 get_abs_b() const;
+	spot::math::Vec3 get_abs_a() const;
+	spot::math::Vec3 get_abs_b() const;
 
 	bool intersects( const Shape& s ) const override;
 	bool intersects( const Box& b ) const override;
 
-	mathspot::Vec3 a = {};
-	mathspot::Vec3 b = {};
+	spot::math::Vec3 a = {};
+	spot::math::Vec3 b = {};
 };
 
 
 struct Sphere : public Shape
 {
-	Sphere( const mathspot::Vec3& o = {}, float r = 0.0f );
+	Sphere( const spot::math::Vec3& o = {}, float r = 0.0f );
 
-	mathspot::Vec3 o = {};
+	spot::math::Vec3 o = {};
 	float          r = 0.0f;
 };
 
@@ -74,5 +73,3 @@ struct Bounds
 };
 
 }  // namespace gltfspot
-
-#endif  // GST_BOUNDS_H_
