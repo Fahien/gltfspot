@@ -1,12 +1,12 @@
-#include <filespot/Ifstream.h>
 #include <fstream>
 #include <stdexcept>
+#include <spot/file/ifstream.h>
 
 #include "spot/gltf/gltf.h"
 
 using namespace std;
 using namespace nlohmann;
-namespace fst = filespot;
+namespace fl = spot::file;
 
 namespace spot::gltf
 {
@@ -1408,7 +1408,7 @@ auto Gltf::loadBuffer( const size_t i )
 		return mBuffersCache.emplace( i, move( buffer ) );
 	}
 
-	fst::Ifstream file{ b.uri, ios::binary };
+	fl::Ifstream file{ b.uri, ios::binary };
 	auto          buffer = file.Read( b.byteLength );
 
 	return mBuffersCache.emplace( i, move( buffer ) );
@@ -1418,7 +1418,7 @@ auto Gltf::loadBuffer( const size_t i )
 Gltf Gltf::Load( const string& path )
 {
 	// read a JSON file
-	fst::Ifstream i{ path };
+	fl::Ifstream i{ path };
 	json          j;
 	i >> j;
 	Gltf model{ j, path };
