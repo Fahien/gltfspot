@@ -201,7 +201,7 @@ void printMeshes( Gltf& model )
 				cout << "  " << to_string( a.first ) << ": " << a.second << endl;
 			}
 
-			cout << "indices[" << p.indices << "] "
+			cout << "indices[" << p.indices_index << "] "
 			     << "material[" << p.material << "] "
 			     << "mode[" << to_string( p.mode ) << "] " << endl;
 		}

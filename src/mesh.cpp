@@ -14,7 +14,7 @@ Mesh::Primitive::Primitive( Mesh& m )
 Mesh::Primitive::Primitive( Mesh::Primitive&& other )
 : mesh { other.mesh }
 , attributes { std::move( other.attributes ) }
-, indices { other.indices }
+, indices_index { other.indices_index }
 , material_index { other.material_index }
 , material { other.material }
 , mode { other.mode }
@@ -30,7 +30,7 @@ Mesh::Primitive& Mesh::Primitive::operator=( Mesh::Primitive&& other )
 {
 	mesh = other.mesh;
 	attributes = std::move( other.attributes );
-	indices = other.indices;
+	indices_index = other.indices_index;
 	material_index = other.material_index;
 	material = other.material;
 	mode = other.mode;
@@ -44,9 +44,9 @@ Mesh::Primitive& Mesh::Primitive::operator=( Mesh::Primitive&& other )
 }
 
 
-std::map<Mesh::Primitive::Semantic, Accessor*> Mesh::Primitive::get_attributes()
+std::unordered_map<Mesh::Primitive::Semantic, Accessor*> Mesh::Primitive::get_attributes()
 {
-	std::map<Mesh::Primitive::Semantic, Accessor*> ret;
+	std::unordered_map<Mesh::Primitive::Semantic, Accessor*> ret;
 
 	for ( auto [primitive, accessor_index] : attributes )
 	{
@@ -55,6 +55,17 @@ std::map<Mesh::Primitive::Semantic, Accessor*> Mesh::Primitive::get_attributes()
 
 	return ret;
 }
+
+
+Accessor* Mesh::Primitive::get_indices() const
+{
+	if ( indices_index >= 0 )
+	{
+		return& mesh->model->accessors[indices_index];
+	}
+	return nullptr;
+}
+
 
 Mesh::Mesh( Gltf& g )
 : model { &g }

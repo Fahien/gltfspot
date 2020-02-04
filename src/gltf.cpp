@@ -807,7 +807,7 @@ void Gltf::init_meshes( const json& j )
 
 			if ( p.count( "indices" ) )
 			{
-				primitive.indices = p["indices"].get<int32_t>();
+				primitive.indices_index = p["indices"].get<int32_t>();
 			}
 
 			if ( p.count( "material" ) )

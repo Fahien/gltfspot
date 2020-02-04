@@ -1,7 +1,7 @@
 #ifndef GST_MESH_H_
 #define GST_MESH_H_
 
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <vector>
 
@@ -55,12 +55,15 @@ struct Mesh
 
 		/// Dictionary object, where each key corresponds to mesh attribute semantic and
 		/// each value is the index of the accessor containing attribute's data (required)
-		std::map<Semantic, uint32_t> attributes;
+		std::unordered_map<Semantic, uint32_t> attributes;
 
-		std::map<Semantic, Accessor*> get_attributes();
+		std::unordered_map<Semantic, Accessor*> get_attributes();
 
 		/// If >= 0, it is the index of the accessor that contains the indices
-		int32_t indices = -1;
+		int32_t indices_index = -1;
+
+		/// @return A pointer to the accessor if it has indices, otherwise null
+		Accessor* get_indices() const;
 
 		/// Index of the material to apply to this primitive when rendering
 		int32_t material_index = -1;
