@@ -54,6 +54,7 @@ target_link_libraries(${GST_NAME}
 	${MATHSPOT_LIBRARIES}
 	${FILESPOT_LIBRARIES})
 target_include_directories(${GST_NAME} PUBLIC ${GST_INCLUDE_DIRS})
+target_compile_features( ${GST_NAME} PUBLIC cxx_std_17 )
 
 # Test
 set(GST_TEST_DIR ${PROJECT_SOURCE_DIR}/test)

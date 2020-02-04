@@ -1,5 +1,7 @@
 #include "spot/gltf/mesh.h"
 
+#include "spot/gltf/gltf.h"
+
 namespace spot::gltf
 {
 
@@ -39,6 +41,19 @@ Mesh::Primitive& Mesh::Primitive::operator=( Mesh::Primitive&& other )
 	other.extras   = nullptr;
 
 	return *this;
+}
+
+
+std::map<Mesh::Primitive::Semantic, Accessor*> Mesh::Primitive::get_attributes()
+{
+	std::map<Mesh::Primitive::Semantic, Accessor*> ret;
+
+	for ( auto [primitive, accessor_index] : attributes )
+	{
+		ret.emplace( primitive, &mesh->model->accessors[accessor_index]);
+	}
+
+	return ret;
 }
 
 Mesh::Mesh( Gltf& g )

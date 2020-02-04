@@ -16,6 +16,75 @@
 
 namespace spot::gltf
 {
+
+class Gltf;
+
+/// Typed view into a bufferView
+struct Accessor
+{
+	/// Datatype of components in the attribute
+	enum class ComponentType
+	{
+		BYTE           = 5120,
+		UNSIGNED_BYTE  = 5121,
+		SHORT          = 5122,
+		UNSIGNED_SHORT = 5123,
+		UNSIGNED_INT   = 5125,
+		FLOAT          = 5126
+	};
+
+	/// Specifies if the attribute is a scalar, vector, or matrix
+	enum class Type
+	{
+		NONE,
+		SCALAR,
+		VEC2,
+		VEC3,
+		VEC4,
+		MAT2,
+		MAT3,
+		MAT4
+	};
+
+	Accessor( Gltf& m );
+
+	Accessor( Accessor&& a );
+
+	/// @return The size of the buffer view pointed by this accessor
+	size_t get_size() const;
+
+	/// @return The address of the data pointed by this accessor
+	const uint8_t* get_data() const;
+
+	/// @return The stride of the buffer view pointed by this accessor
+	size_t get_stride() const;
+	
+	/// The model of the accessor
+	Gltf* model = nullptr;
+
+	/// Index of the buffer view
+	size_t buffer_view_index;
+
+	/// Offset relative to the start of the bufferView in bytes
+	size_t byte_offset = 0;
+
+	/// Datatype of components in the attribute
+	ComponentType component_type;
+
+	/// Number of attributes referenced by this accessor
+	size_t count;
+
+	/// Specifies if the attribute is a scalar, vector, or matrix
+	Type type;
+
+	/// Maximum value of each component in this attribute
+	std::vector<float> max;
+
+	/// Minimum value of each component in this attribute
+	std::vector<float> min;
+};
+
+
 /// GL Transmission Format
 class Gltf
 {
@@ -35,7 +104,7 @@ class Gltf
 	struct Buffer
 	{
 		/// Length of the buffer in bytes
-		size_t byteLength;
+		size_t byte_length;
 		/// Uri of the buffer
 		std::string uri;
 	};
@@ -53,80 +122,15 @@ class Gltf
 		};
 
 		/// Index of the buffer
-		size_t buffer = 0;
+		size_t buffer_index = 0;
 		/// Offset into the buffer in bytes
-		size_t byteOffset = 0;
+		size_t byte_offset = 0;
 		/// Length of the bufferView in bytes
-		size_t byteLength = 0;
+		size_t byte_length = 0;
 		/// Stride, in bytes
-		size_t byteStride = 0;
+		size_t byte_stride = 0;
 		/// Target that the GPU buffer should be bound to
 		Target target = Target::None;
-	};
-
-	/// Typed view into a bufferView
-	struct Accessor
-	{
-		/// Datatype of components in the attribute
-		enum class ComponentType
-		{
-			BYTE           = 5120,
-			UNSIGNED_BYTE  = 5121,
-			SHORT          = 5122,
-			UNSIGNED_SHORT = 5123,
-			UNSIGNED_INT   = 5125,
-			FLOAT          = 5126
-		};
-
-		/// Specifies if the attribute is a scalar, vector, or matrix
-		enum class Type
-		{
-			NONE,
-			SCALAR,
-			VEC2,
-			VEC3,
-			VEC4,
-			MAT2,
-			MAT3,
-			MAT4
-		};
-
-		Accessor( Gltf& m );
-
-		Accessor( Accessor&& a );
-
-		/// @return The size of the buffer view pointed by this accessor
-		size_t get_size() const;
-
-		/// @return The address of the data pointed by this accessor
-		const void* get_data() const;
-
-		/// @return The stride of the buffer view pointed by this accessor
-		size_t get_stride() const;
-		
-		/// The model of the accessor
-		Gltf* model = nullptr;
-
-		/// Index of the buffer view
-		size_t bufferView;
-
-		/// Offset relative to the start of the bufferView in bytes
-		size_t byteOffset{ 0 };
-
-		/// Datatype of components in the attribute
-		ComponentType componentType;
-
-		/// Number of attributes referenced by this accessor
-		size_t count;
-
-		/// Specifies if the attribute is a scalar, vector, or matrix
-		Type type;
-
-		/// Maximum value of each component in this attribute
-		std::vector<float> max;
-
-		/// Minimum value of each component in this attribute
-		std::vector<float> min;
 	};
 
 	friend class Node;
@@ -239,17 +243,14 @@ class Gltf
 	/// Loads a GLtf model from path
 	/// @param[in] path Gltf file path
 	/// @return A Gltf model
-	static Gltf Load( const std::string& path );
+	static Gltf load( const std::string& path );
 
 	/// @return The Path
 	const std::string& GetPath();
 
 	/// @param[in] i Index of the buffer
 	/// @return Buffer number i
-	std::vector<char>& GetBuffer( const size_t i );
-
-	/// @return Buffer views
-	std::vector<BufferView>& GetBufferViews();
+	std::vector<char>& get_buffer( const size_t i );
 
 	/// @return Cameras
 	std::vector<Camera>& get_cameras() { return cameras; }
@@ -263,14 +264,8 @@ class Gltf
 	/// @return Textures
 	std::vector<Texture>& get_textures() { return textures; }
 
-	/// @return Accessors
-	std::vector<Accessor>& GetAccessors();
-
 	/// @return Materials
 	std::vector<Material>& GetMaterials();
-
-	/// @return Meshes
-	std::vector<Mesh>& get_meshes() { return meshes; }
 
 	/// @return Lights
 	std::vector<Light>& get_lights() { return lights; }
@@ -309,7 +304,6 @@ class Gltf
 	/// glTF asset
 	Asset asset;
 
-  private:
 	/// Initializes asset
 	/// @param[in] j Json object describing the asset
 	void initAsset( const nlohmann::json& j );
@@ -340,11 +334,11 @@ class Gltf
 
 	/// Initializes accessors
 	/// @param[in] j Json object describing the accessors
-	void initAccessors( const nlohmann::json& j );
+	void init_accessors( const nlohmann::json& j );
 
 	/// Initializes materials
 	/// @param[in] j Json object describing the materials
-	void initMaterials( const nlohmann::json& j );
+	void init_materials( const nlohmann::json& j );
 
 	/// Initializes meshes
 	/// @param[in] j Json object describing the meshes
@@ -376,19 +370,19 @@ class Gltf
 
 	/// Loads a buffer in the cache
 	/// @param[in] i Index of the buffer
-	auto loadBuffer( const size_t i );
+	auto load_buffer( const size_t i );
 
 	/// Directory path of the gltf file
-	std::string mPath;
+	std::string path;
 
 	/// List of buffers
-	std::vector<Buffer> mBuffers;
+	std::vector<Buffer> buffers;
 
 	/// Cache of buffers
-	std::map<const size_t, std::vector<char>> mBuffersCache;
+	std::map<const size_t, std::vector<char>> buffers_cache;
 
 	/// List of buffer views
-	std::vector<BufferView> mBufferViews;
+	std::vector<BufferView> buffer_views;
 
 	/// List of cameras
 	std::vector<Camera> cameras;
@@ -403,10 +397,10 @@ class Gltf
 	std::vector<Texture> textures;
 
 	/// List of accessors
-	std::vector<Accessor> mAccessors;
+	std::vector<Accessor> accessors;
 
 	/// List of materials
-	std::vector<Material> mMaterials;
+	std::vector<Material> materials;
 
 	/// List of meshes
 	std::vector<Mesh> meshes;
@@ -438,7 +432,7 @@ template <typename T>
 T from_string( const std::string& s );
 
 template <>
-spot::gltf::Gltf::Accessor::Type from_string<spot::gltf::Gltf::Accessor::Type>( const std::string& s );
+spot::gltf::Accessor::Type from_string<spot::gltf::Accessor::Type>( const std::string& s );
 
 template <>
 spot::gltf::Mesh::Primitive::Semantic from_string<spot::gltf::Mesh::Primitive::Semantic>( const std::string& s );
@@ -457,7 +451,7 @@ template <typename T>
 std::string to_string( const T& t );
 
 template <>
-std::string to_string<spot::gltf::Gltf::Accessor::Type>( const spot::gltf::Gltf::Accessor::Type& t );
+std::string to_string<spot::gltf::Accessor::Type>( const spot::gltf::Accessor::Type& t );
 
 template <>
 std::string to_string<spot::gltf::Mesh::Primitive::Semantic>( const spot::gltf::Mesh::Primitive::Semantic& s );

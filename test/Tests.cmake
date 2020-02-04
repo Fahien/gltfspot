@@ -12,6 +12,7 @@ function(make_test TEST_NAME)
 	add_executable(${TEST_NAME} ${TEST_SOURCES})
 	target_include_directories(${TEST_NAME} PRIVATE ${GST_INCLUDE_DIRS})
 	target_link_libraries(${TEST_NAME} ${GST_NAME})
+	target_compile_features( ${TEST_NAME} PUBLIC cxx_std_17 )
 
 	# Tests
 	foreach(GLTF ${GLTF_FILES})

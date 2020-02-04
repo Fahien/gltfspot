@@ -9,6 +9,7 @@
 namespace spot::gltf
 {
 class Gltf;
+struct Accessor;
 struct Material;
 
 /// Set of primitives to be rendered
@@ -54,7 +55,9 @@ struct Mesh
 
 		/// Dictionary object, where each key corresponds to mesh attribute semantic and
 		/// each value is the index of the accessor containing attribute's data (required)
-		std::map<Semantic, unsigned> attributes;
+		std::map<Semantic, uint32_t> attributes;
+
+		std::map<Semantic, Accessor*> get_attributes();
 
 		/// If >= 0, it is the index of the accessor that contains the indices
 		int32_t indices = -1;

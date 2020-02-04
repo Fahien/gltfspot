@@ -12,16 +12,16 @@ namespace spot::gltf
 {
 Gltf::Gltf( Gltf&& other )
     : asset{ std::move( other.asset ) }
-    , mPath{ std::move( other.mPath ) }
-    , mBuffers{ std::move( other.mBuffers ) }
-    , mBuffersCache{ std::move( other.mBuffersCache ) }
-    , mBufferViews{ std::move( other.mBufferViews ) }
+    , path{ std::move( other.path ) }
+    , buffers{ std::move( other.buffers ) }
+    , buffers_cache{ std::move( other.buffers_cache ) }
+    , buffer_views{ std::move( other.buffer_views ) }
     , cameras{ std::move( other.cameras ) }
     , samplers{ std::move( other.samplers ) }
     , images{ std::move( other.images ) }
     , textures{ std::move( other.textures ) }
-    , mAccessors{ std::move( other.mAccessors ) }
-    , mMaterials{ std::move( other.mMaterials ) }
+    , accessors{ std::move( other.accessors ) }
+    , materials{ std::move( other.materials ) }
     , meshes{ std::move( other.meshes ) }
     , lights{ std::move( other.lights ) }
     , nodes{ std::move( other.nodes ) }
@@ -33,7 +33,7 @@ Gltf::Gltf( Gltf&& other )
 {
 	std::for_each( std::begin( nodes ), std::end( nodes ), [this]( auto& node ) { node.gltf = this; } );
 	std::for_each( std::begin( mScenes ), std::end( mScenes ), [this]( auto& scene ) { scene.gltf = this; } );
-	std::for_each( std::begin( mAccessors ), std::end( mAccessors ), [this]( auto& acc ) { acc.model = this; } );
+	std::for_each( std::begin( accessors ), std::end( accessors ), [this]( auto& acc ) { acc.model = this; } );
 	load_meshes();
 	load_nodes();
 }
@@ -42,16 +42,16 @@ Gltf::Gltf( Gltf&& other )
 Gltf& Gltf::operator=( Gltf&& other )
 {
 	asset         = std::move( other.asset );
-	mPath         = std::move( other.mPath );
-	mBuffers      = std::move( other.mBuffers );
-	mBuffersCache = std::move( other.mBuffersCache );
-	mBufferViews  = std::move( other.mBufferViews );
+	path         = std::move( other.path );
+	buffers      = std::move( other.buffers );
+	buffers_cache = std::move( other.buffers_cache );
+	buffer_views  = std::move( other.buffer_views );
 	cameras       = std::move( other.cameras );
 	samplers      = std::move( other.samplers );
 	images        = std::move( other.images );
 	textures      = std::move( other.textures );
-	mAccessors    = std::move( other.mAccessors );
-	mMaterials    = std::move( other.mMaterials );
+	accessors    = std::move( other.accessors );
+	materials    = std::move( other.materials );
 	meshes        = std::move( other.meshes );
 	lights        = std::move( other.lights );
 	nodes         = std::move( other.nodes );
@@ -63,7 +63,7 @@ Gltf& Gltf::operator=( Gltf&& other )
 
 	std::for_each( std::begin( nodes ), std::end( nodes ), [this]( auto& node ) { node.gltf = this; } );
 	std::for_each( std::begin( mScenes ), std::end( mScenes ), [this]( auto& scene ) { scene.gltf = this; } );
-	std::for_each( std::begin( mAccessors ), std::end( mAccessors ), [this]( auto& acc ) { acc.model = this; } );
+	std::for_each( std::begin( accessors ), std::end( accessors ), [this]( auto& acc ) { acc.model = this; } );
 	load_meshes();
 	load_nodes();
 
@@ -71,11 +71,11 @@ Gltf& Gltf::operator=( Gltf&& other )
 }
 
 
-Gltf::Gltf( const json& j, const string& path )
+Gltf::Gltf( const json& j, const string& pth )
 {
 	// Get the directory path
-	auto index = path.find_last_of( "/\\" );
-	mPath      = path.substr( 0, index );
+	auto index = pth.find_last_of( "/\\" );
+	path = pth.substr( 0, index );
 
 	// Asset
 	initAsset( j["asset"] );
@@ -117,12 +117,12 @@ Gltf::Gltf( const json& j, const string& path )
 	}
 
 	// Accessors
-	initAccessors( j["accessors"] );
+	init_accessors( j["accessors"] );
 
 	// Materials
 	if ( j.count( "materials" ) )
 	{
-		initMaterials( j["materials"] );
+		init_materials( j["materials"] );
 	}
 
 	// Meshes
@@ -215,7 +215,7 @@ void Gltf::initBuffers( const json& j )
 		Buffer buffer;
 
 		// Buffer length in bytes (mandatory)
-		buffer.byteLength = b["byteLength"].get<size_t>();
+		buffer.byte_length = b["byteLength"].get<size_t>();
 
 		// Uri of the binary file to upload
 		if ( b.count( "uri" ) )
@@ -224,11 +224,11 @@ void Gltf::initBuffers( const json& j )
 			// If it is not data
 			if ( buffer.uri.rfind( "data:", 0 ) != 0 )
 			{
-				buffer.uri = mPath + "/" + buffer.uri;
+				buffer.uri = path + "/" + buffer.uri;
 			}
 		}
 
-		mBuffers.push_back( buffer );
+		buffers.push_back( buffer );
 	}
 }
 
@@ -240,24 +240,24 @@ void Gltf::initBufferViews( const json& j )
 		BufferView view;
 
 		// Buffer
-		view.buffer = v["buffer"].get<size_t>();
+		view.buffer_index = v["buffer"].get<size_t>();
 
 		// Byte offset
 		if ( v.count( "byteOffset" ) )
 		{
-			view.byteOffset = v["byteOffset"].get<size_t>();
+			view.byte_offset = v["byteOffset"].get<size_t>();
 		}
 
 		// Byte length
 		if ( v.count( "byteLength" ) )
 		{
-			view.byteLength = v["byteLength"].get<size_t>();
+			view.byte_length = v["byteLength"].get<size_t>();
 		}
 
 		// Byte stride
 		if ( v.count( "byteStride" ) )
 		{
-			view.byteStride = v["byteStride"].get<size_t>();
+			view.byte_stride = v["byteStride"].get<size_t>();
 		}
 
 		// Target
@@ -266,7 +266,7 @@ void Gltf::initBufferViews( const json& j )
 			view.target = static_cast<Gltf::BufferView::Target>( v["target"].get<size_t>() );
 		}
 
-		mBufferViews.push_back( move( view ) );
+		buffer_views.push_back( move( view ) );
 	}
 }
 
@@ -482,72 +482,72 @@ void Gltf::initTextures( const json& j )
 
 
 template <>
-Gltf::Accessor::Type from_string<Gltf::Accessor::Type>( const string& s )
+Accessor::Type from_string<Accessor::Type>( const string& s )
 {
 	if ( s == "SCALAR" )
 	{
-		return Gltf::Accessor::Type::SCALAR;
+		return Accessor::Type::SCALAR;
 	}
 	else if ( s == "VEC2" )
 	{
-		return Gltf::Accessor::Type::VEC2;
+		return Accessor::Type::VEC2;
 	}
 	else if ( s == "VEC3" )
 	{
-		return Gltf::Accessor::Type::VEC3;
+		return Accessor::Type::VEC3;
 	}
 	else if ( s == "VEC4" )
 	{
-		return Gltf::Accessor::Type::VEC4;
+		return Accessor::Type::VEC4;
 	}
 	else if ( s == "MAT2" )
 	{
-		return Gltf::Accessor::Type::MAT2;
+		return Accessor::Type::MAT2;
 	}
 	else if ( s == "MAT3" )
 	{
-		return Gltf::Accessor::Type::MAT3;
+		return Accessor::Type::MAT3;
 	}
 	else if ( s == "MAT4" )
 	{
-		return Gltf::Accessor::Type::MAT4;
+		return Accessor::Type::MAT4;
 	}
 	else
 	{
 		assert( false );
-		return Gltf::Accessor::Type::NONE;
+		return Accessor::Type::NONE;
 	}
 }
 
 
 template <>
-std::string to_string<Gltf::Accessor::Type>( const Gltf::Accessor::Type& t )
+std::string to_string<Accessor::Type>( const Accessor::Type& t )
 {
-	if ( t == Gltf::Accessor::Type::SCALAR )
+	if ( t == Accessor::Type::SCALAR )
 	{
 		return "SCALAR";
 	}
-	else if ( t == Gltf::Accessor::Type::VEC2 )
+	else if ( t == Accessor::Type::VEC2 )
 	{
 		return "VEC2";
 	}
-	else if ( t == Gltf::Accessor::Type::VEC3 )
+	else if ( t == Accessor::Type::VEC3 )
 	{
 		return "VEC3";
 	}
-	else if ( t == Gltf::Accessor::Type::VEC4 )
+	else if ( t == Accessor::Type::VEC4 )
 	{
 		return "VEC4";
 	}
-	else if ( t == Gltf::Accessor::Type::MAT2 )
+	else if ( t == Accessor::Type::MAT2 )
 	{
 		return "MAT2";
 	}
-	else if ( t == Gltf::Accessor::Type::MAT3 )
+	else if ( t == Accessor::Type::MAT3 )
 	{
 		return "MAT3";
 	}
-	else if ( t == Gltf::Accessor::Type::MAT4 )
+	else if ( t == Accessor::Type::MAT4 )
 	{
 		return "MAT4";
 	}
@@ -559,16 +559,16 @@ std::string to_string<Gltf::Accessor::Type>( const Gltf::Accessor::Type& t )
 }
 
 
-Gltf::Accessor::Accessor( Gltf& g )
+Accessor::Accessor( Gltf& g )
 : model { &g }
 {}
 
 
-Gltf::Accessor::Accessor( Gltf::Accessor&& other )
+Accessor::Accessor( Accessor&& other )
 : model { other.model }
-, bufferView { other.bufferView }
-, byteOffset { other.byteOffset }
-, componentType { other.componentType }
+, buffer_view_index { other.buffer_view_index }
+, byte_offset { other.byte_offset }
+, component_type { other.component_type }
 , count { other.count }
 , type { other.type }
 , max { std::move( other.max ) }
@@ -578,29 +578,29 @@ Gltf::Accessor::Accessor( Gltf::Accessor&& other )
 }
 
 
-size_t Gltf::Accessor::get_size() const
+size_t Accessor::get_size() const
 {
-	auto& buffer_view = model->GetBufferViews().at( bufferView );
-	return buffer_view.byteLength;
+	auto& buffer_view = model->buffer_views.at( buffer_view_index );
+	return buffer_view.byte_length;
 }
 
 
-const void* Gltf::Accessor::get_data() const
+const uint8_t* Accessor::get_data() const
 {
-	auto& buffer_view = model->GetBufferViews().at( bufferView );
-	auto  buffer      = model->GetBuffer( buffer_view.buffer );
-	return &( buffer[buffer_view.byteOffset] );
+	auto& buffer_view = model->buffer_views.at( buffer_view_index );
+	auto& buffer      = model->get_buffer( buffer_view.buffer_index );
+	return reinterpret_cast<const uint8_t*>( &( buffer[buffer_view.byte_offset] ) );
 }
 
 
-size_t Gltf::Accessor::get_stride() const
+size_t Accessor::get_stride() const
 {
-	auto& buffer_view = model->GetBufferViews().at( bufferView );
-	return buffer_view.byteStride;
+	auto& buffer_view = model->buffer_views.at( buffer_view_index );
+	return buffer_view.byte_stride;
 }
 
 
-void Gltf::initAccessors( const json& j )
+void Gltf::init_accessors( const json& j )
 {
 	for ( const auto& a : j )
 	{
@@ -609,23 +609,23 @@ void Gltf::initAccessors( const json& j )
 		// Buffer view
 		if ( a.count( "bufferView" ) )
 		{
-			accessor.bufferView = a["bufferView"].get<size_t>();
+			accessor.buffer_view_index = a["bufferView"].get<size_t>();
 		}
 
 		// Byte offset
 		if ( a.count( "byteOffset" ) )
 		{
-			accessor.byteOffset = a["byteOffset"].get<size_t>();
+			accessor.byte_offset = a["byteOffset"].get<size_t>();
 		}
 
 		// Component type
-		accessor.componentType = a["componentType"].get<Accessor::ComponentType>();
+		accessor.component_type = a["componentType"].get<Accessor::ComponentType>();
 
 		// Count
 		accessor.count = a["count"].get<size_t>();
 
 		// Type
-		accessor.type = from_string<Gltf::Accessor::Type>( a["type"].get<string>() );
+		accessor.type = from_string<Accessor::Type>( a["type"].get<string>() );
 
 		// Max
 		if ( a.count( "max" ) )
@@ -645,12 +645,12 @@ void Gltf::initAccessors( const json& j )
 			}
 		}
 
-		mAccessors.push_back( std::move( accessor ) );
+		accessors.push_back( std::move( accessor ) );
 	}
 }
 
 
-void Gltf::initMaterials( const json& j )
+void Gltf::init_materials( const json& j )
 {
 	for ( const auto& m : j )
 	{
@@ -689,7 +689,7 @@ void Gltf::initMaterials( const json& j )
 			}
 		}
 
-		mMaterials.push_back( material );
+		materials.push_back( material );
 	}
 }
 
@@ -813,7 +813,7 @@ void Gltf::init_meshes( const json& j )
 			if ( p.count( "material" ) )
 			{
 				primitive.material_index = p["material"].get<unsigned>();
-				primitive.material       = &mMaterials[primitive.material_index];
+				primitive.material       = &materials[primitive.material_index];
 			}
 
 			if ( p.count( "mode" ) )
@@ -837,7 +837,7 @@ void Gltf::load_meshes()
 		{
 			if ( primitive.material_index >= 0 )
 			{
-				primitive.material = &mMaterials[primitive.material_index];
+				primitive.material = &materials[primitive.material_index];
 			}
 		}
 
@@ -1388,9 +1388,9 @@ std::vector<char> base64_decode( const std::string& encoded_string )
 }
 
 
-auto Gltf::loadBuffer( const size_t i )
+auto Gltf::load_buffer( const size_t i )
 {
-	auto& b = mBuffers[i];
+	auto& b = buffers[i];
 
 	// Check if it is data
 	if ( b.uri.rfind( "data:", 0 ) == 0 )
@@ -1405,17 +1405,18 @@ auto Gltf::loadBuffer( const size_t i )
 
 		// Assume it is base64
 		auto buffer = base64_decode( b.uri.substr( comma_pos + 1 ) );
-		return mBuffersCache.emplace( i, move( buffer ) );
+		return buffers_cache.emplace( i, move( buffer ) );
 	}
 
 	fl::Ifstream file{ b.uri, ios::binary };
-	auto          buffer = file.Read( b.byteLength );
+	assert( file.is_open() );
+	auto          buffer = file.read( b.byte_length );
 
-	return mBuffersCache.emplace( i, move( buffer ) );
+	return buffers_cache.emplace( i, move( buffer ) );
 }
 
 
-Gltf Gltf::Load( const string& path )
+Gltf Gltf::load( const string& path )
 {
 	// read a JSON file
 	fl::Ifstream i{ path };
@@ -1426,18 +1427,18 @@ Gltf Gltf::Load( const string& path )
 }
 
 
-vector<char>& Gltf::GetBuffer( const size_t i )
+vector<char>& Gltf::get_buffer( const size_t i )
 {
-	if ( mBuffersCache.count( i ) )
+	if ( buffers_cache.count( i ) )
 	{
-		return mBuffersCache[i];
+		return buffers_cache[i];
 	}
 
-	auto pair = loadBuffer( i );  // (iterator, bool)
-	if ( pair.second )            // success
+	auto [it, ok] = load_buffer( i ); // (iterator, bool)
+	if ( ok )
 	{
 		// (key, value)
-		return ( pair.first->second );
+		return it->second;
 	}
 
 	throw out_of_range{ "Could not find the buffer" };
@@ -1446,25 +1447,13 @@ vector<char>& Gltf::GetBuffer( const size_t i )
 
 const std::string& Gltf::GetPath()
 {
-	return mPath;
-}
-
-
-vector<Gltf::BufferView>& Gltf::GetBufferViews()
-{
-	return mBufferViews;
-}
-
-
-vector<Gltf::Accessor>& Gltf::GetAccessors()
-{
-	return mAccessors;
+	return path;
 }
 
 
 vector<Material>& Gltf::GetMaterials()
 {
-	return mMaterials;
+	return materials;
 }
 
 

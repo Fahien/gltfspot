@@ -34,7 +34,7 @@ void printAsset( Gltf& model )
 void printBuffer( Gltf& model )
 {
 	cout << endl << "# Buffer" << endl;
-	auto& buffer = model.GetBuffer( 0 );
+	auto& buffer = model.get_buffer( 0 );
 	for ( size_t i{ 0 }; i < buffer.size(); ++i )
 	{
 		if ( i != 0 && ( i % 32 ) == 0 )
@@ -51,9 +51,9 @@ void printBuffer( Gltf& model )
 void printBufferViews( Gltf& model )
 {
 	cout << endl << "# BufferViews" << endl;
-	for ( auto view : model.GetBufferViews() )
+	for ( auto view : model.buffer_views )
 	{
-		cout << view.buffer << ", " << view.byteLength << ", ";
+		cout << view.buffer_index << ", " << view.byte_length << ", ";
 
 		switch ( view.target )
 		{
@@ -144,7 +144,7 @@ void printTextures( Gltf& model )
 void printAccessors( Gltf& model )
 {
 	cout << endl << "# Accessors" << endl;
-	for ( auto& acc : model.GetAccessors() )
+	for ( auto& acc : model.accessors )
 	{
 		cout << to_string( acc.type ) << ", " << acc.count << ", ";
 		for ( auto v : acc.max )
@@ -189,7 +189,7 @@ void printMeshes( Gltf& model )
 {
 	cout << endl << "# Meshes" << endl;
 
-	for ( auto& mesh : model.get_meshes() )
+	for ( auto& mesh : model.meshes )
 	{
 		cout << mesh.name << endl;
 
@@ -277,7 +277,7 @@ int main( int argc, char** argv )
 	printJson( modelPath );
 
 	// Gltf
-	Gltf model{ Gltf::Load( modelPath ) };
+	auto model = Gltf::load( modelPath );
 	cout << endl << "# Path[" << model.GetPath() << "]" << endl;
 
 	// Asset
