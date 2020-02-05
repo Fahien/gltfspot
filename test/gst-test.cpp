@@ -35,13 +35,13 @@ void printBuffer( Gltf& model )
 {
 	cout << endl << "# Buffer" << endl;
 	auto& buffer = model.get_buffer( 0 );
-	for ( size_t i{ 0 }; i < buffer.size(); ++i )
+	for ( size_t i{ 0 }; i < buffer.data.size(); ++i )
 	{
 		if ( i != 0 && ( i % 32 ) == 0 )
 		{
 			cout << endl;
 		}
-		auto& b = buffer[i];
+		auto& b = buffer.data[i];
 		printf( "%02X ", b & 0xff );
 	}
 	cout << endl;
@@ -57,12 +57,12 @@ void printBufferViews( Gltf& model )
 
 		switch ( view.target )
 		{
-			case Gltf::BufferView::Target::ArrayBuffer:
+			case BufferView::Target::ArrayBuffer:
 			{
 				cout << "ARRAY_BUFFER" << endl;
 				break;
 			}
-			case Gltf::BufferView::Target::ElementArrayBuffer:
+			case BufferView::Target::ElementArrayBuffer:
 			{
 				cout << "ELEMENT_ARRAY_BUFFER" << endl;
 				break;
@@ -80,7 +80,7 @@ void printCameras( Gltf& model )
 {
 	cout << endl << "# Cameras" << endl;
 
-	for ( auto& camera : model.get_cameras() )
+	for ( auto& camera : model.cameras )
 	{
 		switch ( camera.type )
 		{
@@ -108,7 +108,7 @@ void printSamplers( Gltf& model )
 {
 	cout << endl << "# Samplers" << endl;
 
-	for ( auto& sampler : model.get_samplers() )
+	for ( auto& sampler : model.samplers )
 	{
 		cout << "MinFilter[" << to_string( sampler.minFilter ) << "] "
 		     << "MagFiler[" << to_string( sampler.magFilter ) << "] "
@@ -122,7 +122,7 @@ void printImages( Gltf& model )
 {
 	cout << endl << "# Images" << endl;
 
-	for ( auto& image : model.get_images() )
+	for ( auto& image : model.images )
 	{
 		cout << "Uri[" << image.uri << "]" << endl;
 	}
@@ -133,10 +133,10 @@ void printTextures( Gltf& model )
 {
 	cout << endl << "# Textures" << endl;
 
-	for ( auto& texture : model.get_textures() )
+	for ( auto& texture : model.textures )
 	{
 		cout << "Sampler[..." << to_string( texture.sampler->minFilter ) << "] "
-		     << "Source[..." << texture.source->uri << "]" << endl;
+		     << "Source[..." << texture.get_source()->uri << "]" << endl;
 	}
 }
 
@@ -163,24 +163,24 @@ void printAccessors( Gltf& model )
 void printMaterials( Gltf& model )
 {
 	cout << endl << "# Materials" << endl;
-	for ( auto& material : model.GetMaterials() )
+	for ( auto& material : model.materials )
 	{
 		cout << material.name << endl;
 
 		cout << "[ ";
-		for ( auto val : material.pbr_metallic_roughness.base_color_factor )
+		for ( auto val : material.pbr.base_color_factor )
 		{
 			cout << val << " ";
 		}
 		cout << "]" << endl;
 
-		if ( material.pbr_metallic_roughness.base_color_texture )
+		if ( auto texture = material.get_texture() )
 		{
-			cout << "Texture  :" << material.pbr_metallic_roughness.base_color_texture->source->uri << endl;
+			cout << "Texture  :" << texture->get_source()->uri << endl;
 		}
 
-		cout << "Metallic :" << material.pbr_metallic_roughness.metallic_factor << endl;
-		cout << "Roughness:" << material.pbr_metallic_roughness.roughness_factor << endl;
+		cout << "Metallic :" << material.pbr.metallic_factor << endl;
+		cout << "Roughness:" << material.pbr.roughness_factor << endl;
 	}
 }
 
@@ -213,7 +213,7 @@ void printScenes( Gltf& model )
 {
 	cout << endl << "# Scenes" << endl;
 
-	for ( const auto& s : model.GetScenes() )
+	for ( const auto& s : model.scenes )
 	{
 		cout << s.name << endl;
 
@@ -225,7 +225,7 @@ void printScenes( Gltf& model )
 		cout << "]" << endl;
 	}
 
-	cout << endl << "# Scene[" << model.GetScene()->name << "]" << endl;
+	cout << endl << "# Scene[" << model.scene->name << "]" << endl;
 }
 
 
@@ -233,7 +233,7 @@ void printNodes( Gltf& model )
 {
 	cout << endl << "# Nodes" << endl;
 
-	for ( const auto& node : model.get_nodes() )
+	for ( const auto& node : model.nodes )
 	{
 		cout << node.name << endl;
 
@@ -278,7 +278,7 @@ int main( int argc, char** argv )
 
 	// Gltf
 	auto model = Gltf::load( modelPath );
-	cout << endl << "# Path[" << model.GetPath() << "]" << endl;
+	cout << endl << "# Path[" << model.path << "]" << endl;
 
 	// Asset
 	printAsset( model );

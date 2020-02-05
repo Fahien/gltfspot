@@ -45,6 +45,9 @@ set(GST_SOURCES
 	${GST_SOURCE_DIR}/mesh.cpp
 	${GST_SOURCE_DIR}/node.cpp
 	${GST_SOURCE_DIR}/bounds.cpp
+	${GST_SOURCE_DIR}/material.cc
+	${GST_SOURCE_DIR}/buffer.cc
+	${GST_SOURCE_DIR}/texture.cc
 )
 source_group(Source FILES ${GST_SOURCES})
 

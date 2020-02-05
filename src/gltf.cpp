@@ -28,12 +28,13 @@ Gltf::Gltf( Gltf&& other )
     , animations{ std::move( other.animations ) }
     , shapes{ std::move( other.shapes ) }
     , scripts{ std::move( other.scripts ) }
-    , mScenes{ std::move( other.mScenes ) }
-    , mScene{ std::move( other.mScene ) }
+    , scenes{ std::move( other.scenes ) }
+    , scene{ std::move( other.scene ) }
 {
 	std::for_each( std::begin( nodes ), std::end( nodes ), [this]( auto& node ) { node.gltf = this; } );
-	std::for_each( std::begin( mScenes ), std::end( mScenes ), [this]( auto& scene ) { scene.gltf = this; } );
+	std::for_each( std::begin( scenes ), std::end( scenes ), [this]( auto& scene ) { scene.gltf = this; } );
 	std::for_each( std::begin( accessors ), std::end( accessors ), [this]( auto& acc ) { acc.model = this; } );
+	std::for_each( std::begin( materials ), std::end( materials ), [this]( auto& mat ) { mat.model = this; } );
 	load_meshes();
 	load_nodes();
 }
@@ -58,12 +59,13 @@ Gltf& Gltf::operator=( Gltf&& other )
 	animations    = std::move( other.animations );
 	shapes        = std::move( other.shapes );
 	scripts       = std::move( other.scripts );
-	mScenes       = std::move( other.mScenes );
-	mScene        = std::move( other.mScene );
+	scenes       = std::move( other.scenes );
+	scene        = std::move( other.scene );
 
 	std::for_each( std::begin( nodes ), std::end( nodes ), [this]( auto& node ) { node.gltf = this; } );
-	std::for_each( std::begin( mScenes ), std::end( mScenes ), [this]( auto& scene ) { scene.gltf = this; } );
+	std::for_each( std::begin( scenes ), std::end( scenes ), [this]( auto& scene ) { scene.gltf = this; } );
 	std::for_each( std::begin( accessors ), std::end( accessors ), [this]( auto& acc ) { acc.model = this; } );
+	std::for_each( std::begin( materials ), std::end( materials ), [this]( auto& mat ) { mat.model = this; } );
 	load_meshes();
 	load_nodes();
 
@@ -184,7 +186,7 @@ Gltf::Gltf( const json& j, const string& pth )
 		{
 			uIndex = j["scene"].get<uint64_t>();
 		}
-		mScene = &mScenes[static_cast<const unsigned>( uIndex )];
+		scene = &scenes[static_cast<const unsigned>( uIndex )];
 	}
 }
 
@@ -238,6 +240,7 @@ void Gltf::initBufferViews( const json& j )
 	for ( const auto& v : j )
 	{
 		BufferView view;
+		view.model = this;
 
 		// Buffer
 		view.buffer_index = v["buffer"].get<size_t>();
@@ -263,7 +266,7 @@ void Gltf::initBufferViews( const json& j )
 		// Target
 		if ( v.count( "target" ) )
 		{
-			view.target = static_cast<Gltf::BufferView::Target>( v["target"].get<size_t>() );
+			view.target = static_cast<BufferView::Target>( v["target"].get<size_t>() );
 		}
 
 		buffer_views.push_back( move( view ) );
@@ -455,6 +458,7 @@ void Gltf::initTextures( const json& j )
 	for ( const auto& t : j )
 	{
 		Texture texture;
+		texture.model = this;
 
 		// Sampler
 		if ( t.count( "sampler" ) )
@@ -466,8 +470,8 @@ void Gltf::initTextures( const json& j )
 		// Image
 		if ( t.count( "source" ) )
 		{
-			size_t index{ t["source"].get<size_t>() };
-			texture.source = &images[index];
+			auto index = t["source"].get<int32_t>();
+			texture.source_index = index;
 		}
 
 		// Name
@@ -578,6 +582,12 @@ Accessor::Accessor( Accessor&& other )
 }
 
 
+BufferView& Accessor::get_buffer_view() const
+{
+	return model->buffer_views[buffer_view_index];
+}
+
+
 size_t Accessor::get_size() const
 {
 	auto& buffer_view = model->buffer_views.at( buffer_view_index );
@@ -589,7 +599,7 @@ const uint8_t* Accessor::get_data() const
 {
 	auto& buffer_view = model->buffer_views.at( buffer_view_index );
 	auto& buffer      = model->get_buffer( buffer_view.buffer_index );
-	return reinterpret_cast<const uint8_t*>( &( buffer[buffer_view.byte_offset] ) );
+	return reinterpret_cast<const uint8_t*>( buffer.data.data() + buffer_view.byte_offset );
 }
 
 
@@ -655,6 +665,7 @@ void Gltf::init_materials( const json& j )
 	for ( const auto& m : j )
 	{
 		Material material;
+		material.model = this;
 
 		// Name
 		if ( m.count( "name" ) )
@@ -669,23 +680,23 @@ void Gltf::init_materials( const json& j )
 
 			if ( mr.count( "baseColorFactor" ) )
 			{
-				material.pbr_metallic_roughness.base_color_factor = mr["baseColorFactor"].get<vector<float>>();
+				material.pbr.base_color_factor = mr["baseColorFactor"].get<vector<float>>();
 			}
 
 			if ( mr.count( "baseColorTexture" ) )
 			{
-				size_t index{ mr["baseColorTexture"]["index"].get<size_t>() };
-				material.pbr_metallic_roughness.base_color_texture = &textures[index];
+				int32_t index = mr["baseColorTexture"]["index"].get<int32_t>();
+				material.pbr.texture_index = index;
 			}
 
 			if ( mr.count( "metallicFactor" ) )
 			{
-				material.pbr_metallic_roughness.metallic_factor = mr["metallicFactor"].get<float>();
+				material.pbr.metallic_factor = mr["metallicFactor"].get<float>();
 			}
 
 			if ( mr.count( "roughnessFactor" ) )
 			{
-				material.pbr_metallic_roughness.roughness_factor = mr["roughnessFactor"].get<float>();
+				material.pbr.roughness_factor = mr["roughnessFactor"].get<float>();
 			}
 		}
 
@@ -1245,7 +1256,7 @@ void Gltf::load_nodes()
 	}
 
 	// Solve scene nodes
-	for ( auto& scene : mScenes )
+	for ( auto& scene : scenes )
 	{
 		scene.nodes.clear();
 
@@ -1304,7 +1315,7 @@ void Gltf::initScenes( const json& j )
 			scene.nodes_indices = s["nodes"].get<vector<size_t>>();
 		}
 
-		mScenes.push_back( scene );
+		scenes.push_back( scene );
 	}
 
 	load_nodes();
@@ -1379,31 +1390,35 @@ std::vector<char> base64_decode( const std::string& encoded_string )
 }
 
 
-auto Gltf::load_buffer( const size_t i )
+Buffer& Gltf::load_buffer( const size_t i )
 {
-	auto& b = buffers[i];
+	auto& buffer = buffers[i];
 
-	// Check if it is data
-	if ( b.uri.rfind( "data:", 0 ) == 0 )
+	if ( buffer.data.empty() )
 	{
-		// It is data, find the position of comma
-		auto comma_pos = b.uri.find_first_of( ',', 5 );
-		if ( comma_pos == std::string::npos )
+		// Check if it is data
+		if ( buffer.uri.rfind( "data:", 0 ) == 0 )
 		{
-			// Error, data not good
-			throw std::runtime_error{ "Data URI not valid" };
-		}
+			// It is data, find the position of comma
+			auto comma_pos = buffer.uri.find_first_of( ',', 5 );
+			if ( comma_pos == std::string::npos )
+			{
+				// Error, data not good
+				throw std::runtime_error{ "Data URI not valid" };
+			}
 
-		// Assume it is base64
-		auto buffer = base64_decode( b.uri.substr( comma_pos + 1 ) );
-		return buffers_cache.emplace( i, move( buffer ) );
+			// Assume it is base64
+			buffer.data = base64_decode( buffer.uri.substr( comma_pos + 1 ) );
+		}
+		else
+		{
+			fl::Ifstream file{ buffer.uri, ios::binary };
+			assert( file.is_open() );
+			buffer.data = file.read( buffer.byte_length );
+		}
 	}
 
-	fl::Ifstream file{ b.uri, ios::binary };
-	assert( file.is_open() );
-	auto          buffer = file.read( b.byte_length );
-
-	return buffers_cache.emplace( i, move( buffer ) );
+	return buffer;
 }
 
 
@@ -1418,44 +1433,10 @@ Gltf Gltf::load( const string& path )
 }
 
 
-vector<char>& Gltf::get_buffer( const size_t i )
+Buffer& Gltf::get_buffer( const size_t i )
 {
-	if ( buffers_cache.count( i ) )
-	{
-		return buffers_cache[i];
-	}
-
-	auto [it, ok] = load_buffer( i ); // (iterator, bool)
-	if ( ok )
-	{
-		// (key, value)
-		return it->second;
-	}
-
-	throw out_of_range{ "Could not find the buffer" };
+	return load_buffer( i );
 }
 
-
-const std::string& Gltf::GetPath()
-{
-	return path;
-}
-
-
-vector<Material>& Gltf::GetMaterials()
-{
-	return materials;
-}
-
-
-vector<Gltf::Scene>& Gltf::GetScenes()
-{
-	return mScenes;
-}
-
-Gltf::Scene* Gltf::GetScene()
-{
-	return mScene;
-}
 
 }  // namespace spot::gltf

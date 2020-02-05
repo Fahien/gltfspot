@@ -3,6 +3,7 @@
 #include <spot/math/math.h>
 #include <nlohmann/json.hpp>
 
+#include "spot/gltf/buffer.h"
 #include "spot/gltf/bounds.h"
 #include "spot/gltf/camera.h"
 #include "spot/gltf/image.h"
@@ -65,6 +66,9 @@ struct Accessor
 	/// Index of the buffer view
 	size_t buffer_view_index;
 
+	/// @return The buffer view pointed by this accessor
+	BufferView& get_buffer_view() const;
+
 	/// Offset relative to the start of the bufferView in bytes
 	size_t byte_offset = 0;
 
@@ -100,38 +104,6 @@ class Gltf
 		std::string copyright;
 	};
 
-	/// Buffer pointing to binary geometry, animation, or skins
-	struct Buffer
-	{
-		/// Length of the buffer in bytes
-		size_t byte_length;
-		/// Uri of the buffer
-		std::string uri;
-	};
-
-
-	/// View into a buffer, generally representing a subset of the buffer
-	struct BufferView
-	{
-		/// Target that the GPU buffer should be bound to
-		enum class Target
-		{
-			None,
-			ArrayBuffer        = 34962,
-			ElementArrayBuffer = 34963
-		};
-
-		/// Index of the buffer
-		size_t buffer_index = 0;
-		/// Offset into the buffer in bytes
-		size_t byte_offset = 0;
-		/// Length of the bufferView in bytes
-		size_t byte_length = 0;
-		/// Stride, in bytes
-		size_t byte_stride = 0;
-		/// Target that the GPU buffer should be bound to
-		Target target = Target::None;
-	};
 
 	friend class Node;
 
@@ -245,48 +217,9 @@ class Gltf
 	/// @return A Gltf model
 	static Gltf load( const std::string& path );
 
-	/// @return The Path
-	const std::string& GetPath();
-
 	/// @param[in] i Index of the buffer
 	/// @return Buffer number i
-	std::vector<char>& get_buffer( const size_t i );
-
-	/// @return Cameras
-	std::vector<Camera>& get_cameras() { return cameras; }
-
-	/// @return Samplers
-	std::vector<Sampler>& get_samplers() { return samplers; }
-
-	/// @return Images
-	std::vector<Image>& get_images() { return images; }
-
-	/// @return Textures
-	std::vector<Texture>& get_textures() { return textures; }
-
-	/// @return Materials
-	std::vector<Material>& GetMaterials();
-
-	/// @return Lights
-	std::vector<Light>& get_lights() { return lights; }
-
-	/// @return Animations
-	std::vector<Gltf::Animation>& get_animations() { return animations; }
-
-	/// @return Nodes
-	std::vector<Node>& get_nodes() { return nodes; }
-
-	/// @return Shapes
-	std::vector<std::unique_ptr<Shape>>& get_shapes() { return shapes; }
-
-	/// @return Extras
-	std::vector<Script>& get_scripts() { return scripts; }
-
-	/// @return Scenes
-	std::vector<Scene>& GetScenes();
-
-	/// @return Current scene
-	Scene* GetScene();
+	Buffer& get_buffer( const size_t i );
 
 	/// @return A newly created Node
 	/// @param[in] name Name of the node
@@ -368,9 +301,9 @@ class Gltf
 	/// @param[in] j Json object describing the scenes
 	void initScenes( const nlohmann::json& j );
 
-	/// Loads a buffer in the cache
+	/// Loads data into a buffer
 	/// @param[in] i Index of the buffer
-	auto load_buffer( const size_t i );
+	Buffer& load_buffer( const size_t i );
 
 	/// Directory path of the gltf file
 	std::string path;
@@ -421,10 +354,10 @@ class Gltf
 	std::vector<Script> scripts;
 
 	/// List of scenes
-	std::vector<Scene> mScenes;
+	std::vector<Scene> scenes;
 
 	/// Current scene
-	Scene* mScene = nullptr;
+	Scene* scene = nullptr;
 };
 
 

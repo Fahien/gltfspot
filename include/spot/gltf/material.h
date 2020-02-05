@@ -1,6 +1,4 @@
-#ifndef GST_MATERIAL_H_
-#define GST_MATERIAL_H_
-
+#pragma once
 
 #include <string>
 #include <vector>
@@ -8,6 +6,7 @@
 namespace spot::gltf
 {
 struct Texture;
+class Gltf;
 
 /// Material appearance of a primitive
 struct Material
@@ -19,7 +18,7 @@ struct Material
 		std::vector<float> base_color_factor = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 		/// Base color texture
-		Texture* base_color_texture = nullptr;
+		int32_t texture_index = -1;
 
 		/// Metalness of the material
 		float metallic_factor = 1.0f;
@@ -32,9 +31,13 @@ struct Material
 	std::string name = "Unknown";
 
 	/// Metallic-Roughness Material
-	PbrMetallicRoughness pbr_metallic_roughness;
+	PbrMetallicRoughness pbr;
+
+	Gltf* model = nullptr;
+
+	/// @return The texture of the material, otherwise null
+	Texture* get_texture() const;
+
 };
 
 }  // namespace spot::gltf
-
-#endif  // GST_MATERIAL_H_

@@ -31,7 +31,7 @@ void Node::remove_from_parent()
 
 		parent = nullptr;
 	}
-	else if ( auto scene = gltf->GetScene() )
+	else if ( auto scene = gltf->scene )
 	{
 		// Remove node from the scene
 		auto index_it = std::find( std::begin( scene->nodes_indices ), std::end( scene->nodes_indices ), index );
