@@ -813,7 +813,6 @@ void Gltf::init_meshes( const json& j )
 			if ( p.count( "material" ) )
 			{
 				primitive.material_index = p["material"].get<unsigned>();
-				primitive.material       = &materials[primitive.material_index];
 			}
 
 			if ( p.count( "mode" ) )
@@ -833,14 +832,6 @@ void Gltf::load_meshes()
 {
 	for ( auto& mesh : meshes )
 	{
-		for ( auto& primitive : mesh.primitives )
-		{
-			if ( primitive.material_index >= 0 )
-			{
-				primitive.material = &materials[primitive.material_index];
-			}
-		}
-
 		mesh.model = this;
 	}
 }

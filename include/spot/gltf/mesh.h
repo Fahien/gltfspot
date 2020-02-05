@@ -68,8 +68,8 @@ struct Mesh
 		/// Index of the material to apply to this primitive when rendering
 		int32_t material_index = -1;
 
-		/// Pointer to the material to apply to this primitive when rendering
-		Material* material = nullptr;
+		/// @return A pointer to the material of this primitive, otherwise null
+		Material* get_material() const;
 
 		/// Type of primitives to render
 		Mode mode = Mode::TRIANGLES;
