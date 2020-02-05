@@ -430,7 +430,7 @@ void Gltf::initImages( const json& j )
 
 		if ( i.count( "uri" ) )
 		{
-			image.uri = i["uri"].get<string>();
+			image.uri = path + "/" + i["uri"].get<string>();
 		}
 
 		if ( i.count( "mimeType" ) )
@@ -587,19 +587,46 @@ BufferView& Accessor::get_buffer_view() const
 	return model->buffer_views[buffer_view_index];
 }
 
+size_t size_of( Accessor::ComponentType ct )
+{
+	switch ( ct )
+	{
+	case Accessor::ComponentType::BYTE:          return sizeof( uint8_t );
+	case Accessor::ComponentType::UNSIGNED_BYTE: return sizeof( uint8_t );
+	case Accessor::ComponentType::SHORT:         return sizeof( uint16_t );
+	case Accessor::ComponentType::UNSIGNED_SHORT:return sizeof( uint16_t );
+	case Accessor::ComponentType::UNSIGNED_INT:  return sizeof( uint32_t );
+	case Accessor::ComponentType::FLOAT:         return sizeof( float );
+	}
+}
+
+size_t size_of( Accessor::Type tp )
+{
+	switch ( tp )
+	{
+	case Accessor::Type::NONE: return 1;
+	case Accessor::Type::SCALAR: return 1;
+	case Accessor::Type::VEC2: return 2;
+	case Accessor::Type::VEC3: return 3;
+	case Accessor::Type::VEC4: return 4;
+	case Accessor::Type::MAT2: return 4;
+	case Accessor::Type::MAT3: return 9;
+	case Accessor::Type::MAT4: return 16;
+	}
+}
 
 size_t Accessor::get_size() const
 {
-	auto& buffer_view = model->buffer_views.at( buffer_view_index );
-	return buffer_view.byte_length;
+	return count * size_of( component_type ) * size_of( type );
 }
 
 
 const uint8_t* Accessor::get_data() const
 {
-	auto& buffer_view = model->buffer_views.at( buffer_view_index );
-	auto& buffer      = model->get_buffer( buffer_view.buffer_index );
-	return reinterpret_cast<const uint8_t*>( buffer.data.data() + buffer_view.byte_offset );
+	auto& buffer_view = get_buffer_view();
+	auto& buffer = model->get_buffer( buffer_view.buffer_index );
+	auto data = buffer.data.data() + buffer_view.byte_offset + byte_offset;
+	return reinterpret_cast<const uint8_t*>( data );
 }
 
 
