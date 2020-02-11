@@ -18,10 +18,10 @@ class Node
 {
   public:
 	/// Gltf owning the node
-	Gltf* gltf = nullptr;
+	Gltf* model = nullptr;
 
 	/// Index of this node within the nodes vector
-	size_t index = 0;
+	int index = -1;
 
 	/// Parent of this node
 	Node* parent = nullptr;
@@ -41,10 +41,7 @@ class Node
 	/// If not negative, index of mesh of the node
 	int32_t mesh_index = -1;
 
-	/// Mesh in this node
-	Mesh* mesh = nullptr;
-
-	/// Unit quaternion rotation in the order (x, y, z, w), where w is the scalar
+	/// Unit quaternion
 	spot::math::Quat rotation = spot::math::Quat::identity;
 
 	/// Non-uniform scale

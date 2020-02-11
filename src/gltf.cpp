@@ -11,28 +11,28 @@ namespace fl = spot::file;
 namespace spot::gltf
 {
 Gltf::Gltf( Gltf&& other )
-    : asset{ std::move( other.asset ) }
-    , path{ std::move( other.path ) }
-    , buffers{ std::move( other.buffers ) }
-    , buffers_cache{ std::move( other.buffers_cache ) }
-    , buffer_views{ std::move( other.buffer_views ) }
-    , cameras{ std::move( other.cameras ) }
-    , samplers{ std::move( other.samplers ) }
-    , images{ std::move( other.images ) }
-    , textures{ std::move( other.textures ) }
-    , accessors{ std::move( other.accessors ) }
-    , materials{ std::move( other.materials ) }
-    , meshes{ std::move( other.meshes ) }
-    , lights{ std::move( other.lights ) }
-    , nodes{ std::move( other.nodes ) }
-    , animations{ std::move( other.animations ) }
-    , shapes{ std::move( other.shapes ) }
-    , scripts{ std::move( other.scripts ) }
-    , scenes{ std::move( other.scenes ) }
-    , scene{ std::move( other.scene ) }
+: asset{ std::move( other.asset ) }
+, path{ std::move( other.path ) }
+, buffers{ std::move( other.buffers ) }
+, buffers_cache{ std::move( other.buffers_cache ) }
+, buffer_views{ std::move( other.buffer_views ) }
+, cameras{ std::move( other.cameras ) }
+, samplers{ std::move( other.samplers ) }
+, images{ std::move( other.images ) }
+, textures{ std::move( other.textures ) }
+, accessors{ std::move( other.accessors ) }
+, materials{ std::move( other.materials ) }
+, meshes{ std::move( other.meshes ) }
+, lights{ std::move( other.lights ) }
+, nodes{ std::move( other.nodes ) }
+, animations{ std::move( other.animations ) }
+, shapes{ std::move( other.shapes ) }
+, scripts{ std::move( other.scripts ) }
+, scenes{ std::move( other.scenes ) }
+, scene{ std::move( other.scene ) }
 {
-	std::for_each( std::begin( nodes ), std::end( nodes ), [this]( auto& node ) { node.gltf = this; } );
-	std::for_each( std::begin( scenes ), std::end( scenes ), [this]( auto& scene ) { scene.gltf = this; } );
+	std::for_each( std::begin( nodes ), std::end( nodes ), [this]( auto& node ) { node.model = this; } );
+	std::for_each( std::begin( scenes ), std::end( scenes ), [this]( auto& scene ) { scene.model = this; } );
 	std::for_each( std::begin( accessors ), std::end( accessors ), [this]( auto& acc ) { acc.model = this; } );
 	std::for_each( std::begin( materials ), std::end( materials ), [this]( auto& mat ) { mat.model = this; } );
 	load_meshes();
@@ -62,8 +62,8 @@ Gltf& Gltf::operator=( Gltf&& other )
 	scenes       = std::move( other.scenes );
 	scene        = std::move( other.scene );
 
-	std::for_each( std::begin( nodes ), std::end( nodes ), [this]( auto& node ) { node.gltf = this; } );
-	std::for_each( std::begin( scenes ), std::end( scenes ), [this]( auto& scene ) { scene.gltf = this; } );
+	std::for_each( std::begin( nodes ), std::end( nodes ), [this]( auto& node ) { node.model = this; } );
+	std::for_each( std::begin( scenes ), std::end( scenes ), [this]( auto& scene ) { scene.model = this; } );
 	std::for_each( std::begin( accessors ), std::end( accessors ), [this]( auto& acc ) { acc.model = this; } );
 	std::for_each( std::begin( materials ), std::end( materials ), [this]( auto& mat ) { mat.model = this; } );
 	load_meshes();
@@ -178,7 +178,7 @@ Gltf::Gltf( const json& j, const string& pth )
 	// Scenes
 	if ( j.count( "scenes" ) )
 	{
-		initScenes( j["scenes"] );
+		init_scenes( j["scenes"] );
 
 		uint64_t uIndex = 0;
 
@@ -587,6 +587,7 @@ BufferView& Accessor::get_buffer_view() const
 	return model->buffer_views[buffer_view_index];
 }
 
+
 size_t size_of( Accessor::ComponentType ct )
 {
 	switch ( ct )
@@ -597,8 +598,10 @@ size_t size_of( Accessor::ComponentType ct )
 	case Accessor::ComponentType::UNSIGNED_SHORT:return sizeof( uint16_t );
 	case Accessor::ComponentType::UNSIGNED_INT:  return sizeof( uint32_t );
 	case Accessor::ComponentType::FLOAT:         return sizeof( float );
+	default: assert( false && "Invalid accessor component type" ); return 0;
 	}
 }
+
 
 size_t size_of( Accessor::Type tp )
 {
@@ -612,6 +615,7 @@ size_t size_of( Accessor::Type tp )
 	case Accessor::Type::MAT2: return 4;
 	case Accessor::Type::MAT3: return 9;
 	case Accessor::Type::MAT4: return 16;
+	default: assert( false && "Invalid accessor type" ); return 0;
 	}
 }
 
@@ -953,7 +957,7 @@ void Gltf::init_nodes( const json& j )
 	for ( const auto& n : j )
 	{
 		Node node;
-		node.gltf = this;
+		node.model = this;
 
 		// Index
 		node.index = i++;
@@ -1000,7 +1004,7 @@ void Gltf::init_nodes( const json& j )
 		if ( n.count( "rotation" ) )
 		{
 			auto qvec     = n["rotation"].get<vector<float>>();
-			node.rotation = spot::math::Quat{ qvec[0], qvec[1], qvec[2], qvec[3] };
+			node.rotation = spot::math::Quat{ qvec[3], qvec[0], qvec[1], qvec[2] };
 		}
 
 		// Scale
@@ -1237,12 +1241,6 @@ void Gltf::load_nodes()
 			}
 		}
 
-		// Solve node meshes
-		if ( node.mesh_index >= 0 )
-		{
-			node.mesh = &meshes[node.mesh_index];
-		}
-
 		// Solve node light
 		if ( node.light_index >= 0 )
 		{
@@ -1281,31 +1279,21 @@ void Gltf::load_nodes()
 			}
 		}
 	}
-
-	// Solve scene nodes
-	for ( auto& scene : scenes )
-	{
-		scene.nodes.clear();
-
-		for ( auto node_index : scene.nodes_indices )
-		{
-			auto node = &nodes[node_index];
-			scene.nodes.push_back( node );
-		}
-	}
 }
+
 
 Node Gltf::create_node( const std::string& name )
 {
 	auto node = Node();
 	node.name = name;
-	node.gltf = this;
+	node.model = this;
 
 	// Assign next index as vector position
 	node.index = nodes.size();
 
 	return node;
 }
+
 
 Node& Gltf::add_node( Node&& node )
 {
@@ -1315,20 +1303,21 @@ Node& Gltf::add_node( Node&& node )
 	return nodes.back();
 }
 
-Node& Gltf::Scene::create_node( const std::string& name )
+
+Node& Scene::create_node( const std::string& name )
 {
-	auto node = gltf->create_node( name );
-	nodes_indices.push_back( node.index );
-	return gltf->add_node( std::move( node ) );
+	auto node = model->create_node( name );
+	nodes.push_back( node.index );
+	return model->add_node( std::move( node ) );
 }
 
 
-void Gltf::initScenes( const json& j )
+void Gltf::init_scenes( const json& j )
 {
 	for ( const auto& s : j )
 	{
-		Gltf::Scene scene;
-		scene.gltf = this;
+		Scene scene;
+		scene.model = this;
 
 		// Name
 		if ( s.count( "name" ) )
@@ -1339,7 +1328,7 @@ void Gltf::initScenes( const json& j )
 		// Nodes
 		if ( s.count( "nodes" ) )
 		{
-			scene.nodes_indices = s["nodes"].get<vector<size_t>>();
+			scene.nodes = s["nodes"].get<vector<size_t>>();
 		}
 
 		scenes.push_back( scene );

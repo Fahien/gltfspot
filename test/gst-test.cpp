@@ -209,7 +209,7 @@ void printMeshes( Gltf& model )
 }
 
 
-void printScenes( Gltf& model )
+void print_scenes( Gltf& model )
 {
 	cout << endl << "# Scenes" << endl;
 
@@ -314,7 +314,7 @@ int main( int argc, char** argv )
 	printNodes( model );
 
 	// Schenes
-	printScenes( model );
+	print_scenes( model );
 
 	return EXIT_SUCCESS;
 }

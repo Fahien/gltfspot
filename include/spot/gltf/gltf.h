@@ -51,7 +51,7 @@ struct Accessor
 
 	Accessor( Accessor&& a );
 
-	/// @return The size of the buffer view pointed by this accessor
+	/// @return The size of the data pointed by this accessor
 	size_t get_size() const;
 
 	/// @return The address of the data pointed by this accessor
@@ -86,6 +86,23 @@ struct Accessor
 
 	/// Minimum value of each component in this attribute
 	std::vector<float> min;
+};
+
+/// Root nodes of a scene
+struct Scene
+{
+	/// Gltf owning the scene
+	Gltf* model = nullptr;
+	
+	/// Indices of each root node
+	std::vector<size_t> nodes;
+	
+	/// User-defined name of this object
+	std::string name = "default";
+
+	/// @return A newly created Node as root of a scene
+	/// @param[in] name Name of the node
+	Node& create_node( const std::string& name );
 };
 
 
@@ -173,24 +190,6 @@ class Gltf
 		/// Samplers
 		std::vector<Sampler> samplers;
 	};
-
-	/// Root nodes of a scene
-	struct Scene
-	{
-		/// Gltf owning the scene
-		Gltf* gltf = nullptr;
-		/// Pointers to root nodes to be generated
-		std::vector<Node*> nodes;
-		/// Indices of each root node
-		std::vector<size_t> nodes_indices;
-		/// User-defined name of this object
-		std::string name = "default";
-
-		/// @return A newly created Node as root of a scene
-		/// @param[in] name Name of the node
-		Node& create_node( const std::string& name );
-	};
-
 	friend class Scene;
 
 	/// Move contructs a Gltf object
@@ -299,7 +298,7 @@ class Gltf
 
 	/// Initializes scenes
 	/// @param[in] j Json object describing the scenes
-	void initScenes( const nlohmann::json& j );
+	void init_scenes( const nlohmann::json& j );
 
 	/// Loads data into a buffer
 	/// @param[in] i Index of the buffer
