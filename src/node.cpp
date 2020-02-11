@@ -6,6 +6,16 @@ namespace spot::gltf
 {
 
 
+Mesh* Node::get_mesh() const
+{
+	if ( mesh_index >= 0 )
+	{
+		return &model->meshes[mesh_index];
+	}
+	return nullptr;
+}
+
+
 Node& Node::create_child( const std::string& name )
 {
 	auto node = model->create_node( name );

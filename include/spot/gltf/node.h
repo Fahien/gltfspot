@@ -41,6 +41,9 @@ class Node
 	/// If not negative, index of mesh of the node
 	int32_t mesh_index = -1;
 
+	/// @return The mesh associated to this node, null otherwise
+	Mesh* get_mesh() const;
+
 	/// Unit quaternion
 	spot::math::Quat rotation = spot::math::Quat::identity;
 
