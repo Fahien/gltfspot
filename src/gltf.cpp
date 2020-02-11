@@ -1441,10 +1441,11 @@ Buffer& Gltf::load_buffer( const size_t i )
 Gltf Gltf::load( const string& path )
 {
 	// read a JSON file
-	fl::Ifstream i{ path };
-	json          j;
-	i >> j;
-	Gltf model{ j, path };
+	auto in = fl::Ifstream( path );
+	assert( in.is_open() && "Cannot open gltf file" );
+	json js;
+	in >> js;
+	auto model = Gltf( js, path );
 	return model;
 }
 
