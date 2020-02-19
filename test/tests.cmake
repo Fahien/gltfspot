@@ -11,7 +11,7 @@ function(make_test TEST_NAME)
 	# Executable
 	add_executable(${TEST_NAME} ${TEST_SOURCES})
 	target_include_directories(${TEST_NAME} PRIVATE ${GST_INCLUDE_DIRS})
-	target_link_libraries(${TEST_NAME} ${GST_NAME})
+	target_link_libraries(${TEST_NAME} ${PROJECT_NAME})
 	target_compile_features( ${TEST_NAME} PUBLIC cxx_std_17 )
 
 	# Tests
@@ -21,9 +21,9 @@ function(make_test TEST_NAME)
 		string(FIND ${GLTF} "." LAST_DOT REVERSE)
 		math(EXPR LAST_SLASH "${LAST_SLASH} + 1")
 		math(EXPR SUB_LENGTH "${LAST_DOT} - ${LAST_SLASH}")
-		string(SUBSTRING ${GLTF} ${LAST_SLASH} ${SUB_LENGTH} GLTF_NAME)
+		string(SUBSTRING ${GLTF} ${LAST_SLASH} ${SUB_LENGTH} PROJECT_NAME)
 		# Add test
-		add_test(${TEST_NAME}-${GLTF_NAME} ${EXECUTABLE_OUTPUT_PATH}/${TEST_NAME} ${GLTF})
+		add_test(${TEST_NAME}-${PROJECT_NAME} ${EXECUTABLE_OUTPUT_PATH}/${TEST_NAME} ${GLTF})
 	endforeach()
 endfunction(make_test)
 

@@ -1,11 +1,11 @@
-# GltfSpoT
+# glTFspot
 
-GltfSpoT is a [glTF](https://github.com/KhronosGroup/glTF) loading library, developed as a module for [SunSpoT](https://github.com/Fahien/sunspot).
+glTFspot is a [glTF](https://github.com/KhronosGroup/glTF) loading library, developed as a module for [Sunspot](https://github.com/Fahien/sunspot).
 
 ## Prerequisites
 
-In order to build GltfSpoT, you will need the following dependencies:
-- [CMake 3.9.+](https://cmake.org), Cross-Platform Make;
+In order to build glTFspot, you will need the following dependencies:
+- [CMake 3.15.+](https://cmake.org), Cross-Platform Make;
 - [Python 3.6.+](https://www.python.org/downloads), header files and a static library.
 
 ## Build
@@ -26,6 +26,6 @@ cd build
 ctest -C Release -T test
 ```
 
-## License
+## Licensing
 
-Apache License © 2018 [Antonio Caggiano](http://www.fahien.me)
+The source code is licensed under [GPL v3](LICENSE).

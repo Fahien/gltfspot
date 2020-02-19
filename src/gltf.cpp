@@ -1098,6 +1098,7 @@ spot::gltf::Gltf::Animation::Target::Path from_string<spot::gltf::Gltf::Animatio
 	return Gltf::Animation::Target::Path::None;
 }
 
+
 void Gltf::init_animations( const nlohmann::json& j )
 {
 	for ( auto& a : j )
@@ -1165,6 +1166,7 @@ spot::gltf::Bounds::Type from_string<spot::gltf::Bounds::Type>( const std::strin
 		throw std::runtime_error{ "Bounds not valid: " + b };
 	}
 }
+
 
 void Gltf::init_shapes( const nlohmann::json& ss )
 {
