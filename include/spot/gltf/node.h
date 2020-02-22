@@ -29,17 +29,17 @@ class Node
 	/// Camera referenced by this node
 	Camera* camera = nullptr;
 
-	/// This node's children
-	std::vector<Node*> children;
+	/// This node's children indices
+	std::vector<size_t> children;
 
-	// This node's children indices
-	std::vector<size_t> children_indices;
+	/// @return A list of children of this node
+	std::vector<Node*> get_children() const;
 
 	/// Floating-point 4x4 transformation matrix stored in column-major order
 	spot::math::Mat4 matrix = spot::math::Mat4::identity;
 
 	/// If not negative, index of mesh of the node
-	int32_t mesh_index = -1;
+	int32_t mesh = -1;
 
 	/// @return The mesh associated to this node, null otherwise
 	Mesh* get_mesh() const;

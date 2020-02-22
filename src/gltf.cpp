@@ -978,13 +978,13 @@ void Gltf::init_nodes( const json& j )
 		// Children
 		if ( n.count( "children" ) )
 		{
-			node.children_indices = n["children"].get<vector<size_t>>();
+			node.children = n["children"].get<vector<size_t>>();
 		}
 
 		// Matrix
 		if ( n.count( "matrix" ) )
 		{
-			// TODO Improve this
+			/// @todo Improve this
 			auto             mvec = n["matrix"].get<vector<float>>();
 			array<float, 16> marr;
 			for ( unsigned i{ 0 }; i < 16; ++i )
@@ -997,7 +997,7 @@ void Gltf::init_nodes( const json& j )
 		// Mesh
 		if ( n.count( "mesh" ) )
 		{
-			node.mesh_index = n["mesh"];
+			node.mesh = n["mesh"];
 		}
 
 		// Rotation
@@ -1229,20 +1229,6 @@ void Gltf::load_nodes()
 
 	for ( auto& node : nodes )
 	{
-		// Solve nodes children
-		node.children.clear();
-
-		for ( auto child_index : node.children_indices )
-		{
-			auto child = &nodes[child_index];
-			// A node should not be its own parent
-			if ( child != &node )
-			{
-				child->parent = &node;
-				node.children.push_back( child );
-			}
-		}
-
 		// Solve node light
 		if ( node.light_index >= 0 )
 		{
