@@ -66,7 +66,7 @@ struct Mesh
 		Accessor* get_indices() const;
 
 		/// Index of the material to apply to this primitive when rendering
-		int32_t material_index = -1;
+		int32_t material = -1;
 
 		/// @return A pointer to the material of this primitive, otherwise null
 		Material* get_material() const;

@@ -854,7 +854,7 @@ void Gltf::init_meshes( const json& j )
 
 			if ( p.count( "material" ) )
 			{
-				primitive.material_index = p["material"].get<unsigned>();
+				primitive.material = p["material"].get<int32_t>();
 			}
 
 			if ( p.count( "mode" ) )

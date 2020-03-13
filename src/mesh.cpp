@@ -15,7 +15,7 @@ Mesh::Primitive::Primitive( Mesh::Primitive&& other )
 : mesh { other.mesh }
 , attributes { std::move( other.attributes ) }
 , indices_index { other.indices_index }
-, material_index { other.material_index }
+, material { other.material }
 , mode { other.mode }
 , extras { other.extras }
 {
@@ -29,7 +29,7 @@ Mesh::Primitive& Mesh::Primitive::operator=( Mesh::Primitive&& other )
 	mesh = other.mesh;
 	attributes = std::move( other.attributes );
 	indices_index = other.indices_index;
-	material_index = other.material_index;
+	material = other.material;
 	mode = other.mode;
 	extras = other.extras;
 
@@ -65,9 +65,9 @@ Accessor* Mesh::Primitive::get_indices() const
 
 Material* Mesh::Primitive::get_material() const
 {
-	if ( material_index >= 0 )
+	if ( material >= 0 )
 	{
-		return &mesh->model->materials[material_index];
+		return &mesh->model->materials[material];
 	}
 	return nullptr;
 }
