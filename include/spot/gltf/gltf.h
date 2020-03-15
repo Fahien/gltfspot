@@ -238,31 +238,31 @@ class Gltf
 
 	/// Initializes asset
 	/// @param[in] j Json object describing the asset
-	void initAsset( const nlohmann::json& j );
+	void init_asset( const nlohmann::json& j );
 
 	/// Initializes buffers
 	/// @param[in] j Json object describing the buffers
-	void initBuffers( const nlohmann::json& j );
+	void init_buffers( const nlohmann::json& j );
 
 	/// Initializes bufferViews
 	/// @param[in] j Json object describing the bufferViews
-	void initBufferViews( const nlohmann::json& j );
+	void init_buffer_views( const nlohmann::json& j );
 
 	/// Initializes cameras
 	/// @param[in] j Json object describing the cameras
-	void initCameras( const nlohmann::json& j );
+	void init_cameras( const nlohmann::json& j );
 
 	/// Initializes samplers
 	/// @param[in] j Json object describing the samplers
-	void initSamplers( const nlohmann::json& j );
+	void init_samplers( const nlohmann::json& j );
 
 	/// Initializes images
 	/// @param[in] j Json object describing the images
-	void initImages( const nlohmann::json& j );
+	void init_images( const nlohmann::json& j );
 
 	/// Initializes textures
 	/// @param[in] j Json object describing the textures
-	void initTextures( const nlohmann::json& j );
+	void init_textures( const nlohmann::json& j );
 
 	/// Initializes accessors
 	/// @param[in] j Json object describing the accessors

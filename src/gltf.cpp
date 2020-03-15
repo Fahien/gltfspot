@@ -4,12 +4,12 @@
 
 #include "spot/gltf/gltf.h"
 
-using namespace std;
-using namespace nlohmann;
 namespace fl = spot::file;
 
 namespace spot::gltf
 {
+
+
 Gltf::Gltf( Gltf&& other )
 : asset{ std::move( other.asset ) }
 , path{ std::move( other.path ) }
@@ -73,49 +73,49 @@ Gltf& Gltf::operator=( Gltf&& other )
 }
 
 
-Gltf::Gltf( const json& j, const string& pth )
+Gltf::Gltf( const nlohmann::json& j, const std::string& pth )
 {
 	// Get the directory path
 	auto index = pth.find_last_of( "/\\" );
 	path = pth.substr( 0, index );
 
 	// Asset
-	initAsset( j["asset"] );
+	init_asset( j["asset"] );
 
 	// Buffer
 	if ( j.count( "buffers" ) )
 	{
-		initBuffers( j["buffers"] );
+		init_buffers( j["buffers"] );
 	}
 
 	// BufferViews
 	if ( j.count( "bufferViews" ) )
 	{
-		initBufferViews( j["bufferViews"] );
+		init_buffer_views( j["bufferViews"] );
 	}
 
 	// Cameras
 	if ( j.count( "cameras" ) )
 	{
-		initCameras( j["cameras"] );
+		init_cameras( j["cameras"] );
 	}
 
 	// Samplers
 	if ( j.count( "samplers" ) )
 	{
-		initSamplers( j["samplers"] );
+		init_samplers( j["samplers"] );
 	}
 
 	// Images
 	if ( j.count( "images" ) )
 	{
-		initImages( j["images"] );
+		init_images( j["images"] );
 	}
 
 	// Textures
 	if ( j.count( "textures" ) )
 	{
-		initTextures( j["textures"] );
+		init_textures( j["textures"] );
 	}
 
 	// Accessors
@@ -191,26 +191,26 @@ Gltf::Gltf( const json& j, const string& pth )
 }
 
 
-void Gltf::initAsset( const json& j )
+void Gltf::init_asset( const nlohmann::json& j )
 {
 	// Version (mandatory)
-	asset.version = j["version"].get<string>();
+	asset.version = j["version"].get<std::string>();
 
 	// Generator
 	if ( j.count( "generator" ) )
 	{
-		asset.generator = j["generator"].get<string>();
+		asset.generator = j["generator"].get<std::string>();
 	}
 
 	// Copyright
 	if ( j.count( "copyright" ) )
 	{
-		asset.copyright = j["copyright"].get<string>();
+		asset.copyright = j["copyright"].get<std::string>();
 	}
 }
 
 
-void Gltf::initBuffers( const json& j )
+void Gltf::init_buffers( const nlohmann::json& j )
 {
 	for ( const auto& b : j )
 	{
@@ -222,7 +222,7 @@ void Gltf::initBuffers( const json& j )
 		// Uri of the binary file to upload
 		if ( b.count( "uri" ) )
 		{
-			buffer.uri = b["uri"].get<string>();
+			buffer.uri = b["uri"].get<std::string>();
 			// If it is not data
 			if ( buffer.uri.rfind( "data:", 0 ) != 0 )
 			{
@@ -235,7 +235,7 @@ void Gltf::initBuffers( const json& j )
 }
 
 
-void Gltf::initBufferViews( const json& j )
+void Gltf::init_buffer_views( const nlohmann::json& j )
 {
 	for ( const auto& v : j )
 	{
@@ -269,19 +269,19 @@ void Gltf::initBufferViews( const json& j )
 			view.target = static_cast<BufferView::Target>( v["target"].get<size_t>() );
 		}
 
-		buffer_views.push_back( move( view ) );
+		buffer_views.push_back( std::move( view ) );
 	}
 }
 
 
-void Gltf::initCameras( const json& j )
+void Gltf::init_cameras( const nlohmann::json& j )
 {
 	for ( const auto& c : j )
 	{
 		Camera camera;
 
 		// Type
-		auto type   = c["type"].get<string>();
+		auto type   = c["type"].get<std::string>();
 		camera.type = ( type == "orthographic" ) ? Camera::Type::Ortographic : Camera::Type::Perspective;
 
 		// Camera
@@ -307,16 +307,16 @@ void Gltf::initCameras( const json& j )
 		// Name
 		if ( c.count( "name" ) )
 		{
-			camera.name = c["name"].get<string>();
+			camera.name = c["name"].get<std::string>();
 		}
 
-		cameras.push_back( move( camera ) );
+		cameras.push_back( std::move( camera ) );
 	}
 }
 
 
 template <>
-string to_string<Sampler::Filter>( const Sampler::Filter& f )
+std::string to_string<Sampler::Filter>( const Sampler::Filter& f )
 {
 	switch ( f )
 	{
@@ -341,7 +341,7 @@ string to_string<Sampler::Filter>( const Sampler::Filter& f )
 
 
 template <>
-string to_string<Sampler::Wrapping>( const Sampler::Wrapping& w )
+std::string to_string<Sampler::Wrapping>( const Sampler::Wrapping& w )
 {
 	switch ( w )
 	{
@@ -358,7 +358,7 @@ string to_string<Sampler::Wrapping>( const Sampler::Wrapping& w )
 
 
 template <>
-string to_string<Mesh::Primitive::Mode>( const Mesh::Primitive::Mode& m )
+std::string to_string<Mesh::Primitive::Mode>( const Mesh::Primitive::Mode& m )
 {
 	switch ( m )
 	{
@@ -381,7 +381,7 @@ string to_string<Mesh::Primitive::Mode>( const Mesh::Primitive::Mode& m )
 	}
 }
 
-void Gltf::initSamplers( const json& j )
+void Gltf::init_samplers( const nlohmann::json& j )
 {
 	for ( const auto& s : j )
 	{
@@ -414,7 +414,7 @@ void Gltf::initSamplers( const json& j )
 		// Name
 		if ( s.count( "name" ) )
 		{
-			sampler.name = s["name"].get<string>();
+			sampler.name = s["name"].get<std::string>();
 		}
 
 		samplers.push_back( sampler );
@@ -422,7 +422,7 @@ void Gltf::initSamplers( const json& j )
 }
 
 
-void Gltf::initImages( const json& j )
+void Gltf::init_images( const nlohmann::json& j )
 {
 	for ( const auto& i : j )
 	{
@@ -430,12 +430,12 @@ void Gltf::initImages( const json& j )
 
 		if ( i.count( "uri" ) )
 		{
-			image.uri = path + "/" + i["uri"].get<string>();
+			image.uri = path + "/" + i["uri"].get<std::string>();
 		}
 
 		if ( i.count( "mimeType" ) )
 		{
-			image.mime_type = i["mimeType"].get<string>();
+			image.mime_type = i["mimeType"].get<std::string>();
 		}
 
 		if ( i.count( "bufferView" ) )
@@ -445,7 +445,7 @@ void Gltf::initImages( const json& j )
 
 		if ( i.count( "name" ) )
 		{
-			image.name = i["name"].get<string>();
+			image.name = i["name"].get<std::string>();
 		}
 
 		images.push_back( std::move( image ) );
@@ -453,7 +453,7 @@ void Gltf::initImages( const json& j )
 }
 
 
-void Gltf::initTextures( const json& j )
+void Gltf::init_textures( const nlohmann::json& j )
 {
 	for ( const auto& t : j )
 	{
@@ -477,7 +477,7 @@ void Gltf::initTextures( const json& j )
 		// Name
 		if ( t.count( "name" ) )
 		{
-			texture.name = t["name"].get<string>();
+			texture.name = t["name"].get<std::string>();
 		}
 
 		textures.push_back( texture );
@@ -486,7 +486,7 @@ void Gltf::initTextures( const json& j )
 
 
 template <>
-Accessor::Type from_string<Accessor::Type>( const string& s )
+Accessor::Type from_string<Accessor::Type>( const std::string& s )
 {
 	if ( s == "SCALAR" )
 	{
@@ -641,7 +641,7 @@ size_t Accessor::get_stride() const
 }
 
 
-void Gltf::init_accessors( const json& j )
+void Gltf::init_accessors( const nlohmann::json& j )
 {
 	for ( const auto& a : j )
 	{
@@ -666,7 +666,7 @@ void Gltf::init_accessors( const json& j )
 		accessor.count = a["count"].get<size_t>();
 
 		// Type
-		accessor.type = from_string<Accessor::Type>( a["type"].get<string>() );
+		accessor.type = from_string<Accessor::Type>( a["type"].get<std::string>() );
 
 		// Max
 		if ( a.count( "max" ) )
@@ -691,7 +691,7 @@ void Gltf::init_accessors( const json& j )
 }
 
 
-void Gltf::init_materials( const json& j )
+void Gltf::init_materials( const nlohmann::json& j )
 {
 	for ( const auto& m : j )
 	{
@@ -701,7 +701,7 @@ void Gltf::init_materials( const json& j )
 		// Name
 		if ( m.count( "name" ) )
 		{
-			material.name = m["name"].get<string>();
+			material.name = m["name"].get<std::string>();
 		}
 
 		// PbrMetallicRoughness
@@ -711,7 +711,7 @@ void Gltf::init_materials( const json& j )
 
 			if ( mr.count( "baseColorFactor" ) )
 			{
-				material.pbr.base_color_factor = mr["baseColorFactor"].get<vector<float>>();
+				material.pbr.base_color_factor = mr["baseColorFactor"].get<std::vector<float>>();
 			}
 
 			if ( mr.count( "baseColorTexture" ) )
@@ -822,7 +822,7 @@ std::string to_string<Mesh::Primitive::Semantic>( const Mesh::Primitive::Semanti
 }
 
 
-void Gltf::init_meshes( const json& j )
+void Gltf::init_meshes( const nlohmann::json& j )
 {
 	for ( const auto& m : j )
 	{
@@ -831,7 +831,7 @@ void Gltf::init_meshes( const json& j )
 		// Name
 		if ( m.count( "name" ) )
 		{
-			mesh.name = m["name"].get<string>();
+			mesh.name = m["name"].get<std::string>();
 		}
 
 		// Primitives
@@ -839,7 +839,7 @@ void Gltf::init_meshes( const json& j )
 		{
 			Mesh::Primitive primitive { mesh };
 
-			auto attributes = p["attributes"].get<map<string, unsigned>>();
+			auto attributes = p["attributes"].get<std::map<std::string, unsigned>>();
 
 			for ( const auto& a : attributes )
 			{
@@ -879,7 +879,7 @@ void Gltf::load_meshes()
 }
 
 
-void Gltf::init_lights( const json& j )
+void Gltf::init_lights( const nlohmann::json& j )
 {
 	for ( const auto& l : j )
 	{
@@ -888,13 +888,13 @@ void Gltf::init_lights( const json& j )
 		// Name
 		if ( l.count( "name" ) )
 		{
-			light.name = l["name"].get<string>();
+			light.name = l["name"].get<std::string>();
 		}
 
 		// Color
 		if ( l.count( "color" ) )
 		{
-			auto color = l["color"].get<vector<float>>();
+			auto color = l["color"].get<std::vector<float>>();
 			light.color.set( color[0], color[1], color[2] );
 		}
 
@@ -913,7 +913,7 @@ void Gltf::init_lights( const json& j )
 		// Type
 		if ( l.count( "type" ) )
 		{
-			auto type = l["type"].get<string>();
+			auto type = l["type"].get<std::string>();
 			if ( type == "point" )
 			{
 				light.type = Light::Type::Point;
@@ -950,7 +950,7 @@ void Gltf::init_lights( const json& j )
 }
 
 
-void Gltf::init_nodes( const json& j )
+void Gltf::init_nodes( const nlohmann::json& j )
 {
 	size_t i = 0;
 
@@ -965,7 +965,7 @@ void Gltf::init_nodes( const json& j )
 		// Name
 		if ( n.count( "name" ) )
 		{
-			node.name = n["name"].get<string>();
+			node.name = n["name"].get<std::string>();
 		}
 
 		// Camera
@@ -978,20 +978,20 @@ void Gltf::init_nodes( const json& j )
 		// Children
 		if ( n.count( "children" ) )
 		{
-			node.children = n["children"].get<vector<size_t>>();
+			node.children = n["children"].get<std::vector<size_t>>();
 		}
 
 		// Matrix
 		if ( n.count( "matrix" ) )
 		{
 			/// @todo Improve this
-			auto             mvec = n["matrix"].get<vector<float>>();
-			array<float, 16> marr;
+			auto             mvec = n["matrix"].get<std::vector<float>>();
+			std::array<float, 16> marr;
 			for ( unsigned i{ 0 }; i < 16; ++i )
 			{
 				marr[i] = mvec[i];
 			}
-			node.matrix = spot::math::Mat4{ marr.data() };
+			node.matrix = math::Mat4{ marr.data() };
 		}
 
 		// Mesh
@@ -1003,22 +1003,22 @@ void Gltf::init_nodes( const json& j )
 		// Rotation
 		if ( n.count( "rotation" ) )
 		{
-			auto qvec     = n["rotation"].get<vector<float>>();
-			node.rotation = spot::math::Quat{ qvec[3], qvec[0], qvec[1], qvec[2] };
+			auto qvec     = n["rotation"].get<std::vector<float>>();
+			node.rotation = math::Quat{ qvec[3], qvec[0], qvec[1], qvec[2] };
 		}
 
 		// Scale
 		if ( n.count( "scale" ) )
 		{
-			auto s     = n["scale"].get<vector<float>>();
-			node.scale = spot::math::Vec3{ s[0], s[1], s[2] };
+			auto s     = n["scale"].get<std::vector<float>>();
+			node.scale = math::Vec3{ s[0], s[1], s[2] };
 		}
 
 		// Translation
 		if ( n.count( "translation" ) )
 		{
-			auto t           = n["translation"].get<vector<float>>();
-			node.translation = spot::math::Vec3{ t[0], t[1], t[2] };
+			auto t           = n["translation"].get<std::vector<float>>();
+			node.translation = math::Vec3{ t[0], t[1], t[2] };
 		}
 
 		// Estensions
@@ -1046,7 +1046,7 @@ void Gltf::init_nodes( const json& j )
 			// Scripts
 			if ( extras.count( "scripts" ) )
 			{
-				node.scripts_indices = extras["scripts"].get<vector<size_t>>();
+				node.scripts_indices = extras["scripts"].get<std::vector<size_t>>();
 			}
 		}
 
@@ -1176,16 +1176,16 @@ void Gltf::init_shapes( const nlohmann::json& ss )
 		if ( type == "box" )
 		{
 			auto aa = s["box"]["a"].get<std::vector<float>>();
-			auto a  = spot::math::Vec3{ aa };
+			auto a  = math::Vec3{ aa[0], aa[1], aa[2] };
 			auto bb = s["box"]["b"].get<std::vector<float>>();
-			auto b  = spot::math::Vec3{ bb };
+			auto b  = math::Vec3{ bb[0], bb[1], bb[2] };
 
 			shapes.emplace_back( std::unique_ptr<Shape>{ new Box{ a, b } } );
 		}
 		else if ( type == "sphere" )
 		{
 			auto oo = s["sphere"]["o"].get<std::vector<float>>();
-			auto o  = spot::math::Vec3{ oo };
+			auto o  = math::Vec3{ oo[0], oo[1], oo[2] };
 
 			auto r = s["sphere"]["r"].get<float>();
 
@@ -1300,7 +1300,7 @@ Node& Scene::create_node( const std::string& name )
 }
 
 
-void Gltf::init_scenes( const json& j )
+void Gltf::init_scenes( const nlohmann::json& j )
 {
 	for ( const auto& s : j )
 	{
@@ -1310,13 +1310,13 @@ void Gltf::init_scenes( const json& j )
 		// Name
 		if ( s.count( "name" ) )
 		{
-			scene.name = s["name"].get<string>();
+			scene.name = s["name"].get<std::string>();
 		}
 
 		// Nodes
 		if ( s.count( "nodes" ) )
 		{
-			scene.nodes = s["nodes"].get<vector<size_t>>();
+			scene.nodes = s["nodes"].get<std::vector<size_t>>();
 		}
 
 		scenes.push_back( scene );
@@ -1416,8 +1416,8 @@ Buffer& Gltf::load_buffer( const size_t i )
 		}
 		else
 		{
-			fl::Ifstream file{ buffer.uri, ios::binary };
-			assert( file.is_open() );
+			auto file = fl::Ifstream( buffer.uri, std::ios::binary );
+			assert( file.is_open() && "Could not open the file" );
 			buffer.data = file.read( buffer.byte_length );
 		}
 	}
@@ -1426,15 +1426,14 @@ Buffer& Gltf::load_buffer( const size_t i )
 }
 
 
-Gltf Gltf::load( const string& path )
+Gltf Gltf::load( const std::string& path )
 {
 	// read a JSON file
 	auto in = fl::Ifstream( path );
 	assert( in.is_open() && "Cannot open gltf file" );
-	json js;
+	nlohmann::json js;
 	in >> js;
-	auto model = Gltf( js, path );
-	return model;
+	return Gltf( js, path );
 }
 
 
