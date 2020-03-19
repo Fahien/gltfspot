@@ -95,7 +95,7 @@ struct Scene
 	Gltf* model = nullptr;
 	
 	/// Indices of each root node
-	std::vector<size_t> nodes;
+	std::vector<int32_t> nodes;
 	
 	/// User-defined name of this object
 	std::string name = "default";

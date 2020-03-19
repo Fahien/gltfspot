@@ -21,7 +21,7 @@ class Node
 	Gltf* model = nullptr;
 
 	/// Index of this node within the nodes vector
-	int index = -1;
+	int32_t index = -1;
 
 	/// Parent of this node
 	Node* parent = nullptr;

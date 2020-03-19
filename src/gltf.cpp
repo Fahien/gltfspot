@@ -1316,7 +1316,7 @@ void Gltf::init_scenes( const nlohmann::json& j )
 		// Nodes
 		if ( s.count( "nodes" ) )
 		{
-			scene.nodes = s["nodes"].get<std::vector<size_t>>();
+			scene.nodes = s["nodes"].get<std::vector<int32_t>>();
 		}
 
 		scenes.push_back( scene );
