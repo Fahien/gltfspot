@@ -88,24 +88,6 @@ struct Accessor
 	std::vector<float> min;
 };
 
-/// Root nodes of a scene
-struct Scene
-{
-	/// Gltf owning the scene
-	Gltf* model = nullptr;
-	
-	/// Indices of each root node
-	std::vector<int32_t> nodes;
-	
-	/// User-defined name of this object
-	std::string name = "default";
-
-	/// @return A newly created Node as root of a scene
-	/// @param[in] name Name of the node
-	Node& create_node( const std::string& name );
-};
-
-
 /// GL Transmission Format
 class Gltf
 {
@@ -120,7 +102,6 @@ class Gltf
 		/// Copyright message suitable for display to credit the content creator
 		std::string copyright;
 	};
-
 
 	friend class Node;
 
@@ -190,7 +171,10 @@ class Gltf
 		/// Samplers
 		std::vector<Sampler> samplers;
 	};
+
 	friend class Scene;
+
+	Gltf() = default;
 
 	/// Move contructs a Gltf object
 	/// @param[in] g Gltf object
@@ -220,12 +204,20 @@ class Gltf
 	/// @return Buffer number i
 	Buffer& get_buffer( const size_t i );
 
+	/// @param[in] parent The parent of this node
 	/// @return A newly created Node
+	Node& create_node( const int32_t parent = -1 );
+
 	/// @param[in] name Name of the node
-	Node create_node( const std::string& name );
+	/// @return A newly created Node
+	Node& create_node( const std::string& name );
 
 	/// @param[in] node Node to add
 	Node& add_node( Node&& node );
+
+	/// @param[in] index Index of the node
+	/// @return The node found at that index, nullptr otherwise
+	Node* get_node( const int32_t index = -1 );
 
 	/// Load the nodes pointer using node indices
 	void load_nodes();

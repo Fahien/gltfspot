@@ -17,6 +17,8 @@ class Shape;
 class Node
 {
   public:
+	bool contains( const math::Vec2& point ) const;
+
 	/// Gltf owning the node
 	Gltf* model = nullptr;
 
@@ -24,7 +26,10 @@ class Node
 	int32_t index = -1;
 
 	/// Parent of this node
-	Node* parent = nullptr;
+	int32_t parent = -1;
+
+	/// @return The parent of this node, otherwise nullptr
+	Node* get_parent() const;
 
 	/// Camera referenced by this node
 	Camera* camera = nullptr;
@@ -79,6 +84,24 @@ class Node
 	Node& create_child( const std::string& name );
 
 	void remove_from_parent();
+};
+
+
+/// Root nodes of a scene
+struct Scene
+{
+	/// Gltf owning the scene
+	Gltf* model = nullptr;
+	
+	/// Indices of each root node
+	std::vector<int32_t> nodes;
+	
+	/// User-defined name of this object
+	std::string name = "default";
+
+	/// @return A newly created Node as root of a scene
+	/// @param[in] name Name of the node
+	Node& create_node( const std::string& name = {});
 };
 
 

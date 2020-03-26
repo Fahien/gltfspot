@@ -1050,7 +1050,7 @@ void Gltf::init_nodes( const nlohmann::json& j )
 			}
 		}
 
-		nodes.push_back( node );
+		nodes.push_back( std::move( node ) );
 	}
 }
 
@@ -1074,6 +1074,7 @@ spot::gltf::Gltf::Animation::Sampler::Interpolation from_string<spot::gltf::Gltf
 	assert( false );
 	return Gltf::Animation::Sampler::Interpolation::Linear;
 }
+
 
 template <>
 spot::gltf::Gltf::Animation::Target::Path from_string<spot::gltf::Gltf::Animation::Target::Path>( const std::string& p )
@@ -1224,11 +1225,14 @@ void Gltf::init_scripts( const nlohmann::json& ss )
 
 void Gltf::load_nodes()
 {
-	// Reset parents as a pre-step
-	std::for_each( std::begin( nodes ), std::end( nodes ), []( auto& node ) { node.parent = nullptr; } );
-
 	for ( auto& node : nodes )
 	{
+		// Solve parents
+		for ( auto child_index : node.children )
+		{
+			nodes[child_index].parent = node.index;
+		}
+
 		// Solve node light
 		if ( node.light_index >= 0 )
 		{
@@ -1270,15 +1274,25 @@ void Gltf::load_nodes()
 }
 
 
-Node Gltf::create_node( const std::string& name )
+Node& Gltf::create_node( const int32_t parent_index )
 {
-	auto node = Node();
-	node.name = name;
+	auto& node = nodes.emplace_back();
+	node.index = nodes.size() - 1;
 	node.model = this;
+	node.parent = parent_index;
 
-	// Assign next index as vector position
-	node.index = nodes.size();
+	if ( auto parent = get_node( parent_index ) )
+	{
+		parent->children.emplace_back( node.index );
+	}
+	return node;
+}
 
+
+Node& Gltf::create_node( const std::string& name )
+{
+	auto& node = create_node();
+	node.name = name;
 	return node;
 }
 
@@ -1294,9 +1308,19 @@ Node& Gltf::add_node( Node&& node )
 
 Node& Scene::create_node( const std::string& name )
 {
-	auto node = model->create_node( name );
+	auto& node = model->create_node( name );
 	nodes.push_back( node.index );
-	return model->add_node( std::move( node ) );
+	return node;
+}
+
+
+Node* Gltf::get_node( const int32_t index )
+{
+	if ( index >= 0 && index < nodes.size() )
+	{
+		return &nodes[index];
+	}
+	return nullptr;
 }
 
 
@@ -1325,6 +1349,7 @@ void Gltf::init_scenes( const nlohmann::json& j )
 	load_nodes();
 }
 
+
 const std::string base64_chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "abcdefghijklmnopqrstuvwxyz"
@@ -1335,6 +1360,7 @@ inline bool is_base64( const char c )
 {
 	return ( isalnum( c ) || ( c == '+' ) || ( c == '/' ) );
 }
+
 
 std::vector<char> base64_decode( const std::string& encoded_string )
 {
