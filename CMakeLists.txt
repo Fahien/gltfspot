@@ -34,10 +34,10 @@ set( GST_INCLUDE_DIRS ${GST_INCLUDE_DIR}
 # Sources
 set( GST_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src )
 set( GST_SOURCES
-	${GST_SOURCE_DIR}/gltf.cpp
-	${GST_SOURCE_DIR}/mesh.cpp
-	${GST_SOURCE_DIR}/node.cpp
-	${GST_SOURCE_DIR}/bounds.cpp
+	${GST_SOURCE_DIR}/gltf.cc
+	${GST_SOURCE_DIR}/mesh.cc
+	${GST_SOURCE_DIR}/node.cc
+	${GST_SOURCE_DIR}/bounds.cc
 	${GST_SOURCE_DIR}/material.cc
 	${GST_SOURCE_DIR}/buffer.cc
 	${GST_SOURCE_DIR}/texture.cc

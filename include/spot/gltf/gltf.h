@@ -1,10 +1,10 @@
 #pragma once
 
 #include <spot/math/math.h>
+#include <spot/math/shape.h>
 #include <nlohmann/json.hpp>
 
 #include "spot/gltf/buffer.h"
-#include "spot/gltf/bounds.h"
 #include "spot/gltf/camera.h"
 #include "spot/gltf/image.h"
 #include "spot/gltf/light.h"
@@ -14,6 +14,7 @@
 #include "spot/gltf/sampler.h"
 #include "spot/gltf/script.h"
 #include "spot/gltf/texture.h"
+#include "spot/gltf/bounds.h"
 
 namespace spot::gltf
 {
@@ -121,9 +122,7 @@ class Gltf
 			};
 
 			/// Index of the target node
-			int32_t node_index = -1;
-			/// Target node
-			Node* node = nullptr;
+			int32_t node = -1;
 			/// Property of the node to animate
 			Path path;
 		};
@@ -218,6 +217,10 @@ class Gltf
 	/// @param[in] index Index of the node
 	/// @return The node found at that index, nullptr otherwise
 	Node* get_node( const int32_t index = -1 );
+
+	/// @param[in] index Index of the node
+	/// @return The node found at that index, nullptr otherwise
+	Shape* get_bounds( int32_t bounds );
 
 	/// Load the nodes pointer using node indices
 	void load_nodes();
@@ -339,7 +342,10 @@ class Gltf
 	std::vector<Animation> animations;
 
 	/// List of shapes (abstract)
-	std::vector<std::unique_ptr<Shape>> shapes;
+	std::vector<gltf::Rect> rects;
+	std::vector<gltf::Box> boxes;
+	std::vector<gltf::Sphere> spheres;
+	std::vector<gltf::Bounds> bounds;
 
 	/// List of scripts
 	std::vector<Script> scripts;

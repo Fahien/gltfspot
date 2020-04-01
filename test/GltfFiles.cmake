@@ -48,8 +48,8 @@ download_model(BoxAnimated/glTF/BoxAnimated.gltf)
 download_model(BoxAnimated/glTF/BoxAnimated0.bin)
 # Cesium Milk Truck
 download_model(CesiumMilkTruck/glTF/CesiumMilkTruck.gltf)
-download_model(CesiumMilkTruck/glTF/CesiumMilkTruck.png)
-download_model(CesiumMilkTruck/glTF/CesiumMilkTruck0.bin)
+download_model(CesiumMilkTruck/glTF/CesiumMilkTruck.jpg)
+download_model(CesiumMilkTruck/glTF/CesiumMilkTruck_data.bin)
 
 # Orientation Test
 download_model(OrientationTest/glTF/OrientationTest.bin)

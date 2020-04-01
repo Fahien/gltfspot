@@ -26,7 +26,10 @@ Gltf::Gltf( Gltf&& other )
 , lights{ std::move( other.lights ) }
 , nodes{ std::move( other.nodes ) }
 , animations{ std::move( other.animations ) }
-, shapes{ std::move( other.shapes ) }
+, rects{ std::move( other.rects ) }
+, boxes{ std::move( other.boxes ) }
+, spheres{ std::move( other.spheres ) }
+, bounds{ std::move( other.bounds ) }
 , scripts{ std::move( other.scripts ) }
 , scenes{ std::move( other.scenes ) }
 , scene{ std::move( other.scene ) }
@@ -35,6 +38,7 @@ Gltf::Gltf( Gltf&& other )
 	std::for_each( std::begin( scenes ), std::end( scenes ), [this]( auto& scene ) { scene.model = this; } );
 	std::for_each( std::begin( accessors ), std::end( accessors ), [this]( auto& acc ) { acc.model = this; } );
 	std::for_each( std::begin( materials ), std::end( materials ), [this]( auto& mat ) { mat.model = this; } );
+	std::for_each( std::begin( textures ), std::end( textures ), [this]( auto& tex ) { tex.model = this; } );
 	load_meshes();
 	load_nodes();
 }
@@ -43,29 +47,33 @@ Gltf::Gltf( Gltf&& other )
 Gltf& Gltf::operator=( Gltf&& other )
 {
 	asset         = std::move( other.asset );
-	path         = std::move( other.path );
-	buffers      = std::move( other.buffers );
+	path          = std::move( other.path );
+	buffers       = std::move( other.buffers );
 	buffers_cache = std::move( other.buffers_cache );
 	buffer_views  = std::move( other.buffer_views );
 	cameras       = std::move( other.cameras );
 	samplers      = std::move( other.samplers );
 	images        = std::move( other.images );
 	textures      = std::move( other.textures );
-	accessors    = std::move( other.accessors );
-	materials    = std::move( other.materials );
+	accessors     = std::move( other.accessors );
+	materials     = std::move( other.materials );
 	meshes        = std::move( other.meshes );
 	lights        = std::move( other.lights );
 	nodes         = std::move( other.nodes );
 	animations    = std::move( other.animations );
-	shapes        = std::move( other.shapes );
+	rects         = std::move( other.rects );
+	boxes         = std::move( other.boxes );
+	spheres       = std::move( other.spheres );
+	bounds        = std::move( other.bounds );
 	scripts       = std::move( other.scripts );
-	scenes       = std::move( other.scenes );
-	scene        = std::move( other.scene );
+	scenes        = std::move( other.scenes );
+	scene         = std::move( other.scene );
 
 	std::for_each( std::begin( nodes ), std::end( nodes ), [this]( auto& node ) { node.model = this; } );
 	std::for_each( std::begin( scenes ), std::end( scenes ), [this]( auto& scene ) { scene.model = this; } );
 	std::for_each( std::begin( accessors ), std::end( accessors ), [this]( auto& acc ) { acc.model = this; } );
 	std::for_each( std::begin( materials ), std::end( materials ), [this]( auto& mat ) { mat.model = this; } );
+	std::for_each( std::begin( textures ), std::end( textures ), [this]( auto& tex ) { tex.model = this; } );
 	load_meshes();
 	load_nodes();
 
@@ -978,7 +986,7 @@ void Gltf::init_nodes( const nlohmann::json& j )
 		// Children
 		if ( n.count( "children" ) )
 		{
-			node.children = n["children"].get<std::vector<size_t>>();
+			node.children = n["children"].get<std::vector<int32_t>>();
 		}
 
 		// Matrix
@@ -1040,7 +1048,7 @@ void Gltf::init_nodes( const nlohmann::json& j )
 			// Bounds
 			if ( extras.count( "bounds" ) )
 			{
-				node.bounds_index = extras["bounds"].get<int32_t>();
+				node.bounds = extras["bounds"].get<int32_t>();
 			}
 
 			// Scripts
@@ -1138,7 +1146,7 @@ void Gltf::init_animations( const nlohmann::json& j )
 
 			if ( t.count( "node" ) )
 			{
-				channel.target.node_index = t["node"].get<int32_t>();
+				channel.target.node = t["node"].get<int32_t>();
 			}
 
 			channel.target.path = from_string<Animation::Target::Path>( t["path"].get<std::string>() );
@@ -1156,11 +1164,11 @@ spot::gltf::Bounds::Type from_string<spot::gltf::Bounds::Type>( const std::strin
 {
 	if ( b == "box" )
 	{
-		return Bounds::Type::Box;
+		return gltf::Bounds::Type::Box;
 	}
 	else if ( b == "sphere" )
 	{
-		return Bounds::Type::Sphere;
+		return gltf::Bounds::Type::Sphere;
 	}
 	else
 	{
@@ -1181,7 +1189,7 @@ void Gltf::init_shapes( const nlohmann::json& ss )
 			auto bb = s["box"]["b"].get<std::vector<float>>();
 			auto b  = math::Vec3{ bb[0], bb[1], bb[2] };
 
-			shapes.emplace_back( std::unique_ptr<Shape>{ new Box{ a, b } } );
+			boxes.emplace_back( Box{ a, b } );
 		}
 		else if ( type == "sphere" )
 		{
@@ -1190,7 +1198,7 @@ void Gltf::init_shapes( const nlohmann::json& ss )
 
 			auto r = s["sphere"]["r"].get<float>();
 
-			shapes.emplace_back( std::unique_ptr<Shape>{ new Sphere{ o, r } } );
+			spheres.emplace_back( Sphere{ o, r } );
 		}
 		else
 		{
@@ -1239,13 +1247,6 @@ void Gltf::load_nodes()
 			node.light = &lights[node.light_index];
 		}
 
-		// Solve node bounds
-		if ( node.bounds_index >= 0 )
-		{
-			node.bounds       = shapes[node.bounds_index].get();
-			node.bounds->node = &node;
-		}
-
 		// Solve node script
 		node.scripts.clear();
 
@@ -1255,19 +1256,6 @@ void Gltf::load_nodes()
 			{
 				auto script = &scripts[script_index];
 				node.scripts.push_back( script );
-			}
-		}
-	}
-
-	// Solve animations channels target
-	for ( auto& animation : animations )
-	{
-		for ( auto& channel : animation.channels )
-		{
-			if ( channel.target.node_index >= 0 )
-			{
-				auto node           = &nodes[channel.target.node_index];
-				channel.target.node = node;
 			}
 		}
 	}
@@ -1319,6 +1307,26 @@ Node* Gltf::get_node( const int32_t index )
 	if ( index >= 0 && index < nodes.size() )
 	{
 		return &nodes[index];
+	}
+	return nullptr;
+}
+
+
+Shape* Gltf::get_bounds( int32_t index )
+{
+	if ( index >= 0 && index < bounds.size() )
+	{
+		auto& bb = bounds[index];
+		switch ( bb.type )
+		{
+		case Bounds::Type::Rect:
+			if ( bb.shape >= 0 && bb.shape < rects.size() )
+			{
+				return &rects[bb.shape];
+			}
+		default:
+			assert( false && "Bounds type not supported yet" );
+		}
 	}
 	return nullptr;
 }

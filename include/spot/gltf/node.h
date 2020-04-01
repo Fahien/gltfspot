@@ -35,7 +35,7 @@ class Node
 	Camera* camera = nullptr;
 
 	/// This node's children indices
-	std::vector<size_t> children;
+	std::vector<int32_t> children;
 
 	/// @return A list of children of this node
 	std::vector<Node*> get_children() const;
@@ -68,10 +68,7 @@ class Node
 	Light* light = nullptr;
 
 	/// This node's bounds indices
-	int32_t bounds_index = -1;
-
-	/// Bounds referenced by this node
-	Shape* bounds = nullptr;
+	int32_t bounds = -1;
 
 	/// This node's scripts indices
 	std::vector<size_t> scripts_indices;

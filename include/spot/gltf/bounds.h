@@ -1,34 +1,57 @@
 #pragma once
 
-#include <vector>
-#include <functional>
-
+#include <cassert>
 #include <spot/math/math.h>
+#include <spot/math/shape.h>
+
 
 namespace spot::gltf
 {
-class Node;
-class Box;
-class Sphere;
 
+
+struct Bounds
+{
+	enum class Type
+	{
+		Undefined,
+		Rect,
+		Box,
+		Sphere,
+		Max,
+	};
+
+	int32_t index = -1;
+	Type type = Type::Rect;
+	int32_t shape = -1;
+};
+
+
+/// @todo 
+/// As it is really coupled with it
+/// How about subclasses deriving from both this and math::ConcreteShapes?
 struct Shape
 {
 	Shape()          = default;
 	virtual ~Shape() = default;
 
-	void set_matrix( const spot::math::Mat4& m );
+	/// @brief Sets a new transform matrix, in case the shape moves
+	void set_matrix( const math::Mat4& m );
 
 	bool is_colliding_with( const Shape& s ) const;
 	void add_collision( const Shape& s );
 	void remove_collision( const Shape& s );
 
-	virtual bool intersects( const Shape& s ) const { return false; }
-	virtual bool intersects( const Box& b ) const { return false; }
-	virtual bool intersects( const Sphere& b ) const { return false; }
+	virtual bool intersects( const Shape& s ) const { assert( false && "unimplemented" ); return false; }
+	virtual bool contains( const math::Vec2& p ) const { assert( false && "unimplemented" ); return false; }
 
-	Node* node = nullptr;
+	/// @brief Index of the shape
+	int32_t index = -1;
+	/// @brief Node this shape belongs to
+	int32_t node = -1;
 
-	spot::math::Mat4 matrix = {};
+	/// @todo This should be derived from node.absolute_transform()
+	/// which recursively go up the tree to get parents' transforms
+	math::Mat4 matrix = math::Mat4::identity;
 
 	std::vector<const Shape*> collisions = {};
 
@@ -38,38 +61,25 @@ struct Shape
 };
 
 
-struct Box : public Shape
+struct Rect : public math::Rect, Shape
 {
-	Box( const spot::math::Vec3& a = {}, const spot::math::Vec3& b = {} );
+	using math::Rect::Rect;
 
-	spot::math::Vec3 get_abs_a() const;
-	spot::math::Vec3 get_abs_b() const;
-
-	bool intersects( const Shape& s ) const override;
-	bool intersects( const Box& b ) const override;
-
-	spot::math::Vec3 a = {};
-	spot::math::Vec3 b = {};
+	bool contains( const math::Vec2& p ) const override { return math::Rect::contains( p ); }
 };
 
 
-struct Sphere : public Shape
+struct Box : public math::Box, Shape
 {
-	Sphere( const spot::math::Vec3& o = {}, float r = 0.0f );
+	using math::Box::Box;
 
-	spot::math::Vec3 o = {};
-	float          r = 0.0f;
 };
 
-struct Bounds
-{
-	enum class Type
-	{
-		Box,
-		Sphere
-	};
 
-	Shape* shape = nullptr;
+struct Sphere : public math::Sphere, Shape
+{
+	using math::Sphere::Sphere;
 };
 
-}  // namespace spot::gltf
+
+} // namespace spot::gltf
