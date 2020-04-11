@@ -6,6 +6,26 @@ namespace spot::gltf
 {
 
 
+math::Mat4 Node::get_matrix() const
+{
+	auto transform = matrix;
+	transform.scale( scale );
+	transform.rotate( rotation );
+	transform.translate( translation );
+	return transform;
+}
+
+
+math::Mat4 Node::get_absolute_matrix() const
+{
+	if ( auto parent_node = get_parent() )
+	{
+		return parent_node->get_absolute_matrix() * get_matrix();
+	}
+	return get_matrix();
+}
+
+
 bool Node::contains( const math::Vec2& point ) const
 {
 	/// @todo Make this a bounding box and store an handle to it into a node
@@ -45,7 +65,7 @@ std::vector<Node*> Node::get_children() const
 
 	for( size_t i = 0; i < children.size(); ++i )
 	{
-		ret[i] = &model->nodes[i];
+		ret[i] = &model->nodes[children[i]];
 	}
 
 	return ret;
@@ -63,6 +83,7 @@ Node& Node::create_child( const std::string& name )
 
 void Node::add_child( Node& child )
 {
+	assert( child.index != index && "Cannot add child to itself" );
 	child.parent = index;
 	children.emplace_back( child.index );
 }

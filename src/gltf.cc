@@ -993,13 +993,13 @@ void Gltf::init_nodes( const nlohmann::json& j )
 		if ( n.count( "matrix" ) )
 		{
 			/// @todo Improve this
-			auto             mvec = n["matrix"].get<std::vector<float>>();
+			auto mvec = n["matrix"].get<std::vector<float>>();
 			std::array<float, 16> marr;
 			for ( unsigned i{ 0 }; i < 16; ++i )
 			{
 				marr[i] = mvec[i];
 			}
-			node.matrix = math::Mat4{ marr.data() };
+			node.matrix = math::Mat4( marr.data() );
 		}
 
 		// Mesh

@@ -39,8 +39,7 @@ bool Rect::contains( const math::Vec2& p ) const
 	if ( auto owner = model->get_node( node ) )
 	{
 		math::Rect rect = *this;
-		rect.offset.x += owner->translation.x;
-		rect.offset.y += owner->translation.y;
+		rect.offset = owner->get_absolute_matrix() * rect.offset;
 		return rect.contains( p );
 	}
 	return math::Rect::contains( p );

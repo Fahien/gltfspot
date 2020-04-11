@@ -34,14 +34,14 @@ class Node
 	/// Camera referenced by this node
 	Camera* camera = nullptr;
 
-	/// This node's children indices
-	std::vector<int32_t> children;
-
 	/// @return A list of children of this node
 	std::vector<Node*> get_children() const;
 
-	/// Floating-point 4x4 transformation matrix stored in column-major order
-	spot::math::Mat4 matrix = spot::math::Mat4::identity;
+	/// @return The current transform
+	math::Mat4 get_matrix() const;
+
+	/// @return A matrix representing the absolute transform of this node
+	math::Mat4 get_absolute_matrix() const;
 
 	/// If not negative, index of mesh of the node
 	int32_t mesh = -1;
@@ -50,13 +50,13 @@ class Node
 	Mesh* get_mesh() const;
 
 	/// Unit quaternion
-	spot::math::Quat rotation = spot::math::Quat::identity;
+	math::Quat rotation = math::Quat::identity;
 
 	/// Non-uniform scale
-	spot::math::Vec3 scale = spot::math::Vec3{ 1.0f, 1.0f, 1.0f };
+	math::Vec3 scale = math::Vec3{ 1.0f, 1.0f, 1.0f };
 
 	/// Translation
-	spot::math::Vec3 translation = spot::math::Vec3{ 0.0f, 0.0f, 0.0f };
+	math::Vec3 translation = math::Vec3{ 0.0f, 0.0f, 0.0f };
 
 	/// User-defined name of this object
 	std::string name = "Unknown";
@@ -84,6 +84,15 @@ class Node
 	void add_child( Node& child );
 
 	void remove_from_parent();
+
+  private:
+	/// Floating-point 4x4 transformation matrix stored in column-major order
+	math::Mat4 matrix = math::Mat4::identity;
+
+	/// This node's children indices
+	std::vector<int32_t> children;
+
+	friend class Gltf;
 };
 
 
