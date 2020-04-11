@@ -218,9 +218,13 @@ class Gltf
 	/// @return The node found at that index, nullptr otherwise
 	Node* get_node( const int32_t index = -1 );
 
-	/// @param[in] index Index of the node
-	/// @return The node found at that index, nullptr otherwise
-	Shape* get_bounds( int32_t bounds );
+	/// @param[in] bounds Index of the bounds
+	/// @return The bounds found at that index, nullptr otherwise
+	Bounds* get_bounds( int32_t bounds );
+
+	/// @param[in] bounds Index of the bounds
+	/// @return The shape of that bounds, nullptr otherwise
+	Shape* get_shape( int32_t bounds );
 
 	/// Load the nodes pointer using node indices
 	void load_nodes();

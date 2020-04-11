@@ -8,6 +8,7 @@
 namespace spot::gltf
 {
 
+class Gltf;
 
 struct Bounds
 {
@@ -44,8 +45,11 @@ struct Shape
 	virtual bool intersects( const Shape& s ) const { assert( false && "unimplemented" ); return false; }
 	virtual bool contains( const math::Vec2& p ) const { assert( false && "unimplemented" ); return false; }
 
+	Gltf* model = nullptr;
+
 	/// @brief Index of the shape
 	int32_t index = -1;
+
 	/// @brief Node this shape belongs to
 	int32_t node = -1;
 
@@ -65,7 +69,7 @@ struct Rect : public math::Rect, Shape
 {
 	using math::Rect::Rect;
 
-	bool contains( const math::Vec2& p ) const override { return math::Rect::contains( p ); }
+	bool contains( const math::Vec2& p ) const override;
 };
 
 

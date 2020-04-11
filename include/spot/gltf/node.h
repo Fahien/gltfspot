@@ -80,6 +80,9 @@ class Node
 	/// @param[in] name Name of the node
 	Node& create_child( const std::string& name );
 
+	/// @brief Add a new child to this node
+	void add_child( Node& child );
+
 	void remove_from_parent();
 };
 

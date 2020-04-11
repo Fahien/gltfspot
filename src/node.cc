@@ -61,6 +61,13 @@ Node& Node::create_child( const std::string& name )
 }
 
 
+void Node::add_child( Node& child )
+{
+	child.parent = index;
+	children.emplace_back( child.index );
+}
+
+
 void Node::remove_from_parent()
 {
 	if ( auto parent_node = get_parent() )

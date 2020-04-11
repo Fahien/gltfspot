@@ -1,4 +1,5 @@
 #include "spot/gltf/bounds.h"
+#include "spot/gltf/gltf.h"
 
 namespace spot::gltf
 {
@@ -30,6 +31,19 @@ void Shape::remove_collision( const Shape& s )
 	{
 		collisions.erase( it );
 	}
+}
+
+
+bool Rect::contains( const math::Vec2& p ) const
+{
+	if ( auto owner = model->get_node( node ) )
+	{
+		math::Rect rect = *this;
+		rect.offset.x += owner->translation.x;
+		rect.offset.y += owner->translation.y;
+		return rect.contains( p );
+	}
+	return math::Rect::contains( p );
 }
 
 

@@ -1312,17 +1312,26 @@ Node* Gltf::get_node( const int32_t index )
 }
 
 
-Shape* Gltf::get_bounds( int32_t index )
+Bounds* Gltf::get_bounds( int32_t index )
 {
 	if ( index >= 0 && index < bounds.size() )
 	{
-		auto& bb = bounds[index];
-		switch ( bb.type )
+		return &bounds[index];
+	}
+	return nullptr;
+}
+
+
+Shape* Gltf::get_shape( int32_t index )
+{
+	if ( auto bb = get_bounds( index ) )
+	{
+		switch ( bb->type )
 		{
 		case Bounds::Type::Rect:
-			if ( bb.shape >= 0 && bb.shape < rects.size() )
+			if ( bb->shape >= 0 && bb->shape < rects.size() )
 			{
-				return &rects[bb.shape];
+				return &rects[bb->shape];
 			}
 		default:
 			assert( false && "Bounds type not supported yet" );
