@@ -41,6 +41,7 @@ set( GST_SOURCES
 	${GST_SOURCE_DIR}/material.cc
 	${GST_SOURCE_DIR}/buffer.cc
 	${GST_SOURCE_DIR}/texture.cc
+	${GST_SOURCE_DIR}/animation.cc
 )
 source_group( src FILES ${GST_SOURCES} )
 

@@ -2,9 +2,13 @@
 
 #include <string>
 #include <vector>
+#include <spot/math/math.h>
 
 namespace spot::gltf
 {
+
+
+class Gltf;
 
 
 /// Keyframe animation
@@ -57,6 +61,12 @@ struct Animation
 		Interpolation interpolation = Interpolation::Linear;
 	};
 
+	Animation( Gltf& m ) : model { &m } {}
+
+	/// @brief Adds a new rotation to this animation
+	void add_rotation( const int32_t node, const std::vector<float>& times, const std::vector<math::Quat>& quats );
+
+	Gltf* model = nullptr;
 
 	/// Name of the animation
 	std::string name = "Unknown";

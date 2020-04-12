@@ -39,6 +39,7 @@ Gltf::Gltf( Gltf&& other )
 	std::for_each( std::begin( accessors ), std::end( accessors ), [this]( auto& acc ) { acc.model = this; } );
 	std::for_each( std::begin( materials ), std::end( materials ), [this]( auto& mat ) { mat.model = this; } );
 	std::for_each( std::begin( textures ), std::end( textures ), [this]( auto& tex ) { tex.model = this; } );
+	std::for_each( std::begin( animations ), std::end( animations ), [this]( auto& anim ) { anim.model = this; } );
 	load_meshes();
 	load_nodes();
 }
@@ -74,6 +75,7 @@ Gltf& Gltf::operator=( Gltf&& other )
 	std::for_each( std::begin( accessors ), std::end( accessors ), [this]( auto& acc ) { acc.model = this; } );
 	std::for_each( std::begin( materials ), std::end( materials ), [this]( auto& mat ) { mat.model = this; } );
 	std::for_each( std::begin( textures ), std::end( textures ), [this]( auto& tex ) { tex.model = this; } );
+	std::for_each( std::begin( animations ), std::end( animations ), [this]( auto& anim ) { anim.model = this; } );
 	load_meshes();
 	load_nodes();
 
@@ -1111,7 +1113,7 @@ void Gltf::init_animations( const nlohmann::json& j )
 {
 	for ( auto& a : j )
 	{
-		Animation animation;
+		auto animation = Animation( *this );
 
 		if ( a.count( "name" ) )
 		{
