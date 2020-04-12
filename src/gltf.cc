@@ -1064,47 +1064,46 @@ void Gltf::init_nodes( const nlohmann::json& j )
 
 
 template <>
-spot::gltf::Gltf::Animation::Sampler::Interpolation from_string<spot::gltf::Gltf::Animation::Sampler::Interpolation>(
-    const std::string& i )
+Animation::Sampler::Interpolation from_string<Animation::Sampler::Interpolation>( const std::string& i )
 {
 	if ( i == "LINEAR" )
 	{
-		return Gltf::Animation::Sampler::Interpolation::Linear;
+		return Animation::Sampler::Interpolation::Linear;
 	}
 	else if ( i == "STEP" )
 	{
-		return Gltf::Animation::Sampler::Interpolation::Step;
+		return Animation::Sampler::Interpolation::Step;
 	}
 	else if ( i == "CUBICSPLINE" )
 	{
-		return Gltf::Animation::Sampler::Interpolation::Cubicspline;
+		return Animation::Sampler::Interpolation::Cubicspline;
 	}
 	assert( false );
-	return Gltf::Animation::Sampler::Interpolation::Linear;
+	return Animation::Sampler::Interpolation::Linear;
 }
 
 
 template <>
-spot::gltf::Gltf::Animation::Target::Path from_string<spot::gltf::Gltf::Animation::Target::Path>( const std::string& p )
+Animation::Target::Path from_string<Animation::Target::Path>( const std::string& p )
 {
 	if ( p == "translation" )
 	{
-		return Gltf::Animation::Target::Path::Translation;
+		return Animation::Target::Path::Translation;
 	}
 	else if ( p == "rotation" )
 	{
-		return Gltf::Animation::Target::Path::Rotation;
+		return Animation::Target::Path::Rotation;
 	}
 	else if ( p == "scale" )
 	{
-		return Gltf::Animation::Target::Path::Scale;
+		return Animation::Target::Path::Scale;
 	}
 	else if ( p == "weights" )
 	{
-		return Gltf::Animation::Target::Path::Weights;
+		return Animation::Target::Path::Weights;
 	}
 	assert( false );
-	return Gltf::Animation::Target::Path::None;
+	return Animation::Target::Path::None;
 }
 
 
@@ -1160,7 +1159,7 @@ void Gltf::init_animations( const nlohmann::json& j )
 
 
 template <>
-spot::gltf::Bounds::Type from_string<spot::gltf::Bounds::Type>( const std::string& b )
+Bounds::Type from_string<Bounds::Type>( const std::string& b )
 {
 	if ( b == "box" )
 	{

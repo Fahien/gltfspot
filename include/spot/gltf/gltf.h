@@ -15,6 +15,7 @@
 #include "spot/gltf/script.h"
 #include "spot/gltf/texture.h"
 #include "spot/gltf/bounds.h"
+#include "spot/gltf/animation.h"
 
 namespace spot::gltf
 {
@@ -105,72 +106,6 @@ class Gltf
 	};
 
 	friend class Node;
-
-	/// Keyframe animation
-	struct Animation
-	{
-		/// Identifies which node to animate
-		struct Target
-		{
-			enum class Path
-			{
-				None,
-				Translation,
-				Rotation,
-				Scale,
-				Weights
-			};
-
-			/// Index of the target node
-			int32_t node = -1;
-			/// Property of the node to animate
-			Path path;
-		};
-
-		/// Animation sampler at a node property
-		struct Channel
-		{
-			/// Index of the sampler
-			size_t sampler = 0;
-			/// Target of the animation
-			Target target;
-		};
-
-		/// Input and output accessors with an interpolation
-		/// algorithm which define a keyframe graph
-		struct Sampler
-		{
-			/// Interpolation algorithm
-			enum class Interpolation
-			{
-				Linear,
-				Step,
-				Cubicspline
-			};
-
-			/// Index of accessor with keyframe input
-			size_t input;
-			/// Index of accessor with keyframe output
-			size_t output;
-			/// Interpolation method used between keyframes
-			Interpolation interpolation = Interpolation::Linear;
-		};
-
-
-		/// Name of the animation
-		std::string name = "Unknown";
-		/// Keep track of time
-		struct Time
-		{
-			float current = 0.0f;
-			float max     = 0.0f;
-		} time;
-		/// Channels
-		std::vector<Channel> channels;
-		/// Samplers
-		std::vector<Sampler> samplers;
-	};
-
 	friend class Scene;
 
 	Gltf() = default;
@@ -366,37 +301,36 @@ template <typename T>
 T from_string( const std::string& s );
 
 template <>
-spot::gltf::Accessor::Type from_string<spot::gltf::Accessor::Type>( const std::string& s );
+Accessor::Type from_string<Accessor::Type>( const std::string& s );
 
 template <>
-spot::gltf::Mesh::Primitive::Semantic from_string<spot::gltf::Mesh::Primitive::Semantic>( const std::string& s );
+Mesh::Primitive::Semantic from_string<Mesh::Primitive::Semantic>( const std::string& s );
 
 template <>
-spot::gltf::Gltf::Animation::Sampler::Interpolation from_string<spot::gltf::Gltf::Animation::Sampler::Interpolation>(
-    const std::string& i );
+Animation::Sampler::Interpolation from_string<Animation::Sampler::Interpolation>( const std::string& i );
 
 template <>
-spot::gltf::Gltf::Animation::Target::Path from_string<spot::gltf::Gltf::Animation::Target::Path>( const std::string& p );
+Animation::Target::Path from_string<Animation::Target::Path>( const std::string& p );
 
 template <>
-spot::gltf::Bounds::Type from_string<spot::gltf::Bounds::Type>( const std::string& b );
+Bounds::Type from_string<Bounds::Type>( const std::string& b );
 
 template <typename T>
 std::string to_string( const T& t );
 
 template <>
-std::string to_string<spot::gltf::Accessor::Type>( const spot::gltf::Accessor::Type& t );
+std::string to_string<Accessor::Type>( const Accessor::Type& t );
 
 template <>
-std::string to_string<spot::gltf::Mesh::Primitive::Semantic>( const spot::gltf::Mesh::Primitive::Semantic& s );
+std::string to_string<Mesh::Primitive::Semantic>( const Mesh::Primitive::Semantic& s );
 
 template <>
-std::string to_string<spot::gltf::Sampler::Filter>( const spot::gltf::Sampler::Filter& f );
+std::string to_string<Sampler::Filter>( const Sampler::Filter& f );
 
 template <>
-std::string to_string<spot::gltf::Sampler::Wrapping>( const spot::gltf::Sampler::Wrapping& w );
+std::string to_string<Sampler::Wrapping>( const Sampler::Wrapping& w );
 
 template <>
-std::string to_string<spot::gltf::Mesh::Primitive::Mode>( const spot::gltf::Mesh::Primitive::Mode& m );
+std::string to_string<Mesh::Primitive::Mode>( const Mesh::Primitive::Mode& m );
 
 }  // namespace spot::gltf
