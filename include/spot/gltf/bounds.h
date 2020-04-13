@@ -3,7 +3,7 @@
 #include <cassert>
 #include <spot/math/math.h>
 #include <spot/math/shape.h>
-
+#include "spot/gltf/node.h"
 
 namespace spot::gltf
 {
@@ -51,7 +51,7 @@ struct Shape
 	int32_t index = -1;
 
 	/// @brief Node this shape belongs to
-	int32_t node = -1;
+	Node::Handle node = {};
 
 	/// @todo This should be derived from node.absolute_transform()
 	/// which recursively go up the tree to get parents' transforms

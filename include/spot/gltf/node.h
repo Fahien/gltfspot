@@ -3,6 +3,9 @@
 #include <spot/math/math.h>
 #include <vector>
 
+#include "spot/gltf/handle.h"
+
+
 namespace spot::gltf
 {
 class Gltf;
@@ -17,16 +20,18 @@ class Shape;
 class Node
 {
   public:
+	HANDLE;
+
 	bool contains( const math::Vec2& point ) const;
 
 	/// Gltf owning the node
 	Gltf* model = nullptr;
 
 	/// Index of this node within the nodes vector
-	int32_t index = -1;
+	Handle handle = {};
 
 	/// Parent of this node
-	int32_t parent = -1;
+	Handle parent = {};
 
 	/// @return The parent of this node, otherwise nullptr
 	Node* get_parent() const;
@@ -90,7 +95,7 @@ class Node
 	math::Mat4 matrix = math::Mat4::identity;
 
 	/// This node's children indices
-	std::vector<int32_t> children;
+	std::vector<Handle> children;
 
 	friend class Gltf;
 };
@@ -103,14 +108,14 @@ struct Scene
 	Gltf* model = nullptr;
 	
 	/// Indices of each root node
-	std::vector<int32_t> nodes;
+	std::vector<Node::Handle> nodes;
 	
 	/// User-defined name of this object
 	std::string name = "default";
 
 	/// @return A newly created Node as root of a scene
 	/// @param[in] name Name of the node
-	Node& create_node( const std::string& name = {});
+	Node& create_node( const std::string& name = {} );
 };
 
 

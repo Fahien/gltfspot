@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <spot/math/math.h>
+#include "spot/gltf/node.h"
 
 namespace spot::gltf
 {
@@ -27,24 +28,17 @@ struct Animation
 		};
 
 		/// Index of the target node
-		int32_t node = -1;
+		Node::Handle node = {};
 		/// Property of the node to animate
 		Path path;
-	};
-
-	/// Animation sampler at a node property
-	struct Channel
-	{
-		/// Index of the sampler
-		size_t sampler = 0;
-		/// Target of the animation
-		Target target;
 	};
 
 	/// Input and output accessors with an interpolation
 	/// algorithm which define a keyframe graph
 	struct Sampler
 	{
+		HANDLE;
+
 		/// Interpolation algorithm
 		enum class Interpolation
 		{
@@ -61,6 +55,15 @@ struct Animation
 		Interpolation interpolation = Interpolation::Linear;
 	};
 
+	/// Animation sampler at a node property
+	struct Channel
+	{
+		/// Index of the sampler
+		Sampler::Handle sampler = {};
+		/// Target of the animation
+		Target target;
+	};
+
 	Animation( Gltf& m ) : model { &m } {}
 
 	/// @return The max keyframe time of the animation
@@ -70,19 +73,19 @@ struct Animation
 	math::Quat find_last_rotation() const;
 
 	/// @return The list of keyframe time for the sampler
-	std::vector<float> get_times( size_t sampler ) const;
+	std::vector<float> get_times( Sampler::Handle sampler ) const;
 
 	/// @return The list of rotations for the sampler
-	std::vector<math::Quat> get_rotations( size_t sampler ) const;
+	std::vector<math::Quat> get_rotations( Sampler::Handle sampler ) const;
 
 	/// @brief Adds a new rotation to this animation
 	/// @param times Keyframe times to use
 	/// @param quats Rotations for each keyframe
-	void add_rotation( const int32_t node, const std::vector<float>& times, const std::vector<math::Quat>& quats );
+	void add_rotation( Node::Handle node, const std::vector<float>& times, const std::vector<math::Quat>& quats );
 
 	/// @brief Adds a new rotation to this animation by using previous values
 	/// With no previous values, 0.0f and Quat::Identity will be used
-	void add_rotation( const int32_t node, const float time, const math::Quat& quat );
+	void add_rotation( Node::Handle node, const float time, const math::Quat& quat );
 
 	Gltf* model = nullptr;
 

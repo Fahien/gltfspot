@@ -8,7 +8,7 @@ namespace spot::gltf
 {
 
 
-std::vector<math::Quat> Animation::get_rotations( const size_t sampler_index ) const
+std::vector<math::Quat> Animation::get_rotations( Sampler::Handle sampler_index ) const
 {
 	std::vector<math::Quat> quats;
 
@@ -47,7 +47,7 @@ math::Quat Animation::find_last_rotation() const
 }
 
 
-std::vector<float> Animation::get_times( const size_t sampler_index ) const
+std::vector<float> Animation::get_times( Sampler::Handle sampler_index ) const
 {
 	std::vector<float> times;
 
@@ -83,7 +83,7 @@ float Animation::find_max_time()
 
 
 void Animation::add_rotation(
-	const int32_t node,
+	const Node::Handle node,
 	const std::vector<float>& times,
 	const std::vector<math::Quat>& quats )
 {
@@ -93,12 +93,12 @@ void Animation::add_rotation(
 	// Create a channel to target the node
 	auto& channel = channels.emplace_back();
 	channel.target.node = node;
-	channel.target.path = gltf::Animation::Target::Path::Rotation;
-	channel.sampler = samplers.size();
+	channel.target.path = Target::Path::Rotation;
+	channel.sampler = Sampler::Handle( samplers.size() );
 
 	// Create the sampler
 	auto& sampler = samplers.emplace_back();
-	sampler.interpolation = gltf::Animation::Sampler::Interpolation::Linear;
+	sampler.interpolation = Sampler::Interpolation::Linear;
 
 	// Timepoints
 	{
@@ -140,7 +140,7 @@ void Animation::add_rotation(
 }
 
 
-void Animation::add_rotation( const int32_t node, const float time, const math::Quat& quat )
+void Animation::add_rotation( const Node::Handle node, const float time, const math::Quat& quat )
 {
 	assert( node >= 0 && "Animation should work on a valid node" );
 
@@ -157,11 +157,11 @@ void Animation::add_rotation( const int32_t node, const float time, const math::
 	auto& channel = channels.emplace_back();
 	channel.target.node = node;
 	channel.target.path = Target::Path::Rotation;
-	channel.sampler = samplers.size();
+	channel.sampler = Sampler::Handle( samplers.size() );
 
 	// Create the sampler
 	auto& sampler = samplers.emplace_back();
-	sampler.interpolation = gltf::Animation::Sampler::Interpolation::Linear;
+	sampler.interpolation = Sampler::Interpolation::Linear;
 
 	{
 		sampler.input = model->accessors.size();

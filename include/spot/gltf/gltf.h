@@ -140,7 +140,7 @@ class Gltf
 
 	/// @param[in] parent The parent of this node
 	/// @return A newly created Node
-	Node& create_node( const int32_t parent = -1 );
+	Node& create_node( Node::Handle parent = {} );
 
 	/// @param[in] name Name of the node
 	/// @return A newly created Node
@@ -151,7 +151,7 @@ class Gltf
 
 	/// @param[in] index Index of the node
 	/// @return The node found at that index, nullptr otherwise
-	Node* get_node( const int32_t index = -1 );
+	Node* get_node( Node::Handle index = {} );
 
 	/// @param[in] bounds Index of the bounds
 	/// @return The bounds found at that index, nullptr otherwise

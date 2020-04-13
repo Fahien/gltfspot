@@ -970,7 +970,7 @@ void Gltf::init_nodes( const nlohmann::json& j )
 		node.model = this;
 
 		// Index
-		node.index = i++;
+		node.handle = Node::Handle( i++ );
 
 		// Name
 		if ( n.count( "name" ) )
@@ -988,7 +988,12 @@ void Gltf::init_nodes( const nlohmann::json& j )
 		// Children
 		if ( n.count( "children" ) )
 		{
-			node.children = n["children"].get<std::vector<int32_t>>();
+			auto handles = n["children"].get<std::vector<handle_t>>();
+			node.children.resize( handles.size() );
+			for ( size_t i = 0; i < handles.size(); ++i )
+			{
+				node.children[i] = Node::Handle( handles[i] );
+			}
 		}
 
 		// Matrix
@@ -1140,14 +1145,16 @@ void Gltf::init_animations( const nlohmann::json& j )
 		{
 			Animation::Channel channel;
 
-			channel.sampler = c["sampler"].get<size_t>();
+			auto handle = c["sampler"].get<size_t>();
+			channel.sampler = Animation::Sampler::Handle( handle );
 
 			// Target
 			auto& t = c["target"];
 
 			if ( t.count( "node" ) )
 			{
-				channel.target.node = t["node"].get<int32_t>();
+				auto handle = t["node"].get<handle_t>();
+				channel.target.node = Node::Handle( handle );
 			}
 
 			channel.target.path = from_string<Animation::Target::Path>( t["path"].get<std::string>() );
@@ -1239,7 +1246,7 @@ void Gltf::load_nodes()
 		// Solve parents
 		for ( auto child_index : node.children )
 		{
-			nodes[child_index].parent = node.index;
+			nodes[child_index].parent = node.handle;
 		}
 
 		// Solve node light
@@ -1263,16 +1270,16 @@ void Gltf::load_nodes()
 }
 
 
-Node& Gltf::create_node( const int32_t parent_index )
+Node& Gltf::create_node( const Node::Handle parent_handle )
 {
 	auto& node = nodes.emplace_back();
-	node.index = nodes.size() - 1;
+	node.handle = Node::Handle( nodes.size() - 1 );
 	node.model = this;
-	node.parent = parent_index;
+	node.parent = parent_handle;
 
-	if ( auto parent = get_node( parent_index ) )
+	if ( auto parent = get_node( parent_handle ) )
 	{
-		parent->children.emplace_back( node.index );
+		parent->children.emplace_back( node.handle );
 	}
 	return node;
 }
@@ -1298,16 +1305,16 @@ Node& Gltf::add_node( Node&& node )
 Node& Scene::create_node( const std::string& name )
 {
 	auto& node = model->create_node( name );
-	nodes.push_back( node.index );
+	nodes.emplace_back( node.handle );
 	return node;
 }
 
 
-Node* Gltf::get_node( const int32_t index )
+Node* Gltf::get_node( const Node::Handle handle )
 {
-	if ( index >= 0 && index < nodes.size() )
+	if ( handle < nodes.size() )
 	{
-		return &nodes[index];
+		return &nodes[handle];
 	}
 	return nullptr;
 }
@@ -1368,7 +1375,12 @@ void Gltf::init_scenes( const nlohmann::json& j )
 		// Nodes
 		if ( s.count( "nodes" ) )
 		{
-			scene.nodes = s["nodes"].get<std::vector<int32_t>>();
+			auto indices = s["nodes"].get<std::vector<handle_t>>();
+			scene.nodes.resize( indices.size() );
+			for ( size_t i = 0; i < indices.size(); ++i )
+			{
+				scene.nodes[i] = Node::Handle( indices[i] );
+			}
 		}
 
 		scenes.push_back( scene );

@@ -75,17 +75,17 @@ std::vector<Node*> Node::get_children() const
 Node& Node::create_child( const std::string& name )
 {
 	auto& node = model->create_node( name );
-	node.parent = index;
-	children.push_back( node.index );
+	node.parent = handle;
+	children.push_back( node.handle );
 	return model->add_node( std::move( node ) );
 }
 
 
 void Node::add_child( Node& child )
 {
-	assert( child.index != index && "Cannot add child to itself" );
-	child.parent = index;
-	children.emplace_back( child.index );
+	assert( child.handle != handle && "Cannot add child to itself" );
+	child.parent = handle;
+	children.emplace_back( child.handle );
 }
 
 
@@ -94,18 +94,18 @@ void Node::remove_from_parent()
 	if ( auto parent_node = get_parent() )
 	{
 		// Remove node from parent's children
-		auto index_it = std::find( std::begin( parent_node->children ), std::end( parent_node->children ), index );
+		auto index_it = std::find( std::begin( parent_node->children ), std::end( parent_node->children ), handle );
 		if ( index_it != std::end( parent_node->children ) )
 		{
 			parent_node->children.erase( index_it );
 		}
 
-		parent = -1;
+		parent = {};
 	}
 	else if ( auto scene = model->scene )
 	{
 		// Remove node from the scene
-		auto index_it = std::find( std::begin( scene->nodes ), std::end( scene->nodes ), index );
+		auto index_it = std::find( std::begin( scene->nodes ), std::end( scene->nodes ), handle );
 		if ( index_it != std::end( scene->nodes ) )
 		{
 			scene->nodes.erase( index_it );
