@@ -1342,6 +1342,16 @@ Shape* Gltf::get_shape( int32_t index )
 }
 
 
+Accessor* Gltf::get_accessor( const size_t accessor )
+{
+	if ( accessor < accessors.size() )
+	{
+		return &accessors[accessor];
+	}
+	return nullptr;
+}
+
+
 void Gltf::init_scenes( const nlohmann::json& j )
 {
 	for ( const auto& s : j )

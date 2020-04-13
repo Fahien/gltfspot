@@ -161,6 +161,9 @@ class Gltf
 	/// @return The shape of that bounds, nullptr otherwise
 	Shape* get_shape( int32_t bounds );
 
+	/// @return The animation at that index, nullptr otherwise
+	Accessor* get_accessor( size_t accessor );
+
 	/// Load the nodes pointer using node indices
 	void load_nodes();
 
