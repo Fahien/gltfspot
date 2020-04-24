@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include "spot/gltf/handle.h"
+
 namespace spot::gltf
 {
 
@@ -16,7 +18,7 @@ struct Texture
 	Gltf* model = nullptr;
 
 	/// Sampler used by this texture
-	Sampler* sampler = nullptr;
+	Handle<Sampler> sampler = {};
 
 	/// Image used by this texture
 	int32_t source_index = -1;

@@ -1,18 +1,59 @@
 #pragma once
 
-#include <limits>
+#include <vector>
+#include <memory>
 
-using handle_t = std::size_t;
+namespace spot::gltf
+{
 
-/// @brief Handle macro to declare Handle inner classes
-/// Invalid handle is `0`, therefore:
-/// - `v + 1` is assigned to value on instantiation
-/// - `value - 1` is returned on implicit conversion to `handle_t`
-#define HANDLE class Handle { \
-  public: \
-	Handle() = default; \
-	explicit Handle( handle_t v ) : value { v } {} \
-	operator handle_t() const { return value; } \
-  private: \
-	handle_t value = std::numeric_limits<size_t>::max(); \
+template <typename T>
+using svec = std::shared_ptr<std::vector<T>>;
+
+
+/// @brief Handle class using CRTP
+template <typename T>
+class Handle
+{
+  public:
+	Handle() = default;
+
+	Handle( svec<T>& v, size_t i )
+	: vec { v }
+	, index { i }
+	{
+		assert( *this && "Handle is not valid" );
+	}
+
+	explicit operator bool() const
+	{
+		return !vec.expired() && index < vec.lock()->size();
+	}
+
+	T* operator->() const { return &**this; }
+	T& operator*() const { assert( *this && "Handle is not valid" ); return ( *vec.lock() )[index]; }
+
+	bool operator==( const Handle<T>& other ) const { return !vec.expired() && !other.vec.expired() && vec.lock() == other.vec.lock() && index == other.index; }
+	bool operator!=( const Handle<T>& other ) const { return !( *this == other ); }
+
+	size_t get_index() const { return index; }
+  private:
+	std::weak_ptr<std::vector<T>> vec;
+	size_t index = 0;
+};
+
+
+} // namespace spot::gltf
+
+namespace std
+{
+
+template <typename T>
+struct hash<spot::gltf::Handle<T>>
+{
+	size_t operator()( const spot::gltf::Handle<T>& handle ) const
+	{
+		return handle.get_index();
+	}
+};
+
 }

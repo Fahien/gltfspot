@@ -36,10 +36,10 @@ void Shape::remove_collision( const Shape& s )
 
 bool Rect::contains( const math::Vec2& p ) const
 {
-	if ( auto owner = model->get_node( node ) )
+	if ( node )
 	{
 		math::Rect rect = *this;
-		rect.offset = owner->get_absolute_matrix() * rect.offset;
+		rect.offset = node->get_absolute_matrix() * rect.offset;
 		return rect.contains( p );
 	}
 	return math::Rect::contains( p );

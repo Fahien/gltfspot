@@ -20,27 +20,25 @@ class Shape;
 class Node
 {
   public:
-	HANDLE;
-
 	bool contains( const math::Vec2& point ) const;
 
 	/// Gltf owning the node
 	Gltf* model = nullptr;
 
 	/// Index of this node within the nodes vector
-	Handle handle = {};
+	Handle<Node> handle = {};
 
 	/// Parent of this node
-	Handle parent = {};
+	Handle<Node> parent = {};
 
 	/// @return The parent of this node, otherwise nullptr
-	Node* get_parent() const;
+	Handle<Node> get_parent() const;
 
 	/// Camera referenced by this node
 	Camera* camera = nullptr;
 
 	/// @return A list of children of this node
-	std::vector<Node*> get_children() const;
+	std::vector<Handle<Node>>& get_children() { return children; }
 
 	/// @return The current transform
 	math::Mat4 get_matrix() const;
@@ -52,7 +50,7 @@ class Node
 	int32_t mesh = -1;
 
 	/// @return The mesh associated to this node, null otherwise
-	Mesh* get_mesh() const;
+	Handle<Mesh> get_mesh() const;
 
 	/// Unit quaternion
 	math::Quat rotation = math::Quat::identity;
@@ -69,9 +67,6 @@ class Node
 	/// If not negative, index of light contained by this node
 	int32_t light_index = -1;
 
-	/// Light referenced by this node
-	Light* light = nullptr;
-
 	/// This node's bounds indices
 	int32_t bounds = -1;
 
@@ -81,21 +76,22 @@ class Node
 	/// This node's scripts
 	std::vector<Script*> scripts;
 
+	/// @param name Name of the node
 	/// @return A newly created Node as a child of this
-	/// @param[in] name Name of the node
-	Node& create_child( const std::string& name );
+	Handle<Node> create_child( const std::string& name );
 
 	/// @brief Add a new child to this node
-	void add_child( Node& child );
+	void add_child( Handle<Node>& child );
 
 	void remove_from_parent();
+
+	std::vector<Handle<Node>> children;
 
   private:
 	/// Floating-point 4x4 transformation matrix stored in column-major order
 	math::Mat4 matrix = math::Mat4::identity;
 
 	/// This node's children indices
-	std::vector<Handle> children;
 
 	friend class Gltf;
 };
@@ -108,14 +104,14 @@ struct Scene
 	Gltf* model = nullptr;
 	
 	/// Indices of each root node
-	std::vector<Node::Handle> nodes;
+	std::vector<Handle<Node>> nodes;
 	
 	/// User-defined name of this object
 	std::string name = "default";
 
+	/// @param name Name of the node
 	/// @return A newly created Node as root of a scene
-	/// @param[in] name Name of the node
-	Node& create_node( const std::string& name = {} );
+	Handle<Node> create_node( const std::string& name = {} );
 };
 
 

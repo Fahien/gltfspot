@@ -28,7 +28,7 @@ struct Animation
 		};
 
 		/// Index of the target node
-		Node::Handle node = {};
+		Handle<Node> node = {};
 		/// Property of the node to animate
 		Path path;
 	};
@@ -37,8 +37,6 @@ struct Animation
 	/// algorithm which define a keyframe graph
 	struct Sampler
 	{
-		HANDLE;
-
 		/// Interpolation algorithm
 		enum class Interpolation
 		{
@@ -59,7 +57,7 @@ struct Animation
 	struct Channel
 	{
 		/// Index of the sampler
-		Sampler::Handle sampler = {};
+		Handle<Sampler> sampler = {};
 		/// Target of the animation
 		Target target;
 	};
@@ -73,19 +71,19 @@ struct Animation
 	math::Quat find_last_rotation() const;
 
 	/// @return The list of keyframe time for the sampler
-	std::vector<float> get_times( Sampler::Handle sampler ) const;
+	std::vector<float> get_times( Handle<Sampler> sampler ) const;
 
 	/// @return The list of rotations for the sampler
-	std::vector<math::Quat> get_rotations( Sampler::Handle sampler ) const;
+	std::vector<math::Quat> get_rotations( Handle<Sampler> sampler ) const;
 
 	/// @brief Adds a new rotation to this animation
 	/// @param times Keyframe times to use
 	/// @param quats Rotations for each keyframe
-	void add_rotation( Node::Handle node, const std::vector<float>& times, const std::vector<math::Quat>& quats );
+	void add_rotation( const Handle<Node>& node, const std::vector<float>& times, const std::vector<math::Quat>& quats );
 
 	/// @brief Adds a new rotation to this animation by using previous values
 	/// With no previous values, 0.0f and Quat::Identity will be used
-	void add_rotation( Node::Handle node, const float time, const math::Quat& quat );
+	void add_rotation( const Handle<Node>& node, const float time, const math::Quat& quat );
 
 	Gltf* model = nullptr;
 
@@ -100,10 +98,10 @@ struct Animation
 	} time;
 
 	/// Channels
-	std::vector<Channel> channels;
+	svec<Channel> channels = std::make_shared<std::vector<Channel>>();
 
 	/// Samplers
-	std::vector<Sampler> samplers;
+	svec<Sampler> samplers = std::make_shared<std::vector<Sampler>>();
 };
 
 

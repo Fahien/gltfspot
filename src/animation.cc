@@ -8,21 +8,17 @@ namespace spot::gltf
 {
 
 
-std::vector<math::Quat> Animation::get_rotations( Sampler::Handle sampler_index ) const
+std::vector<math::Quat> Animation::get_rotations( Handle<Sampler> sampler ) const
 {
 	std::vector<math::Quat> quats;
 
-	if ( sampler_index < samplers.size() )
-	{
-		auto& sampler = samplers[sampler_index];
-		auto& accessor = model->accessors.at( sampler.output );
+	auto& accessor = model->accessors.at( sampler->output );
 
-		auto len = accessor.count * sizeof( math::Quat );
-		assert( accessor.get_size() == len && "Size mismatch" );
+	auto len = accessor.count * sizeof( math::Quat );
+	assert( accessor.get_size() == len && "Size mismatch" );
 
-		quats.resize( accessor.count );
-		std::memcpy( quats.data(), accessor.get_data(), len );
-	}
+	quats.resize( accessor.count );
+	std::memcpy( quats.data(), accessor.get_data(), len );
 
 	return quats;
 }
@@ -30,9 +26,9 @@ std::vector<math::Quat> Animation::get_rotations( Sampler::Handle sampler_index 
 
 math::Quat Animation::find_last_rotation() const
 {
-	for ( int32_t i = channels.size() - 1; i>= 0; --i )
+	for ( int32_t i = channels->size() - 1; i>= 0; --i )
 	{
-		auto& channel = channels[i];
+		auto& channel = (*channels)[i];
 		if ( channel.target.path == Target::Path::Rotation )
 		{
 			auto quats = get_rotations( channel.sampler );
@@ -47,18 +43,14 @@ math::Quat Animation::find_last_rotation() const
 }
 
 
-std::vector<float> Animation::get_times( Sampler::Handle sampler_index ) const
+std::vector<float> Animation::get_times( Handle<Sampler> sampler ) const
 {
 	std::vector<float> times;
 
-	if ( sampler_index < samplers.size() )
+	if ( auto accessor = model->get_accessor( sampler->input ) )
 	{
-		auto& sampler = samplers[sampler_index];
-		if ( auto accessor = model->get_accessor( sampler.input ) )
-		{
-			times.resize( accessor->count );
-			std::memcpy( times.data(), accessor->get_data(), accessor->count * sizeof( float ) );
-		}
+		times.resize( accessor->count );
+		std::memcpy( times.data(), accessor->get_data(), accessor->count * sizeof( float ) );
 	}
 
 	return times;
@@ -67,7 +59,7 @@ std::vector<float> Animation::get_times( Sampler::Handle sampler_index ) const
 
 float Animation::find_max_time()
 {
-	for ( auto& channel : channels )
+	for ( auto& channel : *channels )
 	{
 		std::vector<float> times = get_times( channel.sampler );
 
@@ -83,21 +75,21 @@ float Animation::find_max_time()
 
 
 void Animation::add_rotation(
-	const Node::Handle node,
+	const Handle<Node>& node,
 	const std::vector<float>& times,
 	const std::vector<math::Quat>& quats )
 {
-	assert( node >= 0 && "Animation should work on a valid node" );
+	assert( node && "Animation should work on a valid node" );
 	assert( times.size() == quats.size() && "Times and quats count does not match" );
 
 	// Create a channel to target the node
-	auto& channel = channels.emplace_back();
+	auto& channel = channels->emplace_back();
 	channel.target.node = node;
 	channel.target.path = Target::Path::Rotation;
-	channel.sampler = Sampler::Handle( samplers.size() );
 
 	// Create the sampler
-	auto& sampler = samplers.emplace_back();
+	auto& sampler = samplers->emplace_back();
+	channel.sampler = Handle<Sampler>( samplers, samplers->size() - 1 );
 	sampler.interpolation = Sampler::Interpolation::Linear;
 
 	// Timepoints
@@ -140,9 +132,9 @@ void Animation::add_rotation(
 }
 
 
-void Animation::add_rotation( const Node::Handle node, const float time, const math::Quat& quat )
+void Animation::add_rotation( const Handle<Node>& node, const float time, const math::Quat& quat )
 {
-	assert( node >= 0 && "Animation should work on a valid node" );
+	assert( node && "Animation should work on a valid node" );
 
 	// Timepoints
 	auto max_time = find_max_time();
@@ -154,13 +146,13 @@ void Animation::add_rotation( const Node::Handle node, const float time, const m
 	std::vector<math::Quat> quats = { last_rotation, quat };
 
 	// Create a channel to target the node
-	auto& channel = channels.emplace_back();
+	auto& channel = channels->emplace_back();
 	channel.target.node = node;
 	channel.target.path = Target::Path::Rotation;
-	channel.sampler = Sampler::Handle( samplers.size() );
 
 	// Create the sampler
-	auto& sampler = samplers.emplace_back();
+	auto& sampler = samplers->emplace_back();
+	channel.sampler = Handle<Sampler>( samplers, samplers->size() - 1 );
 	sampler.interpolation = Sampler::Interpolation::Linear;
 
 	{

@@ -13,6 +13,7 @@ using namespace nlohmann;
 void printJson( const string& path )
 {
 	ifstream i{ path };
+	assert( i.is_open() && "Cannot open json file" );
 	json     j;
 	i >> j;
 	if ( j.count( "asset" ) )
@@ -108,7 +109,7 @@ void printSamplers( Gltf& model )
 {
 	cout << endl << "# Samplers" << endl;
 
-	for ( auto& sampler : model.samplers )
+	for ( auto& sampler : *model.samplers )
 	{
 		cout << "MinFilter[" << to_string( sampler.minFilter ) << "] "
 		     << "MagFiler[" << to_string( sampler.magFilter ) << "] "
@@ -135,7 +136,7 @@ void printTextures( Gltf& model )
 
 	for ( auto& texture : model.textures )
 	{
-		cout << "Sampler[..." << to_string( texture.sampler->minFilter ) << "] "
+		cout << "Sampler[..." << ( texture.sampler ? to_string( texture.sampler->minFilter ) : "Undefined" ) << "] "
 		     << "Source[..." << texture.get_source()->uri << "]" << endl;
 	}
 }
@@ -189,7 +190,7 @@ void printMeshes( Gltf& model )
 {
 	cout << endl << "# Meshes" << endl;
 
-	for ( auto& mesh : model.meshes )
+	for ( auto& mesh : *model.meshes )
 	{
 		cout << mesh.name << endl;
 
@@ -220,7 +221,7 @@ void print_scenes( Gltf& model )
 		cout << "nodes[ ";
 		for ( const auto& n : s.nodes )
 		{
-			cout << n << " ";
+			cout << n->name << " ";
 		}
 		cout << "]" << endl;
 	}
@@ -233,19 +234,19 @@ void printNodes( Gltf& model )
 {
 	cout << endl << "# Nodes" << endl;
 
-	for ( const auto& node : model.nodes )
+	for ( const auto& node : *model.nodes )
 	{
 		cout << node.name << endl;
 
 		cout << "children[ ";
 		for ( const auto& v : node.children )
 		{
-			cout << v << " ";
+			cout << v->name << " ";
 		}
 		cout << "]" << endl;
 
 		cout << "matrix[ ";
-		for ( const auto& v : node.matrix.matrix )
+		for ( const auto& v : node.get_matrix().matrix )
 		{
 			cout << v << " ";
 		}

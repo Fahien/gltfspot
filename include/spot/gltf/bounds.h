@@ -51,7 +51,7 @@ struct Shape
 	int32_t index = -1;
 
 	/// @brief Node this shape belongs to
-	Node::Handle node = {};
+	Handle<Node> node = {};
 
 	/// @todo This should be derived from node.absolute_transform()
 	/// which recursively go up the tree to get parents' transforms

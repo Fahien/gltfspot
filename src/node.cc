@@ -42,50 +42,37 @@ bool Node::contains( const math::Vec2& point ) const
 }
 
 
-Node* Node::get_parent() const
+Handle<Node> Node::get_parent() const
 {
-	return model->get_node( parent );
+	return parent;//model->get_node( parent );
 }
 
 
-Mesh* Node::get_mesh() const
+Handle<Mesh> Node::get_mesh() const
 {
 	if ( mesh >= 0 )
 	{
-		assert( mesh < model->meshes.size() && "Cannot get mesh out of bounds" );
-		return &model->meshes[mesh];
-	}
-	return nullptr;
-}
-
-
-std::vector<Node*> Node::get_children() const
-{
-	std::vector<Node*> ret( children.size() );
-
-	for( size_t i = 0; i < children.size(); ++i )
-	{
-		ret[i] = &model->nodes[children[i]];
+		return Handle<Mesh>( model->meshes, mesh );
 	}
 
-	return ret;
+	return {};
 }
 
 
-Node& Node::create_child( const std::string& name )
+Handle<Node> Node::create_child( const std::string& name )
 {
-	auto& node = model->create_node( name );
-	node.parent = handle;
-	children.push_back( node.handle );
-	return model->add_node( std::move( node ) );
+	auto child = model->create_node( name );
+	child->parent = handle;
+	children.push_back( child );
+	return child;
 }
 
 
-void Node::add_child( Node& child )
+void Node::add_child( Handle<Node>& child )
 {
-	assert( child.handle != handle && "Cannot add child to itself" );
-	child.parent = handle;
-	children.emplace_back( child.handle );
+	assert( child != handle && "Cannot add child to itself" );
+	child->parent = handle;
+	children.emplace_back( child );
 }
 
 

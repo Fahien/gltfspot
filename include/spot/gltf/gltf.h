@@ -111,16 +111,16 @@ class Gltf
 	Gltf() = default;
 
 	/// Move contructs a Gltf object
-	/// @param[in] g Gltf object
+	/// @param g Gltf object
 	Gltf( Gltf&& g );
 
 	/// Move assign a Gltf object
-	/// @param[in] g Gltf object
+	/// @param g Gltf object
 	Gltf& operator=( Gltf&& g );
 
 	/// Constructs a Gltf object
-	/// @param[in] j Json object describing the model
-	/// @param[in] path Gltf file path
+	/// @param j Json object describing the model
+	/// @param path Gltf file path
 	Gltf( const nlohmann::json& j, const std::string& path = "." );
 
 	/// Delete copy constructor
@@ -130,34 +130,33 @@ class Gltf
 	Gltf& operator=( const Gltf& ) = delete;
 
 	/// Loads a GLtf model from path
-	/// @param[in] path Gltf file path
+	/// @param path Gltf file path
 	/// @return A Gltf model
 	static Gltf load( const std::string& path );
 
-	/// @param[in] i Index of the buffer
+	/// @param i Index of the buffer
 	/// @return Buffer number i
 	Buffer& get_buffer( const size_t i );
 
-	/// @param[in] parent The parent of this node
 	/// @return A newly created Node
-	Node& create_node( Node::Handle parent = {} );
+	Handle<Node> create_node();
 
-	/// @param[in] name Name of the node
+	/// @param parent The parent of this node
 	/// @return A newly created Node
-	Node& create_node( const std::string& name );
+	Handle<Node> create_node( Handle<Node>& parent );
 
-	/// @param[in] node Node to add
-	Node& add_node( Node&& node );
+	/// @param name Name of the node
+	/// @return A newly created Node
+	Handle<Node> create_node( const std::string& name );
 
-	/// @param[in] index Index of the node
-	/// @return The node found at that index, nullptr otherwise
-	Node* get_node( Node::Handle index = {} );
+	/// @param node Node to add
+	Handle<Node> add_node( Node&& node );
 
-	/// @param[in] bounds Index of the bounds
+	/// @param bounds Index of the bounds
 	/// @return The bounds found at that index, nullptr otherwise
 	Bounds* get_bounds( int32_t bounds );
 
-	/// @param[in] bounds Index of the bounds
+	/// @param bounds Index of the bounds
 	/// @return The shape of that bounds, nullptr otherwise
 	Shape* get_shape( int32_t bounds );
 
@@ -174,71 +173,71 @@ class Gltf
 	Asset asset;
 
 	/// Initializes asset
-	/// @param[in] j Json object describing the asset
+	/// @param j Json object describing the asset
 	void init_asset( const nlohmann::json& j );
 
 	/// Initializes buffers
-	/// @param[in] j Json object describing the buffers
+	/// @param j Json object describing the buffers
 	void init_buffers( const nlohmann::json& j );
 
 	/// Initializes bufferViews
-	/// @param[in] j Json object describing the bufferViews
+	/// @param j Json object describing the bufferViews
 	void init_buffer_views( const nlohmann::json& j );
 
 	/// Initializes cameras
-	/// @param[in] j Json object describing the cameras
+	/// @param j Json object describing the cameras
 	void init_cameras( const nlohmann::json& j );
 
 	/// Initializes samplers
-	/// @param[in] j Json object describing the samplers
+	/// @param j Json object describing the samplers
 	void init_samplers( const nlohmann::json& j );
 
 	/// Initializes images
-	/// @param[in] j Json object describing the images
+	/// @param j Json object describing the images
 	void init_images( const nlohmann::json& j );
 
 	/// Initializes textures
-	/// @param[in] j Json object describing the textures
+	/// @param j Json object describing the textures
 	void init_textures( const nlohmann::json& j );
 
 	/// Initializes accessors
-	/// @param[in] j Json object describing the accessors
+	/// @param j Json object describing the accessors
 	void init_accessors( const nlohmann::json& j );
 
 	/// Initializes materials
-	/// @param[in] j Json object describing the materials
+	/// @param j Json object describing the materials
 	void init_materials( const nlohmann::json& j );
 
 	/// Initializes meshes
-	/// @param[in] j Json object describing the meshes
+	/// @param j Json object describing the meshes
 	void init_meshes( const nlohmann::json& j );
 
 	/// Initializes lights
-	/// @param[in] j Json object describing the lights
+	/// @param j Json object describing the lights
 	void init_lights( const nlohmann::json& j );
 
 	/// Initializes nodes
-	/// @param[in] j Json object describing the nodes
+	/// @param j Json object describing the nodes
 	void init_nodes( const nlohmann::json& j );
 
 	/// Initializes animations
-	/// @param[in] j Json object describing the animations
+	/// @param j Json object describing the animations
 	void init_animations( const nlohmann::json& j );
 
 	/// Initializes shapes
-	/// @param[in] j Json object describing the shapes
+	/// @param j Json object describing the shapes
 	void init_shapes( const nlohmann::json& j );
 
 	/// Initializes scripts
-	/// @param[in] j Json object describing scripts
+	/// @param j Json object describing scripts
 	void init_scripts( const nlohmann::json& j );
 
 	/// Initializes scenes
-	/// @param[in] j Json object describing the scenes
+	/// @param j Json object describing the scenes
 	void init_scenes( const nlohmann::json& j );
 
 	/// Loads data into a buffer
-	/// @param[in] i Index of the buffer
+	/// @param i Index of the buffer
 	Buffer& load_buffer( const size_t i );
 
 	/// Directory path of the gltf file
@@ -257,7 +256,7 @@ class Gltf
 	std::vector<Camera> cameras;
 
 	/// List of samplers
-	std::vector<Sampler> samplers;
+	svec<Sampler> samplers = std::make_shared<std::vector<Sampler>>();
 
 	/// List of images
 	std::vector<Image> images;
@@ -272,13 +271,13 @@ class Gltf
 	std::vector<Material> materials;
 
 	/// List of meshes
-	std::vector<Mesh> meshes;
+	svec<Mesh> meshes = std::make_shared<std::vector<Mesh>>();
 
 	/// List of lights
 	std::vector<Light> lights;
 
 	/// List of nodes
-	std::vector<Node> nodes;
+	svec<Node> nodes = std::make_shared<std::vector<Node>>();
 
 	/// List of animations
 	std::vector<Animation> animations;
