@@ -98,10 +98,10 @@ struct Animation
 	} time;
 
 	/// Channels
-	Svec<Channel> channels;
+	Uvec<Channel> channels;
 
 	/// Samplers
-	Svec<Sampler> samplers;
+	Uvec<Sampler> samplers;
 };
 
 

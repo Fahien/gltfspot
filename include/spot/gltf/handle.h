@@ -8,10 +8,10 @@ namespace spot::gltf
 
 
 template <typename T>
-class Svec : public std::shared_ptr<std::vector<T>>
+class Uvec : public std::unique_ptr<std::vector<T>>
 {
   public:
-	Svec() : std::shared_ptr<std::vector<T>>( std::make_shared<std::vector<T>>() ) {}
+	Uvec() : std::unique_ptr<std::vector<T>>( std::make_unique<std::vector<T>>() ) {}
 };
 
 
@@ -21,8 +21,8 @@ class Handle
   public:
 	Handle() = default;
 
-	Handle( Svec<T>& v, size_t i )
-	: vec { v }
+	Handle( Uvec<T>& v, size_t i )
+	: vec { v.get() }
 	, index { i }
 	{
 		assert( *this && "Handle is not valid" );
@@ -30,18 +30,19 @@ class Handle
 
 	explicit operator bool() const
 	{
-		return !vec.expired() && index < vec.lock()->size();
+		return vec && index < vec->size();
 	}
 
 	T* operator->() const { return &**this; }
-	T& operator*() const { assert( *this && "Handle is not valid" ); return ( *vec.lock() )[index]; }
+	T& operator*() const { assert( *this && "Handle is not valid" ); return ( *vec )[index]; }
 
-	bool operator==( const Handle<T>& other ) const { return !vec.expired() && !other.vec.expired() && vec.lock() == other.vec.lock() && index == other.index; }
+	bool operator==( const Handle<T>& other ) const { return vec == other.vec && index == other.index; }
 	bool operator!=( const Handle<T>& other ) const { return !( *this == other ); }
 
 	size_t get_index() const { return index; }
+
   private:
-	std::weak_ptr<std::vector<T>> vec;
+	std::vector<T>* vec = nullptr;
 	size_t index = 0;
 };
 

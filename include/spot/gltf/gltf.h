@@ -256,7 +256,7 @@ class Gltf
 	std::vector<Camera> cameras;
 
 	/// List of samplers
-	Svec<Sampler> samplers;
+	Uvec<Sampler> samplers;
 
 	/// List of images
 	std::vector<Image> images;
@@ -271,13 +271,13 @@ class Gltf
 	std::vector<Material> materials;
 
 	/// List of meshes
-	Svec<Mesh> meshes;
+	Uvec<Mesh> meshes;
 
 	/// List of lights
 	std::vector<Light> lights;
 
 	/// List of nodes
-	Svec<Node> nodes;
+	Uvec<Node> nodes;
 
 	/// List of animations
 	std::vector<Animation> animations;
