@@ -256,7 +256,7 @@ class Gltf
 	std::vector<Camera> cameras;
 
 	/// List of samplers
-	svec<Sampler> samplers = std::make_shared<std::vector<Sampler>>();
+	Svec<Sampler> samplers;
 
 	/// List of images
 	std::vector<Image> images;
@@ -271,13 +271,13 @@ class Gltf
 	std::vector<Material> materials;
 
 	/// List of meshes
-	svec<Mesh> meshes = std::make_shared<std::vector<Mesh>>();
+	Svec<Mesh> meshes;
 
 	/// List of lights
 	std::vector<Light> lights;
 
 	/// List of nodes
-	svec<Node> nodes = std::make_shared<std::vector<Node>>();
+	Svec<Node> nodes;
 
 	/// List of animations
 	std::vector<Animation> animations;

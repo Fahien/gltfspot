@@ -6,18 +6,22 @@
 namespace spot::gltf
 {
 
+
 template <typename T>
-using svec = std::shared_ptr<std::vector<T>>;
+class Svec : public std::shared_ptr<std::vector<T>>
+{
+  public:
+	Svec() : std::shared_ptr<std::vector<T>>( std::make_shared<std::vector<T>>() ) {}
+};
 
 
-/// @brief Handle class using CRTP
 template <typename T>
 class Handle
 {
   public:
 	Handle() = default;
 
-	Handle( svec<T>& v, size_t i )
+	Handle( Svec<T>& v, size_t i )
 	: vec { v }
 	, index { i }
 	{

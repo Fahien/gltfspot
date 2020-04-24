@@ -98,10 +98,10 @@ struct Animation
 	} time;
 
 	/// Channels
-	svec<Channel> channels = std::make_shared<std::vector<Channel>>();
+	Svec<Channel> channels;
 
 	/// Samplers
-	svec<Sampler> samplers = std::make_shared<std::vector<Sampler>>();
+	Svec<Sampler> samplers;
 };
 
 
