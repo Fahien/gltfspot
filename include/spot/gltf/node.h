@@ -6,10 +6,10 @@
 #include "spot/gltf/handle.h"
 
 
-namespace spot::gltf
+namespace spot::gfx
 {
 class Gltf;
-class Camera;
+class GltfCamera;
 class Mesh;
 class Light;
 class Script;
@@ -22,20 +22,8 @@ class Node
   public:
 	bool contains( const math::Vec2& point ) const;
 
-	/// Gltf owning the node
-	Gltf* model = nullptr;
-
-	/// Index of this node within the nodes vector
-	Handle<Node> handle = {};
-
-	/// Parent of this node
-	Handle<Node> parent = {};
-
 	/// @return The parent of this node, otherwise nullptr
 	Handle<Node> get_parent() const;
-
-	/// Camera referenced by this node
-	Camera* camera = nullptr;
 
 	/// @return A list of children of this node
 	std::vector<Handle<Node>>& get_children() { return children; }
@@ -46,11 +34,20 @@ class Node
 	/// @return A matrix representing the absolute transform of this node
 	math::Mat4 get_absolute_matrix() const;
 
-	/// If not negative, index of mesh of the node
-	int32_t mesh = -1;
-
 	/// @return The mesh associated to this node, null otherwise
-	Handle<Mesh> get_mesh() const;
+	const Handle<Mesh>& get_mesh() const;
+
+	/// @brief Sets a new mesh to this node
+	void set_mesh( const Handle<Mesh>& m ) { mesh = m; }
+
+	/// @param name Name of the node
+	/// @return A newly created Node as a child of this
+	Handle<Node> create_child( const std::string& name );
+
+	/// @brief Add a new child to this node
+	void add_child( Handle<Node>& child );
+
+	void remove_from_parent();
 
 	/// Unit quaternion
 	math::Quat rotation = math::Quat::identity;
@@ -61,8 +58,30 @@ class Node
 	/// Translation
 	math::Vec3 translation = math::Vec3{ 0.0f, 0.0f, 0.0f };
 
+  private:
+	/// Gltf owning the node
+	Gltf* model = nullptr;
+
+	/// Index of this node within the nodes vector
+	Handle<Node> handle = {};
+
+	/// Parent of this node
+	Handle<Node> parent = {};
+
+	/// This node's children
+	std::vector<Handle<Node>> children;
+
+	/// Floating-point 4x4 transformation matrix stored in column-major order
+	math::Mat4 matrix = math::Mat4::identity;
+
 	/// User-defined name of this object
 	std::string name = "Unknown";
+
+	/// Camera referenced by this node
+	GltfCamera* camera = nullptr;
+
+	/// If not negative, index of mesh of the node
+	Handle<Mesh> mesh = {};
 
 	/// If not negative, index of light contained by this node
 	int32_t light_index = -1;
@@ -75,23 +94,6 @@ class Node
 
 	/// This node's scripts
 	std::vector<Script*> scripts;
-
-	/// @param name Name of the node
-	/// @return A newly created Node as a child of this
-	Handle<Node> create_child( const std::string& name );
-
-	/// @brief Add a new child to this node
-	void add_child( Handle<Node>& child );
-
-	void remove_from_parent();
-
-	std::vector<Handle<Node>> children;
-
-  private:
-	/// Floating-point 4x4 transformation matrix stored in column-major order
-	math::Mat4 matrix = math::Mat4::identity;
-
-	/// This node's children indices
 
 	friend class Gltf;
 };
@@ -115,4 +117,4 @@ struct Scene
 };
 
 
-}  // namespace spot::gltf
+}  // namespace spot::gfx

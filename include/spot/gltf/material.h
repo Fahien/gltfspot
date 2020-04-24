@@ -2,30 +2,35 @@
 
 #include <string>
 #include <vector>
+#include <vulkan/vulkan_core.h>
 
-namespace spot::gltf
+#include "spot/gltf/handle.h"
+#include "spot/gltf/color.h"
+
+namespace spot::gfx
 {
-struct Texture;
+struct GltfTexture;
 class Gltf;
 
 /// Material appearance of a primitive
 struct Material
 {
 	/// Metallic-Roughness Material
-	struct PbrMetallicRoughness
+	struct alignas(16) PbrMetallicRoughness
 	{
 		/// Base color of the material
-		std::vector<float> base_color_factor = { 1.0f, 1.0f, 1.0f, 1.0f };
-
-		/// Base color texture
-		int32_t texture_index = -1;
+		Color color = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 		/// Metalness of the material
-		float metallic_factor = 1.0f;
+		float metallic = 1.0f;
 
 		/// Roughness of the material
-		float roughness_factor = 1.0f;
+		float roughness = 1.0f;
+
+		float ambient_occlusion = 0.5f;
 	};
+
+	Handle<Material> handle = {};
 
 	/// User-defined name of this object
 	std::string name = "Unknown";
@@ -33,11 +38,10 @@ struct Material
 	/// Metallic-Roughness Material
 	PbrMetallicRoughness pbr;
 
-	Gltf* model = nullptr;
+	/// Base color texture
+	Handle<GltfTexture> texture_handle = {};
 
-	/// @return The texture of the material, otherwise null
-	Texture* get_texture() const;
-
+	VkImageView texture = VK_NULL_HANDLE;
 };
 
-}  // namespace spot::gltf
+}  // namespace spot::gfx

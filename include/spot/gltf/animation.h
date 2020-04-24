@@ -2,10 +2,13 @@
 
 #include <string>
 #include <vector>
-#include <spot/math/math.h>
-#include "spot/gltf/node.h"
 
-namespace spot::gltf
+#include <spot/math/math.h>
+
+#include "spot/gltf/node.h"
+#include "spot/gltf/accessor.h"
+
+namespace spot::gfx
 {
 
 
@@ -46,9 +49,11 @@ struct Animation
 		};
 
 		/// Index of accessor with keyframe input
-		size_t input;
+		Handle<Accessor> input = {};
+	
 		/// Index of accessor with keyframe output
-		size_t output;
+		Handle<Accessor> output = {};
+
 		/// Interpolation method used between keyframes
 		Interpolation interpolation = Interpolation::Linear;
 	};
@@ -58,6 +63,7 @@ struct Animation
 	{
 		/// Index of the sampler
 		Handle<Sampler> sampler = {};
+
 		/// Target of the animation
 		Target target;
 	};
@@ -71,10 +77,10 @@ struct Animation
 	math::Quat find_last_rotation() const;
 
 	/// @return The list of keyframe time for the sampler
-	std::vector<float> get_times( Handle<Sampler> sampler ) const;
+	std::vector<float> get_times( const Handle<Sampler>& sampler ) const;
 
 	/// @return The list of rotations for the sampler
-	std::vector<math::Quat> get_rotations( Handle<Sampler> sampler ) const;
+	std::vector<math::Quat> get_rotations( const Handle<Sampler>& sampler ) const;
 
 	/// @brief Adds a new rotation to this animation
 	/// @param times Keyframe times to use
@@ -105,4 +111,4 @@ struct Animation
 };
 
 
-} // namespace spot::gltf
+} // namespace spot::gfx

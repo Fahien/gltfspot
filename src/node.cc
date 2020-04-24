@@ -2,7 +2,7 @@
 
 #include "spot/gltf/gltf.h"
 
-namespace spot::gltf
+namespace spot::gfx
 {
 
 
@@ -48,14 +48,9 @@ Handle<Node> Node::get_parent() const
 }
 
 
-Handle<Mesh> Node::get_mesh() const
+const Handle<Mesh>& Node::get_mesh() const
 {
-	if ( mesh >= 0 )
-	{
-		return Handle<Mesh>( model->meshes, mesh );
-	}
-
-	return {};
+	return mesh;
 }
 
 
@@ -101,4 +96,4 @@ void Node::remove_from_parent()
 }
 
 
-}  // namespace spot::gltf
+}  // namespace spot::gfx

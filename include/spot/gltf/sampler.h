@@ -3,10 +3,10 @@
 
 #include <string>
 
-namespace spot::gltf
+namespace spot::gfx
 {
 /// Texture sampler properties for filtering and wrapping modes
-struct Sampler
+struct GltfSampler
 {
 	/// Magnification/Minification filter
 	enum class Filter
@@ -45,7 +45,7 @@ struct Sampler
 };
 
 
-}  // namespace spot::gltf
+}  // namespace spot::gfx
 
 
 #endif  // GST_SAMPLER_H_

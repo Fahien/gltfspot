@@ -4,11 +4,11 @@
 #include <string>
 
 
-namespace spot::gltf
+namespace spot::gfx
 {
 /// Camera's projection.
 /// A node can reference a camera to apply a transform to place the camera in the scene
-struct Camera
+struct GltfCamera
 {
 	/// Orthographic Camera
 	struct Ortographic
@@ -61,6 +61,6 @@ struct Camera
 	/// Name
 	std::string name = "Unknown";
 };
-}  // namespace spot::gltf
+}  // namespace spot::gfx
 
 #endif  // GST_CAMERA_H_

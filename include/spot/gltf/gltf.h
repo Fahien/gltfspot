@@ -16,80 +16,12 @@
 #include "spot/gltf/texture.h"
 #include "spot/gltf/bounds.h"
 #include "spot/gltf/animation.h"
+#include "spot/gltf/handle.h"
 
-namespace spot::gltf
+namespace spot::gfx
 {
 
 class Gltf;
-
-/// Typed view into a bufferView
-struct Accessor
-{
-	/// Datatype of components in the attribute
-	enum class ComponentType
-	{
-		BYTE           = 5120,
-		UNSIGNED_BYTE  = 5121,
-		SHORT          = 5122,
-		UNSIGNED_SHORT = 5123,
-		UNSIGNED_INT   = 5125,
-		FLOAT          = 5126
-	};
-
-	/// Specifies if the attribute is a scalar, vector, or matrix
-	enum class Type
-	{
-		NONE,
-		SCALAR,
-		VEC2,
-		VEC3,
-		VEC4,
-		MAT2,
-		MAT3,
-		MAT4
-	};
-
-	Accessor( Gltf& m );
-
-	Accessor( Accessor&& a );
-
-	/// @return The size of the data pointed by this accessor
-	size_t get_size() const;
-
-	/// @return The address of the data pointed by this accessor
-	const uint8_t* get_data() const;
-
-	/// @return The stride of the buffer view pointed by this accessor
-	size_t get_stride() const;
-	
-	/// The model of the accessor
-	Gltf* model = nullptr;
-
-	/// Index of the buffer view
-	size_t buffer_view_index;
-
-	/// @return The buffer view pointed by this accessor
-	BufferView& get_buffer_view() const;
-
-	/// Offset relative to the start of the bufferView in bytes
-	size_t byte_offset = 0;
-
-	/// Datatype of components in the attribute
-	ComponentType component_type;
-
-	/// Number of attributes referenced by this accessor
-	size_t count;
-
-	/// Specifies if the attribute is a scalar, vector, or matrix
-	Type type;
-
-	/// Maximum value of each component in this attribute
-	std::vector<float> max;
-
-	/// Minimum value of each component in this attribute
-	std::vector<float> min;
-};
-
 /// GL Transmission Format
 class Gltf
 {
@@ -135,8 +67,8 @@ class Gltf
 	static Gltf load( const std::string& path );
 
 	/// @param i Index of the buffer
-	/// @return Buffer number i
-	Buffer& get_buffer( const size_t i );
+	/// @return ByteBuffer number i
+	ByteBuffer& get_buffer( const size_t i );
 
 	/// @return A newly created Node
 	Handle<Node> create_node();
@@ -151,6 +83,14 @@ class Gltf
 
 	/// @param node Node to add
 	Handle<Node> add_node( Node&& node );
+
+	/// @return The handle of a new mesh
+	Handle<Mesh> create_mesh( Mesh&& m = {} );
+
+	/// @return The handle of a new material
+	Handle<Material> create_material( Material&& m = {} );
+	Handle<Material> create_material( const Color& c );
+	Handle<Material> create_material( VkImageView texture );
 
 	/// @param bounds Index of the bounds
 	/// @return The bounds found at that index, nullptr otherwise
@@ -238,37 +178,37 @@ class Gltf
 
 	/// Loads data into a buffer
 	/// @param i Index of the buffer
-	Buffer& load_buffer( const size_t i );
+	ByteBuffer& load_buffer( const size_t i );
 
 	/// Directory path of the gltf file
 	std::string path;
 
 	/// List of buffers
-	std::vector<Buffer> buffers;
+	Uvec<ByteBuffer> buffers;
 
 	/// Cache of buffers
 	std::map<const size_t, std::vector<char>> buffers_cache;
 
 	/// List of buffer views
-	std::vector<BufferView> buffer_views;
+	Uvec<BufferView> buffer_views;
 
 	/// List of cameras
-	std::vector<Camera> cameras;
+	std::vector<GltfCamera> cameras;
 
 	/// List of samplers
-	Uvec<Sampler> samplers;
+	Uvec<GltfSampler> samplers;
 
 	/// List of images
-	std::vector<Image> images;
+	Uvec<GltfImage> images;
 
 	/// List of textures
-	std::vector<Texture> textures;
+	Uvec<GltfTexture> textures;
 
 	/// List of accessors
-	std::vector<Accessor> accessors;
+	Uvec<Accessor> accessors;
 
 	/// List of materials
-	std::vector<Material> materials;
+	Uvec<Material> materials;
 
 	/// List of meshes
 	Uvec<Mesh> meshes;
@@ -283,10 +223,10 @@ class Gltf
 	std::vector<Animation> animations;
 
 	/// List of shapes (abstract)
-	std::vector<gltf::Rect> rects;
-	std::vector<gltf::Box> boxes;
-	std::vector<gltf::Sphere> spheres;
-	std::vector<gltf::Bounds> bounds;
+	std::vector<Rect> rects;
+	std::vector<Box> boxes;
+	std::vector<Sphere> spheres;
+	std::vector<Bounds> bounds;
 
 	/// List of scripts
 	std::vector<Script> scripts;
@@ -306,7 +246,7 @@ template <>
 Accessor::Type from_string<Accessor::Type>( const std::string& s );
 
 template <>
-Mesh::Primitive::Semantic from_string<Mesh::Primitive::Semantic>( const std::string& s );
+Primitive::Semantic from_string<Primitive::Semantic>( const std::string& s );
 
 template <>
 Animation::Sampler::Interpolation from_string<Animation::Sampler::Interpolation>( const std::string& i );
@@ -324,15 +264,15 @@ template <>
 std::string to_string<Accessor::Type>( const Accessor::Type& t );
 
 template <>
-std::string to_string<Mesh::Primitive::Semantic>( const Mesh::Primitive::Semantic& s );
+std::string to_string<Primitive::Semantic>( const Primitive::Semantic& s );
 
 template <>
-std::string to_string<Sampler::Filter>( const Sampler::Filter& f );
+std::string to_string<GltfSampler::Filter>( const GltfSampler::Filter& f );
 
 template <>
-std::string to_string<Sampler::Wrapping>( const Sampler::Wrapping& w );
+std::string to_string<GltfSampler::Wrapping>( const GltfSampler::Wrapping& w );
 
 template <>
-std::string to_string<Mesh::Primitive::Mode>( const Mesh::Primitive::Mode& m );
+std::string to_string<Primitive::Mode>( const Primitive::Mode& m );
 
-}  // namespace spot::gltf
+}  // namespace spot::gfx

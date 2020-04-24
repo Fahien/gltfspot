@@ -6,7 +6,7 @@
 
 namespace fl = spot::file;
 
-namespace spot::gltf
+namespace spot::gfx
 {
 
 
@@ -36,9 +36,6 @@ Gltf::Gltf( Gltf&& other )
 {
 	std::for_each( std::begin( *nodes ), std::end( *nodes ), [this]( auto& node ) { node.model = this; } );
 	std::for_each( std::begin( scenes ), std::end( scenes ), [this]( auto& scene ) { scene.model = this; } );
-	std::for_each( std::begin( accessors ), std::end( accessors ), [this]( auto& acc ) { acc.model = this; } );
-	std::for_each( std::begin( materials ), std::end( materials ), [this]( auto& mat ) { mat.model = this; } );
-	std::for_each( std::begin( textures ), std::end( textures ), [this]( auto& tex ) { tex.model = this; } );
 	std::for_each( std::begin( animations ), std::end( animations ), [this]( auto& anim ) { anim.model = this; } );
 	load_meshes();
 	load_nodes();
@@ -72,9 +69,6 @@ Gltf& Gltf::operator=( Gltf&& other )
 
 	std::for_each( std::begin( *nodes ), std::end( *nodes ), [this]( auto& node ) { node.model = this; } );
 	std::for_each( std::begin( scenes ), std::end( scenes ), [this]( auto& scene ) { scene.model = this; } );
-	std::for_each( std::begin( accessors ), std::end( accessors ), [this]( auto& acc ) { acc.model = this; } );
-	std::for_each( std::begin( materials ), std::end( materials ), [this]( auto& mat ) { mat.model = this; } );
-	std::for_each( std::begin( textures ), std::end( textures ), [this]( auto& tex ) { tex.model = this; } );
 	std::for_each( std::begin( animations ), std::end( animations ), [this]( auto& anim ) { anim.model = this; } );
 	load_meshes();
 	load_nodes();
@@ -92,7 +86,7 @@ Gltf::Gltf( const nlohmann::json& j, const std::string& pth )
 	// Asset
 	init_asset( j["asset"] );
 
-	// Buffer
+	// ByteBuffer
 	if ( j.count( "buffers" ) )
 	{
 		init_buffers( j["buffers"] );
@@ -224,9 +218,9 @@ void Gltf::init_buffers( const nlohmann::json& j )
 {
 	for ( const auto& b : j )
 	{
-		Buffer buffer;
+		auto& buffer = buffers.push();
 
-		// Buffer length in bytes (mandatory)
+		// ByteBuffer length in bytes (mandatory)
 		buffer.byte_length = b["byteLength"].get<size_t>();
 
 		// Uri of the binary file to upload
@@ -239,8 +233,6 @@ void Gltf::init_buffers( const nlohmann::json& j )
 				buffer.uri = path + "/" + buffer.uri;
 			}
 		}
-
-		buffers.push_back( buffer );
 	}
 }
 
@@ -249,11 +241,11 @@ void Gltf::init_buffer_views( const nlohmann::json& j )
 {
 	for ( const auto& v : j )
 	{
-		BufferView view;
-		view.model = this;
+		auto& view = buffer_views.push();
 
-		// Buffer
-		view.buffer_index = v["buffer"].get<size_t>();
+		// ByteBuffer
+		auto buffer_index = v["buffer"].get<size_t>();
+		view.buffer = Handle<ByteBuffer>( buffers, buffer_index );
 
 		// Byte offset
 		if ( v.count( "byteOffset" ) )
@@ -278,8 +270,6 @@ void Gltf::init_buffer_views( const nlohmann::json& j )
 		{
 			view.target = static_cast<BufferView::Target>( v["target"].get<size_t>() );
 		}
-
-		buffer_views.push_back( std::move( view ) );
 	}
 }
 
@@ -288,14 +278,14 @@ void Gltf::init_cameras( const nlohmann::json& j )
 {
 	for ( const auto& c : j )
 	{
-		Camera camera;
+		GltfCamera camera;
 
 		// Type
 		auto type   = c["type"].get<std::string>();
-		camera.type = ( type == "orthographic" ) ? Camera::Type::Ortographic : Camera::Type::Perspective;
+		camera.type = ( type == "orthographic" ) ? GltfCamera::Type::Ortographic : GltfCamera::Type::Perspective;
 
 		// Camera
-		if ( camera.type == Camera::Type::Ortographic )
+		if ( camera.type == GltfCamera::Type::Ortographic )
 		{
 			camera.orthographic.xmag  = c["orthographic"]["xmag"].get<float>();
 			camera.orthographic.ymag  = c["orthographic"]["ymag"].get<float>();
@@ -326,23 +316,23 @@ void Gltf::init_cameras( const nlohmann::json& j )
 
 
 template <>
-std::string to_string<Sampler::Filter>( const Sampler::Filter& f )
+std::string to_string<GltfSampler::Filter>( const GltfSampler::Filter& f )
 {
 	switch ( f )
 	{
-		case Sampler::Filter::NONE:
+		case GltfSampler::Filter::NONE:
 			return "NONE";
-		case Sampler::Filter::NEAREST:
+		case GltfSampler::Filter::NEAREST:
 			return "NEAREST";
-		case Sampler::Filter::LINEAR:
+		case GltfSampler::Filter::LINEAR:
 			return "LINEAR";
-		case Sampler::Filter::NEAREST_MIPMAP_NEAREST:
+		case GltfSampler::Filter::NEAREST_MIPMAP_NEAREST:
 			return "NEAREST_MIPMAP_NEAREST";
-		case Sampler::Filter::LINEAR_MIPMAP_NEAREST:
+		case GltfSampler::Filter::LINEAR_MIPMAP_NEAREST:
 			return "LINEAR_MIPMAP_NEAREST";
-		case Sampler::Filter::NEAREST_MIPMAP_LINEAR:
+		case GltfSampler::Filter::NEAREST_MIPMAP_LINEAR:
 			return "NEAREST_MIPMAP_LINEAR";
-		case Sampler::Filter::LINEAR_MIPMAP_LINEAR:
+		case GltfSampler::Filter::LINEAR_MIPMAP_LINEAR:
 			return "LINEAR_MIPMAP_LINEAR";
 		default:
 			return "UNDEFINED";
@@ -351,15 +341,15 @@ std::string to_string<Sampler::Filter>( const Sampler::Filter& f )
 
 
 template <>
-std::string to_string<Sampler::Wrapping>( const Sampler::Wrapping& w )
+std::string to_string<GltfSampler::Wrapping>( const GltfSampler::Wrapping& w )
 {
 	switch ( w )
 	{
-		case Sampler::Wrapping::CLAMP_TO_EDGE:
+		case GltfSampler::Wrapping::CLAMP_TO_EDGE:
 			return "CLAMP_TO_EDGE";
-		case Sampler::Wrapping::MIRRORED_REPEAT:
+		case GltfSampler::Wrapping::MIRRORED_REPEAT:
 			return "MIRRORED_REPEAT";
-		case Sampler::Wrapping::REPEAT:
+		case GltfSampler::Wrapping::REPEAT:
 			return "REPEAT";
 		default:
 			return "UNDEFINED";
@@ -368,23 +358,23 @@ std::string to_string<Sampler::Wrapping>( const Sampler::Wrapping& w )
 
 
 template <>
-std::string to_string<Mesh::Primitive::Mode>( const Mesh::Primitive::Mode& m )
+std::string to_string<Primitive::Mode>( const Primitive::Mode& m )
 {
 	switch ( m )
 	{
-		case Mesh::Primitive::Mode::POINTS:
+		case Primitive::Mode::POINTS:
 			return "Points";
-		case Mesh::Primitive::Mode::LINES:
+		case Primitive::Mode::LINES:
 			return "Lines";
-		case Mesh::Primitive::Mode::LINE_LOOP:
+		case Primitive::Mode::LINE_LOOP:
 			return "LineLoop";
-		case Mesh::Primitive::Mode::LINE_STRIP:
+		case Primitive::Mode::LINE_STRIP:
 			return "LineStrip";
-		case Mesh::Primitive::Mode::TRIANGLES:
+		case Primitive::Mode::TRIANGLES:
 			return "Triangles";
-		case Mesh::Primitive::Mode::TRIANGLE_STRIP:
+		case Primitive::Mode::TRIANGLE_STRIP:
 			return "TriangleStrip";
-		case Mesh::Primitive::Mode::TRIANGLE_FAN:
+		case Primitive::Mode::TRIANGLE_FAN:
 			return "TriangleFan";
 		default:
 			return "Undefined";
@@ -395,30 +385,30 @@ void Gltf::init_samplers( const nlohmann::json& j )
 {
 	for ( const auto& s : j )
 	{
-		Sampler sampler;
+		GltfSampler sampler;
 
 		// Mag Filter
 		if ( s.count( "magFilter" ) )
 		{
-			sampler.magFilter = static_cast<Sampler::Filter>( s["magFilter"].get<int>() );
+			sampler.magFilter = static_cast<GltfSampler::Filter>( s["magFilter"].get<int>() );
 		}
 
 		// Min Filter
 		if ( s.count( "minFilter" ) )
 		{
-			sampler.minFilter = static_cast<Sampler::Filter>( s["minFilter"].get<int>() );
+			sampler.minFilter = static_cast<GltfSampler::Filter>( s["minFilter"].get<int>() );
 		}
 
 		// WrapS
 		if ( s.count( "wrapS" ) )
 		{
-			sampler.wrapS = static_cast<Sampler::Wrapping>( s["wrapS"].get<int>() );
+			sampler.wrapS = static_cast<GltfSampler::Wrapping>( s["wrapS"].get<int>() );
 		}
 
 		// WrapT
 		if ( s.count( "wrapT" ) )
 		{
-			sampler.wrapT = static_cast<Sampler::Wrapping>( s["wrapT"].get<int>() );
+			sampler.wrapT = static_cast<GltfSampler::Wrapping>( s["wrapT"].get<int>() );
 		}
 
 		// Name
@@ -436,7 +426,7 @@ void Gltf::init_images( const nlohmann::json& j )
 {
 	for ( const auto& i : j )
 	{
-		Image image;
+		auto& image = images.push();
 
 		if ( i.count( "uri" ) )
 		{
@@ -457,8 +447,6 @@ void Gltf::init_images( const nlohmann::json& j )
 		{
 			image.name = i["name"].get<std::string>();
 		}
-
-		images.push_back( std::move( image ) );
 	}
 }
 
@@ -467,21 +455,20 @@ void Gltf::init_textures( const nlohmann::json& j )
 {
 	for ( const auto& t : j )
 	{
-		Texture texture;
-		texture.model = this;
+		auto& texture = textures.push();
 
-		// Sampler
+		// GltfSampler
 		if ( t.count( "sampler" ) )
 		{
 			auto handle = t["sampler"].get<size_t>();
-			texture.sampler = Handle<Sampler>( samplers, handle );
+			texture.sampler = Handle<GltfSampler>( samplers, handle );
 		}
 
 		// Image
 		if ( t.count( "source" ) )
 		{
 			auto index = t["source"].get<int32_t>();
-			texture.source_index = index;
+			texture.source = Handle<GltfImage>( images, index );
 		}
 
 		// Name
@@ -489,8 +476,6 @@ void Gltf::init_textures( const nlohmann::json& j )
 		{
 			texture.name = t["name"].get<std::string>();
 		}
-
-		textures.push_back( texture );
 	}
 }
 
@@ -573,30 +558,6 @@ std::string to_string<Accessor::Type>( const Accessor::Type& t )
 }
 
 
-Accessor::Accessor( Gltf& g )
-: model { &g }
-{}
-
-
-Accessor::Accessor( Accessor&& other )
-: model { other.model }
-, buffer_view_index { other.buffer_view_index }
-, byte_offset { other.byte_offset }
-, component_type { other.component_type }
-, count { other.count }
-, type { other.type }
-, max { std::move( other.max ) }
-, min { std::move( other.min ) }
-{
-	other.model = nullptr;
-}
-
-
-BufferView& Accessor::get_buffer_view() const
-{
-	return model->buffer_views[buffer_view_index];
-}
-
 
 size_t size_of( Accessor::ComponentType ct )
 {
@@ -637,17 +598,15 @@ size_t Accessor::get_size() const
 
 const uint8_t* Accessor::get_data() const
 {
-	auto& buffer_view = get_buffer_view();
-	auto& buffer = model->get_buffer( buffer_view.buffer_index );
-	auto data = buffer.data.data() + buffer_view.byte_offset + byte_offset;
+	auto& buffer = buffer_view->buffer;
+	auto data = buffer->data.data() + buffer_view->byte_offset + byte_offset;
 	return reinterpret_cast<const uint8_t*>( data );
 }
 
 
 size_t Accessor::get_stride() const
 {
-	auto& buffer_view = model->buffer_views.at( buffer_view_index );
-	return buffer_view.byte_stride;
+	return buffer_view->byte_stride;
 }
 
 
@@ -655,12 +614,13 @@ void Gltf::init_accessors( const nlohmann::json& j )
 {
 	for ( const auto& a : j )
 	{
-		Accessor accessor { *this };
+		auto& accessor = accessors.push();
 
-		// Buffer view
+		// ByteBuffer view
 		if ( a.count( "bufferView" ) )
 		{
-			accessor.buffer_view_index = a["bufferView"].get<size_t>();
+			auto buffer_view_index = a["bufferView"].get<size_t>();
+			accessor.buffer_view = Handle<BufferView>( buffer_views, buffer_view_index );
 		}
 
 		// Byte offset
@@ -695,8 +655,6 @@ void Gltf::init_accessors( const nlohmann::json& j )
 				accessor.min.push_back( value.get<float>() );
 			}
 		}
-
-		accessors.push_back( std::move( accessor ) );
 	}
 }
 
@@ -705,8 +663,7 @@ void Gltf::init_materials( const nlohmann::json& j )
 {
 	for ( const auto& m : j )
 	{
-		Material material;
-		material.model = this;
+		Material& material = materials.push();
 
 		// Name
 		if ( m.count( "name" ) )
@@ -721,106 +678,108 @@ void Gltf::init_materials( const nlohmann::json& j )
 
 			if ( mr.count( "baseColorFactor" ) )
 			{
-				material.pbr.base_color_factor = mr["baseColorFactor"].get<std::vector<float>>();
+				auto color = mr["baseColorFactor"].get<std::vector<float>>();
+				material.pbr.color.r = color[0];
+				material.pbr.color.g = color[1];
+				material.pbr.color.b = color[2];
+				material.pbr.color.a = color[3];
 			}
 
 			if ( mr.count( "baseColorTexture" ) )
 			{
-				int32_t index = mr["baseColorTexture"]["index"].get<int32_t>();
-				material.pbr.texture_index = index;
+				auto index = mr["baseColorTexture"]["index"].get<size_t>();
+				material.texture_handle = Handle<GltfTexture>( textures, index );
 			}
 
 			if ( mr.count( "metallicFactor" ) )
 			{
-				material.pbr.metallic_factor = mr["metallicFactor"].get<float>();
+				material.pbr.metallic = mr["metallicFactor"].get<float>();
 			}
 
 			if ( mr.count( "roughnessFactor" ) )
 			{
-				material.pbr.roughness_factor = mr["roughnessFactor"].get<float>();
+				material.pbr.roughness = mr["roughnessFactor"].get<float>();
 			}
 		}
-
-		materials.push_back( material );
 	}
 }
 
 
 template <>
-Mesh::Primitive::Semantic from_string<Mesh::Primitive::Semantic>( const std::string& s )
+Primitive::Semantic from_string<Primitive::Semantic>( const std::string& s )
 {
 	if ( s == "POSITION" )
 	{
-		return Mesh::Primitive::Semantic::POSITION;
+		return Primitive::Semantic::POSITION;
 	}
 	else if ( s == "NORMAL" )
 	{
-		return Mesh::Primitive::Semantic::NORMAL;
+		return Primitive::Semantic::NORMAL;
 	}
 	else if ( s == "TANGENT" )
 	{
-		return Mesh::Primitive::Semantic::TANGENT;
+		return Primitive::Semantic::TANGENT;
 	}
 	else if ( s == "TEXCOORD_0" )
 	{
-		return Mesh::Primitive::Semantic::TEXCOORD_0;
+		return Primitive::Semantic::TEXCOORD_0;
 	}
 	else if ( s == "TEXCOORD_1" )
 	{
-		return Mesh::Primitive::Semantic::TEXCOORD_1;
+		return Primitive::Semantic::TEXCOORD_1;
 	}
 	else if ( s == "COLOR_0" )
 	{
-		return Mesh::Primitive::Semantic::COLOR_0;
+		return Primitive::Semantic::COLOR_0;
 	}
 	else if ( s == "JOINTS_0" )
 	{
-		return Mesh::Primitive::Semantic::JOINTS_0;
+		return Primitive::Semantic::JOINTS_0;
 	}
 	else if ( s == "WEIGHTS_0" )
 	{
-		return Mesh::Primitive::Semantic::WEIGHTS_0;
+		return Primitive::Semantic::WEIGHTS_0;
 	}
 	else
 	{
 		assert( false );
-		return Mesh::Primitive::Semantic::NONE;
+		return Primitive::Semantic::NONE;
 	}
 }
 
 
 template <>
-std::string to_string<Mesh::Primitive::Semantic>( const Mesh::Primitive::Semantic& s )
+std::string to_string<Primitive::Semantic>( const Primitive::Semantic& s )
 {
-	if ( s == Mesh::Primitive::Semantic::POSITION )
+	if ( s == Primitive::Semantic::POSITION )
 	{
 		return "Position";
 	}
-	else if ( s == Mesh::Primitive::Semantic::NORMAL )
+	else if ( s == Primitive::Semantic::NORMAL )
 	{
 		return "Normal";
 	}
-	else if ( s == Mesh::Primitive::Semantic::TANGENT )
+	else if ( s == Primitive::Semantic::TANGENT )
 	{
 		return "Tangent";
 	}
-	else if ( s == Mesh::Primitive::Semantic::TEXCOORD_0 )
+	else if ( s == Primitive::Semantic::TEXCOORD_0 )
 	{
 		return "Texcoord0";
 	}
-	else if ( s == Mesh::Primitive::Semantic::TEXCOORD_1 )
+	else if ( s == Primitive::Semantic::TEXCOORD_1 )
 	{
 		return "Texcoord1";
 	}
-	else if ( s == Mesh::Primitive::Semantic::COLOR_0 )
+	else if ( s == Primitive::Semantic::COLOR_0 )
 	{
 		return "Color0";
 	}
-	else if ( s == Mesh::Primitive::Semantic::JOINTS_0 )
+	else if ( s == Primitive::Semantic::JOINTS_0 )
 	{
 		return "Joints0";
 	}
-	else if ( s == Mesh::Primitive::Semantic::WEIGHTS_0 )
+	else if ( s == Primitive::Semantic::WEIGHTS_0 )
 	{
 		return "Weights0";
 	}
@@ -847,29 +806,32 @@ void Gltf::init_meshes( const nlohmann::json& j )
 		// Primitives
 		for ( const auto& p : m["primitives"] )
 		{
-			Mesh::Primitive primitive { mesh };
+			auto& primitive = mesh.primitives.emplace_back();
 
 			auto attributes = p["attributes"].get<std::map<std::string, unsigned>>();
 
 			for ( const auto& a : attributes )
 			{
-				auto semantic = from_string<Mesh::Primitive::Semantic>( a.first );
-				primitive.attributes.emplace( semantic, a.second );
+				auto semantic = from_string<Primitive::Semantic>( a.first );
+				auto accessor = Handle<Accessor>( accessors, a.second );
+				primitive.attributes.emplace( semantic, accessor );
 			}
 
 			if ( p.count( "indices" ) )
 			{
-				primitive.indices_index = p["indices"].get<int32_t>();
+				auto indices_index = p["indices"].get<int32_t>();
+				primitive.indices_handle = Handle<Accessor>( accessors, indices_index );
 			}
 
 			if ( p.count( "material" ) )
 			{
-				primitive.material = p["material"].get<int32_t>();
+				auto material_index = p["material"].get<int32_t>();
+				primitive.material = Handle<Material>( materials, material_index );
 			}
 
 			if ( p.count( "mode" ) )
 			{
-				primitive.mode = p["mode"].get<Mesh::Primitive::Mode>();
+				primitive.mode = p["mode"].get<Primitive::Mode>();
 			}
 
 			mesh.primitives.push_back( std::move( primitive ) );
@@ -1001,7 +963,8 @@ void Gltf::init_nodes( const nlohmann::json& j )
 		// Mesh
 		if ( n.count( "mesh" ) )
 		{
-			node.mesh = n["mesh"];
+			auto mesh_index = n["mesh"];
+			node.mesh = Handle<Mesh>( meshes, mesh_index );
 		}
 
 		// Rotation
@@ -1136,8 +1099,11 @@ void Gltf::init_animations( const nlohmann::json& j )
 		{
 			Animation::Sampler sampler;
 
-			sampler.input  = s["input"].get<size_t>();
-			sampler.output = s["output"].get<size_t>();
+			auto input  = s["input"].get<size_t>();
+			sampler.input = Handle<Accessor>( accessors, input );
+
+			auto output = s["output"].get<size_t>();
+			sampler.output = Handle<Accessor>( accessors, output );
 
 			if ( s.count( "interpolation" ) )
 			{
@@ -1179,11 +1145,11 @@ Bounds::Type from_string<Bounds::Type>( const std::string& b )
 {
 	if ( b == "box" )
 	{
-		return gltf::Bounds::Type::Box;
+		return Bounds::Type::Box;
 	}
 	else if ( b == "sphere" )
 	{
-		return gltf::Bounds::Type::Sphere;
+		return Bounds::Type::Sphere;
 	}
 	else
 	{
@@ -1313,6 +1279,38 @@ Handle<Node> Scene::create_node( const std::string& name )
 }
 
 
+Handle<Mesh> Gltf::create_mesh( Mesh&& m )
+{
+	auto& mesh = meshes->emplace_back( std::move( m ) );
+	mesh.handle = Handle<Mesh>( meshes, meshes->size() - 1 );
+	return mesh.handle;
+}
+
+
+Handle<Material> Gltf::create_material( Material&& m )
+{
+	auto& material = materials->emplace_back( std::move( m ) );
+	material.handle = Handle<Material>( materials, materials->size() - 1 );
+	return material.handle;
+}
+
+
+Handle<Material> Gltf::create_material( const Color& c )
+{
+	auto material = create_material();
+	material->pbr.color = c;
+	return material;
+}
+
+
+Handle<Material> Gltf::create_material( const VkImageView texture )
+{
+	auto material = create_material();
+	material->texture = texture;
+	return material;
+}
+
+
 Bounds* Gltf::get_bounds( int32_t index )
 {
 	if ( index >= 0 && index < bounds.size() )
@@ -1344,9 +1342,9 @@ Shape* Gltf::get_shape( int32_t index )
 
 Accessor* Gltf::get_accessor( const size_t accessor )
 {
-	if ( accessor < accessors.size() )
+	if ( accessor < accessors->size() )
 	{
-		return &accessors[accessor];
+		return &(*accessors)[accessor];
 	}
 	return nullptr;
 }
@@ -1453,9 +1451,9 @@ std::vector<char> base64_decode( const std::string& encoded_string )
 }
 
 
-Buffer& Gltf::load_buffer( const size_t i )
+ByteBuffer& Gltf::load_buffer( const size_t i )
 {
-	auto& buffer = buffers[i];
+	auto& buffer = (*buffers)[i];
 
 	if ( buffer.data.empty() )
 	{
@@ -1496,10 +1494,10 @@ Gltf Gltf::load( const std::string& path )
 }
 
 
-Buffer& Gltf::get_buffer( const size_t i )
+ByteBuffer& Gltf::get_buffer( const size_t i )
 {
 	return load_buffer( i );
 }
 
 
-}  // namespace spot::gltf
+}  // namespace spot::gfx

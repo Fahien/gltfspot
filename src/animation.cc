@@ -4,21 +4,19 @@
 
 #include "spot/gltf/gltf.h"
 
-namespace spot::gltf
+namespace spot::gfx
 {
 
 
-std::vector<math::Quat> Animation::get_rotations( Handle<Sampler> sampler ) const
+std::vector<math::Quat> Animation::get_rotations( const Handle<Sampler>& sampler ) const
 {
 	std::vector<math::Quat> quats;
 
-	auto& accessor = model->accessors.at( sampler->output );
+	auto len = sampler->output->count * sizeof( math::Quat );
+	assert( sampler->output->get_size() == len && "Size mismatch" );
 
-	auto len = accessor.count * sizeof( math::Quat );
-	assert( accessor.get_size() == len && "Size mismatch" );
-
-	quats.resize( accessor.count );
-	std::memcpy( quats.data(), accessor.get_data(), len );
+	quats.resize( sampler->output->count );
+	std::memcpy( quats.data(), sampler->output->get_data(), len );
 
 	return quats;
 }
@@ -43,14 +41,14 @@ math::Quat Animation::find_last_rotation() const
 }
 
 
-std::vector<float> Animation::get_times( Handle<Sampler> sampler ) const
+std::vector<float> Animation::get_times( const Handle<Sampler>& sampler ) const
 {
 	std::vector<float> times;
 
-	if ( auto accessor = model->get_accessor( sampler->input ) )
+	if ( sampler->input )
 	{
-		times.resize( accessor->count );
-		std::memcpy( times.data(), accessor->get_data(), accessor->count * sizeof( float ) );
+		times.resize( sampler->input->count );
+		std::memcpy( times.data(), sampler->input->get_data(), sampler->input->count * sizeof( float ) );
 	}
 
 	return times;
@@ -94,18 +92,17 @@ void Animation::add_rotation(
 
 	// Timepoints
 	{
-		sampler.input = model->accessors.size();
-
-		auto& accessor = model->accessors.emplace_back( *model );
+		auto& accessor = model->accessors.push();
+		sampler.input = accessor.handle;
 		accessor.type = Accessor::Type::SCALAR;
 		accessor.component_type = Accessor::ComponentType::FLOAT;
 		accessor.count = times.size();
-		accessor.buffer_view_index = model->buffer_views.size();
 
-		auto& buffer_view = model->buffer_views.emplace_back();
-		buffer_view.buffer_index = model->buffers.size();
+		auto& buffer_view = model->buffer_views.push();
+		accessor.buffer_view = buffer_view.handle;
 
-		auto& buffer = model->buffers.emplace_back();
+		auto& buffer = model->buffers.push();
+		buffer_view.buffer = buffer.handle;
 		buffer.byte_length = times.size() * sizeof( float );
 		buffer.data.resize( buffer.byte_length );
 		std::memcpy( buffer.data.data(), times.data(), buffer.byte_length );
@@ -113,18 +110,17 @@ void Animation::add_rotation(
 
 	// Rotation values
 	{
-		sampler.output = model->accessors.size();
-
-		auto& accessor = model->accessors.emplace_back( *model );
+		auto& accessor = model->accessors.push();
+		sampler.output = accessor.handle;
 		accessor.type = Accessor::Type::VEC4;
 		accessor.component_type = Accessor::ComponentType::FLOAT;
 		accessor.count = quats.size();
-		accessor.buffer_view_index = model->buffer_views.size();
 
-		auto& buffer_view = model->buffer_views.emplace_back();
-		buffer_view.buffer_index = model->buffers.size();
+		auto& buffer_view = model->buffer_views.push();
+		accessor.buffer_view = buffer_view.handle;
 
-		auto& buffer = model->buffers.emplace_back();
+		auto& buffer = model->buffers.push();
+		buffer_view.buffer = buffer.handle;
 		buffer.byte_length = quats.size() * sizeof( math::Quat );
 		buffer.data.resize( buffer.byte_length );
 		std::memcpy( buffer.data.data(), quats.data(), buffer.byte_length );
@@ -156,36 +152,35 @@ void Animation::add_rotation( const Handle<Node>& node, const float time, const 
 	sampler.interpolation = Sampler::Interpolation::Linear;
 
 	{
-		sampler.input = model->accessors.size();
-
-		auto& accessor = model->accessors.emplace_back( *model );
+		auto& accessor = model->accessors.push();
+		sampler.input = accessor.handle;
 		accessor.type = Accessor::Type::SCALAR;
 		accessor.component_type = Accessor::ComponentType::FLOAT;
 		accessor.count = times.size();
-		accessor.buffer_view_index = model->buffer_views.size();
 
-		auto& buffer_view = model->buffer_views.emplace_back();
-		buffer_view.buffer_index = model->buffers.size();
+		auto& buffer_view = model->buffer_views.push();
+		accessor.buffer_view = buffer_view.handle;
 
-		auto& buffer = model->buffers.emplace_back();
+		auto& buffer = model->buffers.push();
+		buffer_view.buffer = buffer.handle;
 		buffer.byte_length = times.size() * sizeof( float );
 		buffer.data.resize( buffer.byte_length );
 		std::memcpy( buffer.data.data(), times.data(), buffer.byte_length );
 	}
 
 	{
-		sampler.output = model->accessors.size();
+		auto& accessor = model->accessors.push();
+		sampler.output = accessor.handle;
 
-		auto& accessor = model->accessors.emplace_back( *model );
 		accessor.type = Accessor::Type::VEC4;
 		accessor.component_type = Accessor::ComponentType::FLOAT;
 		accessor.count = quats.size();
-		accessor.buffer_view_index = model->buffer_views.size();
 
-		auto& buffer_view = model->buffer_views.emplace_back();
-		buffer_view.buffer_index = model->buffers.size();
+		auto& buffer_view = model->buffer_views.push();
+		accessor.buffer_view = buffer_view.handle;
 
-		auto& buffer = model->buffers.emplace_back();
+		auto& buffer = model->buffers.push();
+		buffer_view.buffer = buffer.handle;
 		buffer.byte_length = quats.size() * sizeof( math::Quat );
 		buffer.data.resize( buffer.byte_length );
 		std::memcpy( buffer.data.data(), quats.data(), buffer.byte_length );
@@ -193,4 +188,4 @@ void Animation::add_rotation( const Handle<Node>& node, const float time, const 
 }
 
 
-} // namespace spot::gltf
+} // namespace spot::gfx

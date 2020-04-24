@@ -1,7 +1,7 @@
 #include "spot/gltf/bounds.h"
 #include "spot/gltf/gltf.h"
 
-namespace spot::gltf
+namespace spot::gfx
 {
 
 
@@ -46,4 +46,4 @@ bool Rect::contains( const math::Vec2& p ) const
 }
 
 
-} // namespace spot::gltf
+} // namespace spot::gfx

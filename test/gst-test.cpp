@@ -6,7 +6,7 @@
 #include <spot/gltf/gltf.h>
 
 using namespace std;
-using namespace spot::gltf;
+using namespace spot::gfx;
 using namespace nlohmann;
 
 

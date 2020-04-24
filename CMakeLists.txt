@@ -38,19 +38,19 @@ set( GST_SOURCES
 	${GST_SOURCE_DIR}/mesh.cc
 	${GST_SOURCE_DIR}/node.cc
 	${GST_SOURCE_DIR}/bounds.cc
-	${GST_SOURCE_DIR}/material.cc
-	${GST_SOURCE_DIR}/buffer.cc
-	${GST_SOURCE_DIR}/texture.cc
 	${GST_SOURCE_DIR}/animation.cc
 )
 source_group( src FILES ${GST_SOURCES} )
+
+find_package( Vulkan )
 
 # Library
 add_library( ${PROJECT_NAME} ${GST_SOURCES} )
 target_link_libraries( ${PROJECT_NAME}
 	${MATHSPOT_LIBRARIES}
-	${FILESPOT_LIBRARIES} )
-target_include_directories( ${PROJECT_NAME} PUBLIC ${GST_INCLUDE_DIRS} )
+	${FILESPOT_LIBRARIES}
+	${Vulkan_LIBRARIES} )
+target_include_directories( ${PROJECT_NAME} PUBLIC ${GST_INCLUDE_DIRS} ${Vulkan_INCLUDE_DIRS} )
 target_compile_features( ${PROJECT_NAME} PUBLIC cxx_std_17 )
 
 # Test

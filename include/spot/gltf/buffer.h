@@ -3,17 +3,18 @@
 #include <string>
 #include <vector>
 
+#include "spot/gltf/handle.h"
 
-namespace spot::gltf
+
+namespace spot::gfx
 {
-
-
-class Gltf;
 
 
 /// Buffer pointing to binary geometry, animation, or skins
-struct Buffer
+struct ByteBuffer
 {
+	Handle<ByteBuffer> handle = {};
+
 	/// Length of the buffer in bytes
 	size_t byte_length;
 
@@ -36,13 +37,10 @@ struct BufferView
 		ElementArrayBuffer = 34963
 	};
 
-	Gltf* model = nullptr;
+	Handle<BufferView> handle = {};
 
 	/// Index of the buffer
-	size_t buffer_index = 0;
-
-	/// Returns the buffer pointed by this buffer view
-	Buffer& get_buffer() const;
+	Handle<ByteBuffer> buffer = {};
 
 	/// Offset into the buffer in bytes
 	size_t byte_offset = 0;
@@ -58,4 +56,4 @@ struct BufferView
 };
 
 
-} // namespace spot::gltf
+} // namespace spot::gfx

@@ -4,30 +4,28 @@
 
 #include "spot/gltf/handle.h"
 
-namespace spot::gltf
+namespace spot::gfx
 {
 
-struct Sampler;
-struct Image;
+struct GltfSampler;
+struct GltfImage;
 class Gltf;
 
 
 /// Texture and its sampler
-struct Texture
+struct GltfTexture
 {
-	Gltf* model = nullptr;
+	Handle<GltfTexture> handle = {};
 
 	/// Sampler used by this texture
-	Handle<Sampler> sampler = {};
+	Handle<GltfSampler> sampler = {};
 
 	/// Image used by this texture
-	int32_t source_index = -1;
-
-	Image* get_source() const;
+	Handle<GltfImage> source = {};
 
 	/// User-defined name of this object
 	std::string name = "Unknown";
 };
 
 
-}  // namespace spot::gltf
+}  // namespace spot::gfx

@@ -1,13 +1,17 @@
-#ifndef GST_IMAGE_H_
-#define GST_IMAGE_H_
+#pragma once
 
 #include <string>
+#include "spot/gltf/handle.h"
 
-namespace spot::gltf
+namespace spot::gfx
 {
+
+
 /// Image data used to create a texture
-struct Image
+struct GltfImage
 {
+	Handle<GltfImage> handle = {};
+
 	/// Uri of the image
 	std::string uri = "";
 
@@ -22,7 +26,4 @@ struct Image
 };
 
 
-}  // namespace spot::gltf
-
-
-#endif  // GST_IMAGE_H_
+}  // namespace spot::gfx

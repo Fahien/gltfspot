@@ -5,7 +5,7 @@
 #include <spot/math/shape.h>
 #include "spot/gltf/node.h"
 
-namespace spot::gltf
+namespace spot::gfx
 {
 
 class Gltf;
@@ -86,4 +86,4 @@ struct Sphere : public math::Sphere, Shape
 };
 
 
-} // namespace spot::gltf
+} // namespace spot::gfx

@@ -3,7 +3,7 @@
 #include <vector>
 #include <memory>
 
-namespace spot::gltf
+namespace spot::gfx
 {
 
 
@@ -12,6 +12,9 @@ class Uvec : public std::unique_ptr<std::vector<T>>
 {
   public:
 	Uvec() : std::unique_ptr<std::vector<T>>( std::make_unique<std::vector<T>>() ) {}
+
+	T& push( T&& elem = {} );
+
 };
 
 
@@ -47,15 +50,25 @@ class Handle
 };
 
 
-} // namespace spot::gltf
+template <typename T>
+T& Uvec<T>::push( T&& elem )
+{
+	auto vec = this->get();
+	auto& ret = vec->emplace_back( std::move( elem ) );
+	ret.handle = Handle<T>( *this, vec->size() - 1 );
+	return ret;
+}
+
+
+} // namespace spot::gfx
 
 namespace std
 {
 
 template <typename T>
-struct hash<spot::gltf::Handle<T>>
+struct hash<spot::gfx::Handle<T>>
 {
-	size_t operator()( const spot::gltf::Handle<T>& handle ) const
+	size_t operator()( const spot::gfx::Handle<T>& handle ) const
 	{
 		return handle.get_index();
 	}

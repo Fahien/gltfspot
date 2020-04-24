@@ -2,74 +2,196 @@
 
 #include "spot/gltf/gltf.h"
 
-namespace spot::gltf
+namespace spot::gfx
 {
 
-
-Mesh::Primitive::Primitive( Mesh& m )
-: mesh { &m }
+Primitive::Primitive(
+	const std::vector<Vertex>& vertices,
+	const std::vector<Index>& indices,
+	const Handle<Material>& material
+)
+: vertices { vertices }
+, indices { indices }
+, material { material }
 {}
 
 
-Mesh::Primitive::Primitive( Mesh::Primitive&& other )
-: mesh { other.mesh }
-, attributes { std::move( other.attributes ) }
-, indices_index { other.indices_index }
+
+
+Primitive::Primitive( Primitive&& other )
+: attributes { std::move( other.attributes ) }
+, indices_handle { other.indices_handle }
 , material { other.material }
 , mode { other.mode }
 , extras { other.extras }
+, vertices { std::move( other.vertices ) }
+, indices { std::move( other.indices ) }
 {
-	other.mesh     = nullptr;
 	other.extras   = nullptr;
 }
 
 
-Mesh::Primitive& Mesh::Primitive::operator=( Mesh::Primitive&& other )
+Primitive& Primitive::operator=( Primitive&& other )
 {
-	mesh = other.mesh;
 	attributes = std::move( other.attributes );
-	indices_index = other.indices_index;
+	std::swap( indices_handle, other.indices_handle );
 	material = other.material;
 	mode = other.mode;
 	extras = other.extras;
+	std::swap( vertices, other.vertices );
+	std::swap( indices, other.indices );
 
-	other.mesh     = nullptr;
 	other.extras   = nullptr;
 
 	return *this;
 }
 
 
-std::unordered_map<Mesh::Primitive::Semantic, Accessor*> Mesh::Primitive::get_attributes()
+Mesh Mesh::create_line( const math::Vec3& a, const math::Vec3& b, const Color& c, const float line_width )
 {
-	std::unordered_map<Mesh::Primitive::Semantic, Accessor*> ret;
+	Mesh ret;
 
-	for ( auto [primitive, accessor_index] : attributes )
-	{
-		ret.emplace( primitive, &mesh->model->accessors[accessor_index]);
-	}
+	Primitive prim;
+
+	prim.vertices.resize( 2 );
+	prim.vertices[0].p = a;
+	prim.vertices[0].c = c;
+	prim.vertices[1].p = b;
+	prim.vertices[1].c = c;
+
+	prim.indices = { 0, 1 };
+
+	prim.line_width = line_width;
+
+	ret.primitives.emplace_back( std::move( prim ) );
 
 	return ret;
 }
 
 
-Accessor* Mesh::Primitive::get_indices() const
+Mesh Mesh::create_triangle( const math::Vec3& a, const math::Vec3& b, const math::Vec3& c, const Handle<Material>& material )
 {
-	if ( indices_index >= 0 )
+	Mesh ret;
+
+	std::vector<Vertex> vertices;
+	vertices.resize( 3 );
+	vertices[0].p = a;
+	vertices[1].p = b;
+	vertices[2].p = c;
+
+	std::vector<Index> indices;
+	if ( material )
 	{
-		return &mesh->model->accessors[indices_index];
+		indices = { 0, 1, 2 };
 	}
-	return nullptr;
+	else
+	{
+		indices = { 0, 1, 1, 2, 2, 0 };
+	}
+
+	ret.primitives.emplace_back(
+		Primitive(
+			std::move( vertices ),
+			std::move( indices ),
+			material )
+	);
+
+	return ret;
 }
 
 
-Material* Mesh::Primitive::get_material() const
+Mesh Mesh::create_rect( const math::Rect& r, const Handle<Material>& material )
 {
-	if ( material >= 0 )
+	auto a = math::Vec3( r.offset.x, r.offset.y );
+	auto b = math::Vec3( r.extent.x + r.offset.x, r.extent.y + r.offset.y );
+	return create_rect( a, b, material );
+}
+
+
+Mesh Mesh::create_rect( const math::Vec3& a, const math::Vec3& b, const Handle<Material>& material )
+{
+	Mesh ret;
+
+	std::vector<Vertex> vertices;
+	vertices.resize( 4 );
+	vertices[0].p = a;
+	vertices[1].p = math::Vec3( b.x, a.y, a.z );
+	vertices[2].p = b;
+	vertices[3].p = math::Vec3( a.x, b.y, a.z );
+
+	std::vector<Index> indices;
+	if ( material )
 	{
-		return &mesh->model->materials[material];
+		// .---B
+		// A---`
+		bool case1 = ( b.x > a.x && b.y > a.y );
+
+		// ,---A
+		// B---`
+		bool case2 = ( b.x < a.x && b.y < a.y );
+
+		if ( case1 || case2 )
+		{
+			indices = { 0, 1, 2, 0, 2, 3 };
+		}
+		else
+		{
+			indices = { 0, 2, 1, 0, 3, 2 };
+		}
 	}
-	return nullptr;
+	else
+	{
+		// No material, use lines
+		indices = { 0, 1, 1, 2, 2, 3, 3, 0 };
+	}
+
+	ret.primitives.emplace_back(
+		Primitive(
+			std::move( vertices ),
+			std::move( indices ),
+			material )
+	);
+
+	return ret;
+}
+
+
+Mesh Mesh::create_rect( const math::Vec3& a, const math::Vec3& b, const Color& color )
+{
+	auto mesh = create_rect( a, b, Handle<Material>() );
+	for ( auto& prim : mesh.primitives )
+	{
+		for ( auto& vert : prim.vertices )
+		{
+			vert.c = color;
+		}
+	}
+	return mesh;
+}
+
+
+Mesh Mesh::create_rect( const math::Rect& r, const Color& color )
+{
+	auto a = math::Vec3( r.offset.x, r.offset.y );
+	auto b = math::Vec3( r.extent.x + r.offset.x, r.extent.y + r.offset.y );
+	return create_rect( a, b, color );
+}
+
+
+Mesh Mesh::create_quad( const Handle<Material>& material, const math::Vec3& a, const math::Vec3& b )
+{
+	assert( material && "Cannot create a quad with invalid material" );
+	Mesh ret = create_rect( a, b, material );
+
+	auto& vertices = ret.primitives[0].vertices;
+
+	// Text coords
+	vertices[0].t = math::Vec2( 1.0f, 0.0 ); // a
+	vertices[1].t = math::Vec2( 0.0f, 0.0 ); // b
+	vertices[2].t = math::Vec2( 0.0f, 1.0 ); // c
+	vertices[3].t = math::Vec2( 1.0f, 1.0 ); // d
+
+	return ret;
 }
 
 
@@ -87,12 +209,7 @@ Mesh::Mesh( Mesh&& other )
 {
 	other.model  = nullptr;
 	other.extras = nullptr;
-
-	for ( auto& prim : primitives )
-	{
-		prim.mesh = this;
-	}
 }
 
 
-} // namespace spot::gltf
+} // namespace spot::gfx

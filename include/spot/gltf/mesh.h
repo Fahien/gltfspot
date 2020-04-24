@@ -4,81 +4,127 @@
 #include <unordered_map>
 #include <string>
 #include <vector>
+#include <spot/math/math.h>
+#include <spot/math/shape.h>
+
+#include "spot/gltf/handle.h"
+#include "spot/gltf/color.h"
 
 
-namespace spot::gltf
+namespace spot::gfx
 {
 class Gltf;
 struct Accessor;
 struct Material;
+class Mesh;
 
-/// Set of primitives to be rendered
+struct alignas(16) Vertex
+{
+	Vertex( math::Vec3 pp = {}, Color cc = { 1.0f, 1.0f, 1.0f, 1.0f }, math::Vec2 tc = {} ) : p { pp }, c { cc }, t { tc } {}
+
+	math::Vec3  p = {};
+	math::Vec3  n = { 1.0f, 1.0f, 1.0f };
+	Color c = {};
+	math::Vec2  t = {};
+};
+
+
+/// @todo Change this, as indices can be of different sizes
+using Index = uint16_t;
+
+
+/// @brief Geometry to be rendered with the given material
+struct Primitive
+{
+	/// Enumerated value identifying the vertex attribute
+	enum class Semantic
+	{
+		NONE,
+		POSITION,
+		NORMAL,
+		TANGENT,
+		TEXCOORD_0,
+		TEXCOORD_1,
+		COLOR_0,
+		JOINTS_0,
+		WEIGHTS_0
+	};
+
+	/// Type of primitives to render
+	enum class Mode
+	{
+		POINTS,
+		LINES,
+		LINE_LOOP,
+		LINE_STRIP,
+		TRIANGLES,
+		TRIANGLE_STRIP,
+		TRIANGLE_FAN
+	};
+
+	Primitive() = default;
+
+	Primitive(
+		const std::vector<Vertex>& vertices,
+		const std::vector<Index>& indices,
+		const Handle<Material>& material
+	);
+
+	Primitive( Primitive&& p );
+
+	Primitive& operator=( Primitive&& p );
+
+	/// Dictionary object, where each key corresponds to mesh attribute semantic and
+	/// each value is a handle to the accessor containing attribute's data (required)
+	std::unordered_map<Semantic, Handle<Accessor>> attributes;
+
+	/// Handle to the accessor that contains the indices
+	Handle<Accessor> indices_handle = {};
+
+	/// Material to apply to this primitive when rendering
+	Handle<Material> material = {};
+
+	/// Type of primitives to render
+	Mode mode = Mode::TRIANGLES;
+
+	/// Depth of line to use for line topology
+	float line_width = 1.0f;
+
+	/// targets TODO An array of Morph Targets, each Morph Target is a dictionary mapping attributes (only POSITION,
+	/// NORMAL, and TANGENT supported) to their deviations in the Morph Target extensions TODO Dictionary object with
+	/// extension-specific objects Application-specific data
+	void* extras;
+
+	std::vector<Vertex> vertices;
+	std::vector<Index> indices;
+};
+
+
+/// @brief Set of primitives to be rendered
 struct Mesh
 {
-	/// Geometry to be rendered with the given material
-	struct Primitive
-	{
-		/// Enumerated value identifying the vertex attribute
-		enum class Semantic
-		{
-			NONE,
-			POSITION,
-			NORMAL,
-			TANGENT,
-			TEXCOORD_0,
-			TEXCOORD_1,
-			COLOR_0,
-			JOINTS_0,
-			WEIGHTS_0
-		};
+	/// @return A colored line mesh
+	static Mesh create_line( const math::Vec3& a, const math::Vec3& b, const Color& c = Color::white, float line_width = 1.0f );
 
-		/// Type of primitives to render
-		enum class Mode
-		{
-			POINTS,
-			LINES,
-			LINE_LOOP,
-			LINE_STRIP,
-			TRIANGLES,
-			TRIANGLE_STRIP,
-			TRIANGLE_FAN
-		};
+	/// @return A triangle mesh; material is optional
+	static Mesh create_triangle( const math::Vec3& a, const math::Vec3& b, const math::Vec3& c, const Handle<Material>& material = {} );
 
-		Primitive( Mesh& m );
+	/// @return A rectangle mesh with a material
+	static Mesh create_rect( const math::Vec3& a, const math::Vec3& b, const Handle<Material>& material );
+	static Mesh create_rect( const math::Rect& r, const Handle<Material>& material );
 
-		Primitive( Primitive&& p );
+	/// @return A colored rectangle mesh without material
+	static Mesh create_rect( const math::Vec3& a, const math::Vec3& b, const Color& c = Color::white );
+	static Mesh create_rect( const math::Rect& r, const Color& c = Color::white );
 
-		Primitive& operator=( Primitive&& p );
+	/// @return A quad mesh, which is a unit square with a material
+	static Mesh create_quad(
+		const Handle<Material>& material,
+		const math::Vec3& a = { -0.5f, -0.5f, 0.0f },
+		const math::Vec3& b = { 0.5f, 0.5f, 0.0f }
+	);
 
-		/// Mesh owning the primitive
-		Mesh* mesh = nullptr;
-
-		/// Dictionary object, where each key corresponds to mesh attribute semantic and
-		/// each value is the index of the accessor containing attribute's data (required)
-		std::unordered_map<Semantic, uint32_t> attributes;
-
-		std::unordered_map<Semantic, Accessor*> get_attributes();
-
-		/// If >= 0, it is the index of the accessor that contains the indices
-		int32_t indices_index = -1;
-
-		/// @return A pointer to the accessor if it has indices, otherwise null
-		Accessor* get_indices() const;
-
-		/// Index of the material to apply to this primitive when rendering
-		int32_t material = -1;
-
-		/// @return A pointer to the material of this primitive, otherwise null
-		Material* get_material() const;
-
-		/// Type of primitives to render
-		Mode mode = Mode::TRIANGLES;
-
-		/// targets TODO An array of Morph Targets, each Morph Target is a dictionary mapping attributes (only POSITION,
-		/// NORMAL, and TANGENT supported) to their deviations in the Morph Target extensions TODO Dictionary object with
-		/// extension-specific objects Application-specific data
-		void* extras;
-	};
+	Mesh( std::vector<Primitive>&& ps = {} ) : primitives { std::move( ps ) } {}
 
 	Mesh( Gltf& g );
 
@@ -86,6 +132,9 @@ struct Mesh
 
 	/// Gltf model owning the mesh
 	Gltf* model;
+
+	/// Own handle
+	Handle<Mesh> handle = {};
 
 	/// Array of primitives, each defining geometry to be rendered with a material (required)
 	std::vector<Primitive> primitives;
@@ -102,7 +151,7 @@ struct Mesh
 };
 
 
-}  // namespace spot::gltf
+}  // namespace spot::gfx
 
 
 #endif  // GST_MESH_H_

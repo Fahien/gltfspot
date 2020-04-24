@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace spot::gltf
+namespace spot::gfx
 {
 /// Sunspot script
 struct Script
@@ -15,6 +15,6 @@ struct Script
 };
 
 
-}  // namespace spot::gltf
+}  // namespace spot::gfx
 
 #endif  // GST_SCRIPT_H_
