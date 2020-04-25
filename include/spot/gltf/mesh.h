@@ -65,14 +65,10 @@ struct Primitive
 	Primitive() = default;
 
 	Primitive(
-		const std::vector<Vertex>& vertices,
-		const std::vector<Index>& indices,
+		std::vector<Vertex> vertices,
+		std::vector<Index> indices,
 		const Handle<Material>& material
 	);
-
-	Primitive( Primitive&& p );
-
-	Primitive& operator=( Primitive&& p );
 
 	/// Dictionary object, where each key corresponds to mesh attribute semantic and
 	/// each value is a handle to the accessor containing attribute's data (required)

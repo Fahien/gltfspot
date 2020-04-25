@@ -19,7 +19,7 @@ macro(download_model MODEL_PATH)
 endmacro()
 
 if(NOT GLTF_OUT)
-	set(GLTF_OUT ${CMAKE_CURRENT_SOURCE_DIR}/test/model)
+	set(GLTF_OUT ${CMAKE_CURRENT_SOURCE_DIR}/model)
 endif()
 
 # Box

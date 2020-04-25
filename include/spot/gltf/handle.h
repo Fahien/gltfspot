@@ -8,14 +8,7 @@ namespace spot::gfx
 
 
 template <typename T>
-class Uvec : public std::unique_ptr<std::vector<T>>
-{
-  public:
-	Uvec() : std::unique_ptr<std::vector<T>>( std::make_unique<std::vector<T>>() ) {}
-
-	T& push( T&& elem = {} );
-
-};
+class Uvec;
 
 
 template <typename T>
@@ -24,7 +17,7 @@ class Handle
   public:
 	Handle() = default;
 
-	Handle( Uvec<T>& v, size_t i )
+	Handle( const Uvec<T>& v, size_t i )
 	: vec { v.get() }
 	, index { i }
 	{
@@ -45,25 +38,57 @@ class Handle
 	size_t get_index() const { return index; }
 
   private:
-	std::vector<T>* vec = nullptr;
 	size_t index = 0;
+	std::vector<T>* vec = nullptr;
 };
 
 
 template <typename T>
-T& Uvec<T>::push( T&& elem )
+class Uvec : public std::unique_ptr<std::vector<T>>
+{
+  public:
+	Uvec() : std::unique_ptr<std::vector<T>>( std::make_unique<std::vector<T>>() ) {}
+
+	Handle<T> push( T&& elem = {} );
+
+	Handle<T> get_handle( size_t i ) const;
+
+};
+
+
+template <typename T>
+Handle<T> Uvec<T>::push( T&& elem )
 {
 	auto vec = this->get();
 	auto& ret = vec->emplace_back( std::move( elem ) );
 	ret.handle = Handle<T>( *this, vec->size() - 1 );
-	return ret;
+	return ret.handle;
 }
+
+
+template <typename T>
+Handle<T> Uvec<T>::get_handle( size_t index ) const
+{
+	return Handle<T>( *this, index );
+}
+
+
+template <typename T>
+class Handled
+{
+  public:
+	virtual ~Handled() = default;
+
+	Handle<T> handle;
+};
 
 
 } // namespace spot::gfx
 
+
 namespace std
 {
+
 
 template <typename T>
 struct hash<spot::gfx::Handle<T>>
@@ -74,4 +99,5 @@ struct hash<spot::gfx::Handle<T>>
 	}
 };
 
-}
+
+} // namespace std

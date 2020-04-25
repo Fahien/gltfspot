@@ -1,7 +1,7 @@
 #pragma once
 
-#include <spot/math/math.h>
 #include <vector>
+#include <spot/math/math.h>
 
 #include "spot/gltf/handle.h"
 
@@ -17,7 +17,7 @@ class Shape;
 
 
 /// Node in the node hierarchy
-class Node
+class Node : public Handled<Node>
 {
   public:
 	bool contains( const math::Vec2& point ) const;
@@ -26,19 +26,13 @@ class Node
 	Handle<Node> get_parent() const;
 
 	/// @return A list of children of this node
-	std::vector<Handle<Node>>& get_children() { return children; }
+	const std::vector<Handle<Node>>& get_children() const { return children; }
 
 	/// @return The current transform
 	math::Mat4 get_matrix() const;
 
 	/// @return A matrix representing the absolute transform of this node
 	math::Mat4 get_absolute_matrix() const;
-
-	/// @return The mesh associated to this node, null otherwise
-	const Handle<Mesh>& get_mesh() const;
-
-	/// @brief Sets a new mesh to this node
-	void set_mesh( const Handle<Mesh>& m ) { mesh = m; }
 
 	/// @param name Name of the node
 	/// @return A newly created Node as a child of this
@@ -58,12 +52,15 @@ class Node
 	/// Translation
 	math::Vec3 translation = math::Vec3{ 0.0f, 0.0f, 0.0f };
 
+	/// Handle of the mesh of the node
+	Handle<Mesh> mesh = {};
+
+	/// User-defined name of this object
+	std::string name = "Unknown";
+
   private:
 	/// Gltf owning the node
 	Gltf* model = nullptr;
-
-	/// Index of this node within the nodes vector
-	Handle<Node> handle = {};
 
 	/// Parent of this node
 	Handle<Node> parent = {};
@@ -74,14 +71,8 @@ class Node
 	/// Floating-point 4x4 transformation matrix stored in column-major order
 	math::Mat4 matrix = math::Mat4::identity;
 
-	/// User-defined name of this object
-	std::string name = "Unknown";
-
 	/// Camera referenced by this node
 	GltfCamera* camera = nullptr;
-
-	/// If not negative, index of mesh of the node
-	Handle<Mesh> mesh = {};
 
 	/// If not negative, index of light contained by this node
 	int32_t light_index = -1;

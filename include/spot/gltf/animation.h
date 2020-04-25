@@ -108,6 +108,8 @@ struct Animation
 
 	/// Samplers
 	Uvec<Sampler> samplers;
+
+	bool pause = false;
 };
 
 

@@ -6,45 +6,14 @@ namespace spot::gfx
 {
 
 Primitive::Primitive(
-	const std::vector<Vertex>& vertices,
-	const std::vector<Index>& indices,
-	const Handle<Material>& material
+	std::vector<Vertex> v,
+	std::vector<Index> i,
+	const Handle<Material>& m
 )
-: vertices { vertices }
-, indices { indices }
-, material { material }
+: vertices { std::move( v ) }
+, indices { std::move( i ) }
+, material { m }
 {}
-
-
-
-
-Primitive::Primitive( Primitive&& other )
-: attributes { std::move( other.attributes ) }
-, indices_handle { other.indices_handle }
-, material { other.material }
-, mode { other.mode }
-, extras { other.extras }
-, vertices { std::move( other.vertices ) }
-, indices { std::move( other.indices ) }
-{
-	other.extras   = nullptr;
-}
-
-
-Primitive& Primitive::operator=( Primitive&& other )
-{
-	attributes = std::move( other.attributes );
-	std::swap( indices_handle, other.indices_handle );
-	material = other.material;
-	mode = other.mode;
-	extras = other.extras;
-	std::swap( vertices, other.vertices );
-	std::swap( indices, other.indices );
-
-	other.extras   = nullptr;
-
-	return *this;
-}
 
 
 Mesh Mesh::create_line( const math::Vec3& a, const math::Vec3& b, const Color& c, const float line_width )

@@ -4,7 +4,6 @@
 
 #include "spot/gltf/gltf.h"
 
-namespace fl = spot::file;
 
 namespace spot::gfx
 {
@@ -218,21 +217,22 @@ void Gltf::init_buffers( const nlohmann::json& j )
 {
 	for ( const auto& b : j )
 	{
-		auto& buffer = buffers.push();
-
 		// ByteBuffer length in bytes (mandatory)
-		buffer.byte_length = b["byteLength"].get<size_t>();
+		auto byte_length = b["byteLength"].get<size_t>();
 
 		// Uri of the binary file to upload
+		std::string uri;
 		if ( b.count( "uri" ) )
 		{
-			buffer.uri = b["uri"].get<std::string>();
+			uri = b["uri"].get<std::string>();
 			// If it is not data
-			if ( buffer.uri.rfind( "data:", 0 ) != 0 )
+			if ( uri.rfind( "data:", 0 ) != 0 )
 			{
-				buffer.uri = path + "/" + buffer.uri;
+				uri = path + "/" + uri;
 			}
 		}
+
+		buffers.push( ByteBuffer( uri, byte_length ) );
 	}
 }
 
@@ -241,34 +241,34 @@ void Gltf::init_buffer_views( const nlohmann::json& j )
 {
 	for ( const auto& v : j )
 	{
-		auto& view = buffer_views.push();
+		auto view = buffer_views.push();
 
 		// ByteBuffer
 		auto buffer_index = v["buffer"].get<size_t>();
-		view.buffer = Handle<ByteBuffer>( buffers, buffer_index );
+		view->buffer = Handle<ByteBuffer>( buffers, buffer_index );
 
 		// Byte offset
 		if ( v.count( "byteOffset" ) )
 		{
-			view.byte_offset = v["byteOffset"].get<size_t>();
+			view->byte_offset = v["byteOffset"].get<size_t>();
 		}
 
 		// Byte length
 		if ( v.count( "byteLength" ) )
 		{
-			view.byte_length = v["byteLength"].get<size_t>();
+			view->byte_length = v["byteLength"].get<size_t>();
 		}
 
 		// Byte stride
 		if ( v.count( "byteStride" ) )
 		{
-			view.byte_stride = v["byteStride"].get<size_t>();
+			view->byte_stride = v["byteStride"].get<size_t>();
 		}
 
 		// Target
 		if ( v.count( "target" ) )
 		{
-			view.target = static_cast<BufferView::Target>( v["target"].get<size_t>() );
+			view->target = static_cast<BufferView::Target>( v["target"].get<size_t>() );
 		}
 	}
 }
@@ -426,26 +426,26 @@ void Gltf::init_images( const nlohmann::json& j )
 {
 	for ( const auto& i : j )
 	{
-		auto& image = images.push();
+		auto image = images.push();
 
 		if ( i.count( "uri" ) )
 		{
-			image.uri = path + "/" + i["uri"].get<std::string>();
+			image->uri = path + "/" + i["uri"].get<std::string>();
 		}
 
 		if ( i.count( "mimeType" ) )
 		{
-			image.mime_type = i["mimeType"].get<std::string>();
+			image->mime_type = i["mimeType"].get<std::string>();
 		}
 
 		if ( i.count( "bufferView" ) )
 		{
-			image.buffer_view = i["bufferView"].get<uint32_t>();
+			image->buffer_view = i["bufferView"].get<uint32_t>();
 		}
 
 		if ( i.count( "name" ) )
 		{
-			image.name = i["name"].get<std::string>();
+			image->name = i["name"].get<std::string>();
 		}
 	}
 }
@@ -455,26 +455,26 @@ void Gltf::init_textures( const nlohmann::json& j )
 {
 	for ( const auto& t : j )
 	{
-		auto& texture = textures.push();
+		auto texture = textures.push();
 
 		// GltfSampler
 		if ( t.count( "sampler" ) )
 		{
 			auto handle = t["sampler"].get<size_t>();
-			texture.sampler = Handle<GltfSampler>( samplers, handle );
+			texture->sampler = Handle<GltfSampler>( samplers, handle );
 		}
 
 		// Image
 		if ( t.count( "source" ) )
 		{
 			auto index = t["source"].get<int32_t>();
-			texture.source = Handle<GltfImage>( images, index );
+			texture->source = Handle<GltfImage>( images, index );
 		}
 
 		// Name
 		if ( t.count( "name" ) )
 		{
-			texture.name = t["name"].get<std::string>();
+			texture->name = t["name"].get<std::string>();
 		}
 	}
 }
@@ -614,36 +614,36 @@ void Gltf::init_accessors( const nlohmann::json& j )
 {
 	for ( const auto& a : j )
 	{
-		auto& accessor = accessors.push();
+		auto accessor = accessors.push();
 
 		// ByteBuffer view
 		if ( a.count( "bufferView" ) )
 		{
 			auto buffer_view_index = a["bufferView"].get<size_t>();
-			accessor.buffer_view = Handle<BufferView>( buffer_views, buffer_view_index );
+			accessor->buffer_view = Handle<BufferView>( buffer_views, buffer_view_index );
 		}
 
 		// Byte offset
 		if ( a.count( "byteOffset" ) )
 		{
-			accessor.byte_offset = a["byteOffset"].get<size_t>();
+			accessor->byte_offset = a["byteOffset"].get<size_t>();
 		}
 
 		// Component type
-		accessor.component_type = a["componentType"].get<Accessor::ComponentType>();
+		accessor->component_type = a["componentType"].get<Accessor::ComponentType>();
 
 		// Count
-		accessor.count = a["count"].get<size_t>();
+		accessor->count = a["count"].get<size_t>();
 
 		// Type
-		accessor.type = from_string<Accessor::Type>( a["type"].get<std::string>() );
+		accessor->type = from_string<Accessor::Type>( a["type"].get<std::string>() );
 
 		// Max
 		if ( a.count( "max" ) )
 		{
 			for ( const auto& value : a["max"] )
 			{
-				accessor.max.push_back( value.get<float>() );
+				accessor->max.push_back( value.get<float>() );
 			}
 		}
 
@@ -652,7 +652,7 @@ void Gltf::init_accessors( const nlohmann::json& j )
 		{
 			for ( const auto& value : a["min"] )
 			{
-				accessor.min.push_back( value.get<float>() );
+				accessor->min.push_back( value.get<float>() );
 			}
 		}
 	}
@@ -663,12 +663,12 @@ void Gltf::init_materials( const nlohmann::json& j )
 {
 	for ( const auto& m : j )
 	{
-		Material& material = materials.push();
+		auto material = materials.push();
 
 		// Name
 		if ( m.count( "name" ) )
 		{
-			material.name = m["name"].get<std::string>();
+			material->name = m["name"].get<std::string>();
 		}
 
 		// PbrMetallicRoughness
@@ -679,26 +679,26 @@ void Gltf::init_materials( const nlohmann::json& j )
 			if ( mr.count( "baseColorFactor" ) )
 			{
 				auto color = mr["baseColorFactor"].get<std::vector<float>>();
-				material.pbr.color.r = color[0];
-				material.pbr.color.g = color[1];
-				material.pbr.color.b = color[2];
-				material.pbr.color.a = color[3];
+				material->pbr.color.r = color[0];
+				material->pbr.color.g = color[1];
+				material->pbr.color.b = color[2];
+				material->pbr.color.a = color[3];
 			}
 
 			if ( mr.count( "baseColorTexture" ) )
 			{
 				auto index = mr["baseColorTexture"]["index"].get<size_t>();
-				material.texture_handle = Handle<GltfTexture>( textures, index );
+				material->texture_handle = Handle<GltfTexture>( textures, index );
 			}
 
 			if ( mr.count( "metallicFactor" ) )
 			{
-				material.pbr.metallic = mr["metallicFactor"].get<float>();
+				material->pbr.metallic = mr["metallicFactor"].get<float>();
 			}
 
 			if ( mr.count( "roughnessFactor" ) )
 			{
-				material.pbr.roughness = mr["roughnessFactor"].get<float>();
+				material->pbr.roughness = mr["roughnessFactor"].get<float>();
 			}
 		}
 	}
@@ -833,8 +833,6 @@ void Gltf::init_meshes( const nlohmann::json& j )
 			{
 				primitive.mode = p["mode"].get<Primitive::Mode>();
 			}
-
-			mesh.primitives.push_back( std::move( primitive ) );
 		}
 
 		meshes->push_back( std::move( mesh ) );
@@ -950,13 +948,7 @@ void Gltf::init_nodes( const nlohmann::json& j )
 		// Matrix
 		if ( n.count( "matrix" ) )
 		{
-			/// @todo Improve this
-			auto mvec = n["matrix"].get<std::vector<float>>();
-			std::array<float, 16> marr;
-			for ( unsigned i{ 0 }; i < 16; ++i )
-			{
-				marr[i] = mvec[i];
-			}
+			auto marr = n["matrix"].get<std::array<float, 16>>();
 			node.matrix = math::Mat4( marr.data() );
 		}
 
@@ -1236,13 +1228,22 @@ void Gltf::load_nodes()
 	}
 }
 
+
 Handle<Node> Gltf::create_node()
 {
-	auto& node = nodes->emplace_back();
-	node.handle = Handle<Node>( nodes, nodes->size() - 1 );
-	node.model = this;
-	return node.handle;
+	auto node = nodes.push();
+	node->model = this;
+	return node;
 }
+
+
+Handle<Node> Gltf::create_node( Mesh&& mesh )
+{
+	auto node = create_node();
+	node->mesh = meshes.push( std::move( mesh ) );
+	return node;
+}
+
 
 Handle<Node> Gltf::create_node( Handle<Node>& parent )
 {
@@ -1284,30 +1285,6 @@ Handle<Mesh> Gltf::create_mesh( Mesh&& m )
 	auto& mesh = meshes->emplace_back( std::move( m ) );
 	mesh.handle = Handle<Mesh>( meshes, meshes->size() - 1 );
 	return mesh.handle;
-}
-
-
-Handle<Material> Gltf::create_material( Material&& m )
-{
-	auto& material = materials->emplace_back( std::move( m ) );
-	material.handle = Handle<Material>( materials, materials->size() - 1 );
-	return material.handle;
-}
-
-
-Handle<Material> Gltf::create_material( const Color& c )
-{
-	auto material = create_material();
-	material->pbr.color = c;
-	return material;
-}
-
-
-Handle<Material> Gltf::create_material( const VkImageView texture )
-{
-	auto material = create_material();
-	material->texture = texture;
-	return material;
 }
 
 
@@ -1380,123 +1357,14 @@ void Gltf::init_scenes( const nlohmann::json& j )
 	load_nodes();
 }
 
-
-const std::string base64_chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    "abcdefghijklmnopqrstuvwxyz"
-    "0123456789+/";
-
-
-inline bool is_base64( const char c )
-{
-	return ( isalnum( c ) || ( c == '+' ) || ( c == '/' ) );
-}
-
-
-std::vector<char> base64_decode( const std::string& encoded_string )
-{
-	auto              in_len = encoded_string.size();
-	int               i      = 0;
-	int               j      = 0;
-	int               in_    = 0;
-	char              char_array_4[4], char_array_3[3];
-	std::vector<char> ret;
-
-	while ( in_len-- && ( encoded_string[in_] != '=' ) && is_base64( encoded_string[in_] ) )
-	{
-		char_array_4[i++] = encoded_string[in_];
-		in_++;
-		if ( i == 4 )
-		{
-			for ( i = 0; i < 4; i++ )
-			{
-				char_array_4[i] = base64_chars.find( char_array_4[i] );
-			}
-
-			char_array_3[0] = ( char_array_4[0] << 2 ) + ( ( char_array_4[1] & 0x30 ) >> 4 );
-			char_array_3[1] = ( ( char_array_4[1] & 0xf ) << 4 ) + ( ( char_array_4[2] & 0x3c ) >> 2 );
-			char_array_3[2] = ( ( char_array_4[2] & 0x3 ) << 6 ) + char_array_4[3];
-
-			for ( i = 0; ( i < 3 ); i++ )
-			{
-				ret.push_back( char_array_3[i] );
-			}
-			i = 0;
-		}
-	}
-
-	if ( i )
-	{
-		for ( j = i; j < 4; j++ )
-		{
-			char_array_4[j] = 0;
-		}
-
-		for ( j = 0; j < 4; j++ )
-		{
-			char_array_4[j] = base64_chars.find( char_array_4[j] );
-		}
-
-		char_array_3[0] = ( char_array_4[0] << 2 ) + ( ( char_array_4[1] & 0x30 ) >> 4 );
-		char_array_3[1] = ( ( char_array_4[1] & 0xf ) << 4 ) + ( ( char_array_4[2] & 0x3c ) >> 2 );
-		char_array_3[2] = ( ( char_array_4[2] & 0x3 ) << 6 ) + char_array_4[3];
-
-		for ( j = 0; ( j < i - 1 ); j++ )
-		{
-			ret.push_back( char_array_3[j] );
-		}
-	}
-
-	return ret;
-}
-
-
-ByteBuffer& Gltf::load_buffer( const size_t i )
-{
-	auto& buffer = (*buffers)[i];
-
-	if ( buffer.data.empty() )
-	{
-		// Check if it is data
-		if ( buffer.uri.rfind( "data:", 0 ) == 0 )
-		{
-			// It is data, find the position of comma
-			auto comma_pos = buffer.uri.find_first_of( ',', 5 );
-			if ( comma_pos == std::string::npos )
-			{
-				// Error, data not good
-				throw std::runtime_error{ "Data URI not valid" };
-			}
-
-			// Assume it is base64
-			buffer.data = base64_decode( buffer.uri.substr( comma_pos + 1 ) );
-		}
-		else
-		{
-			auto file = fl::Ifstream( buffer.uri, std::ios::binary );
-			assert( file.is_open() && "Could not open the file" );
-			buffer.data = file.read( buffer.byte_length );
-		}
-	}
-
-	return buffer;
-}
-
-
 Gltf Gltf::load( const std::string& path )
 {
 	// read a JSON file
-	auto in = fl::Ifstream( path );
+	auto in = file::Ifstream( path );
 	assert( in.is_open() && "Cannot open gltf file" );
 	nlohmann::json js;
 	in >> js;
 	return Gltf( js, path );
-}
-
-
-ByteBuffer& Gltf::get_buffer( const size_t i )
-{
-	return load_buffer( i );
 }
 
 

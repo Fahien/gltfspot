@@ -66,12 +66,12 @@ class Gltf
 	/// @return A Gltf model
 	static Gltf load( const std::string& path );
 
-	/// @param i Index of the buffer
-	/// @return ByteBuffer number i
-	ByteBuffer& get_buffer( const size_t i );
-
 	/// @return A newly created Node
 	Handle<Node> create_node();
+
+	/// @param mesh The mesh of this node
+	/// @return A newly created Node
+	Handle<Node> create_node( Mesh&& mesh );
 
 	/// @param parent The parent of this node
 	/// @return A newly created Node
@@ -86,11 +86,6 @@ class Gltf
 
 	/// @return The handle of a new mesh
 	Handle<Mesh> create_mesh( Mesh&& m = {} );
-
-	/// @return The handle of a new material
-	Handle<Material> create_material( Material&& m = {} );
-	Handle<Material> create_material( const Color& c );
-	Handle<Material> create_material( VkImageView texture );
 
 	/// @param bounds Index of the bounds
 	/// @return The bounds found at that index, nullptr otherwise
@@ -175,10 +170,6 @@ class Gltf
 	/// Initializes scenes
 	/// @param j Json object describing the scenes
 	void init_scenes( const nlohmann::json& j );
-
-	/// Loads data into a buffer
-	/// @param i Index of the buffer
-	ByteBuffer& load_buffer( const size_t i );
 
 	/// Directory path of the gltf file
 	std::string path;

@@ -35,14 +35,14 @@ void printAsset( Gltf& model )
 void printBuffer( Gltf& model )
 {
 	cout << endl << "# Buffer" << endl;
-	auto& buffer = model.get_buffer( 0 );
-	for ( size_t i{ 0 }; i < buffer.data.size(); ++i )
+	auto buffer = model.buffers.get_handle( 0 );
+	for ( size_t i{ 0 }; i < buffer->data.size(); ++i )
 	{
 		if ( i != 0 && ( i % 32 ) == 0 )
 		{
 			cout << endl;
 		}
-		auto& b = buffer.data[i];
+		auto& b = buffer->data[i];
 		printf( "%02X ", b & 0xff );
 	}
 	cout << endl;
@@ -52,9 +52,9 @@ void printBuffer( Gltf& model )
 void printBufferViews( Gltf& model )
 {
 	cout << endl << "# BufferViews" << endl;
-	for ( auto view : model.buffer_views )
+	for ( auto& view : *model.buffer_views )
 	{
-		cout << view.buffer_index << ", " << view.byte_length << ", ";
+		cout << view.buffer.get_index() << ", " << view.byte_length << ", ";
 
 		switch ( view.target )
 		{
@@ -85,19 +85,19 @@ void printCameras( Gltf& model )
 	{
 		switch ( camera.type )
 		{
-			case Camera::Type::Ortographic:
+			case GltfCamera::Type::Ortographic:
 			{
 				cout << "orthographic" << endl;
 				break;
 			}
-			case Camera::Type::Perspective:
+			case GltfCamera::Type::Perspective:
 			{
 				cout << "perspective" << endl;
 				break;
 			}
 			default:
 			{
-				cerr << "Invalid Camera::Type " << static_cast<uint32_t>( camera.type ) << endl;
+				cerr << "Invalid GltfCamera::Type " << static_cast<uint32_t>( camera.type ) << endl;
 				assert( false );
 			}
 		}
@@ -123,7 +123,7 @@ void printImages( Gltf& model )
 {
 	cout << endl << "# Images" << endl;
 
-	for ( auto& image : model.images )
+	for ( auto& image : *model.images )
 	{
 		cout << "Uri[" << image.uri << "]" << endl;
 	}
@@ -134,10 +134,10 @@ void printTextures( Gltf& model )
 {
 	cout << endl << "# Textures" << endl;
 
-	for ( auto& texture : model.textures )
+	for ( auto& texture : *model.textures )
 	{
 		cout << "Sampler[..." << ( texture.sampler ? to_string( texture.sampler->minFilter ) : "Undefined" ) << "] "
-		     << "Source[..." << texture.get_source()->uri << "]" << endl;
+		     << "Source[..." << texture.source->uri << "]" << endl;
 	}
 }
 
@@ -145,7 +145,7 @@ void printTextures( Gltf& model )
 void printAccessors( Gltf& model )
 {
 	cout << endl << "# Accessors" << endl;
-	for ( auto& acc : model.accessors )
+	for ( auto& acc : *model.accessors )
 	{
 		cout << to_string( acc.type ) << ", " << acc.count << ", ";
 		for ( auto v : acc.max )
@@ -164,24 +164,23 @@ void printAccessors( Gltf& model )
 void printMaterials( Gltf& model )
 {
 	cout << endl << "# Materials" << endl;
-	for ( auto& material : model.materials )
+	for ( auto& material : *model.materials )
 	{
 		cout << material.name << endl;
 
-		cout << "[ ";
-		for ( auto val : material.pbr.base_color_factor )
-		{
-			cout << val << " ";
-		}
-		cout << "]" << endl;
+		cout << "[ "
+			<< material.pbr.color.r << " "
+			<< material.pbr.color.g << " "
+			<< material.pbr.color.b << " "
+			<< material.pbr.color.a << " ]" << endl;
 
-		if ( auto texture = material.get_texture() )
+		if ( auto& texture = material.texture_handle )
 		{
-			cout << "Texture  :" << texture->get_source()->uri << endl;
+			cout << "Texture  :" << texture->source->uri << endl;
 		}
 
-		cout << "Metallic :" << material.pbr.metallic_factor << endl;
-		cout << "Roughness:" << material.pbr.roughness_factor << endl;
+		cout << "Metallic :" << material.pbr.metallic << endl;
+		cout << "Roughness:" << material.pbr.roughness << endl;
 	}
 }
 
@@ -197,13 +196,13 @@ void printMeshes( Gltf& model )
 		for ( auto& p : mesh.primitives )
 		{
 			cout << "  # Attributes" << endl;
-			for ( auto& a : p.attributes )
+			for ( auto&[semantic, accessor] : p.attributes )
 			{
-				cout << "  " << to_string( a.first ) << ": " << a.second << endl;
+				cout << "  " << to_string( semantic ) << ": " << accessor.get_index() << endl;
 			}
 
-			cout << "indices[" << p.indices_index << "] "
-			     << "material[" << p.material << "] "
+			cout << "indices[" << p.indices_handle.get_index() << "] "
+			     << "material[" << p.material.get_index() << "] "
 			     << "mode[" << to_string( p.mode ) << "] " << endl;
 		}
 	}
@@ -239,7 +238,7 @@ void printNodes( Gltf& model )
 		cout << node.name << endl;
 
 		cout << "children[ ";
-		for ( const auto& v : node.children )
+		for ( const auto& v : node.get_children() )
 		{
 			cout << v->name << " ";
 		}
@@ -263,18 +262,10 @@ void printNodes( Gltf& model )
 }
 
 
-int main( int argc, char** argv )
+int test_gltf( const std::string& modelPath )
 {
-	/// Check arguments
-	if ( argc < 2 )
-	{
-		cerr << "Usage: " << argv[0] << " modelPath" << endl;
-		return EXIT_FAILURE;
-	}
-
 	// Json
 	cout << "# Json" << endl;
-	string modelPath{ argv[1] };
 	printJson( modelPath );
 
 	// Gltf

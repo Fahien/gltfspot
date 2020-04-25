@@ -13,13 +13,17 @@ namespace spot::gfx
 /// Buffer pointing to binary geometry, animation, or skins
 struct ByteBuffer
 {
-	Handle<ByteBuffer> handle = {};
+	ByteBuffer() = default;
 
-	/// Length of the buffer in bytes
-	size_t byte_length;
+	ByteBuffer( std::string uri, size_t byte_length );
+
+	Handle<ByteBuffer> handle = {};
 
 	/// Uri of the buffer
 	std::string uri;
+
+	/// Length of the buffer in bytes
+	size_t byte_length = 0;
 
 	/// Bytes lazily loaded
 	std::vector<char> data;

@@ -5,7 +5,6 @@
 namespace spot::gfx
 {
 
-
 math::Mat4 Node::get_matrix() const
 {
 	auto transform = matrix;
@@ -44,13 +43,7 @@ bool Node::contains( const math::Vec2& point ) const
 
 Handle<Node> Node::get_parent() const
 {
-	return parent;//model->get_node( parent );
-}
-
-
-const Handle<Mesh>& Node::get_mesh() const
-{
-	return mesh;
+	return parent;
 }
 
 

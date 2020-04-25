@@ -92,38 +92,38 @@ void Animation::add_rotation(
 
 	// Timepoints
 	{
-		auto& accessor = model->accessors.push();
-		sampler.input = accessor.handle;
-		accessor.type = Accessor::Type::SCALAR;
-		accessor.component_type = Accessor::ComponentType::FLOAT;
-		accessor.count = times.size();
+		auto accessor = model->accessors.push();
+		sampler.input = accessor;
+		accessor->type = Accessor::Type::SCALAR;
+		accessor->component_type = Accessor::ComponentType::FLOAT;
+		accessor->count = times.size();
 
-		auto& buffer_view = model->buffer_views.push();
-		accessor.buffer_view = buffer_view.handle;
+		auto buffer_view = model->buffer_views.push();
+		accessor->buffer_view = buffer_view;
 
-		auto& buffer = model->buffers.push();
-		buffer_view.buffer = buffer.handle;
-		buffer.byte_length = times.size() * sizeof( float );
-		buffer.data.resize( buffer.byte_length );
-		std::memcpy( buffer.data.data(), times.data(), buffer.byte_length );
+		auto buffer = model->buffers.push();
+		buffer_view->buffer = buffer;
+		buffer->byte_length = times.size() * sizeof( float );
+		buffer->data.resize( buffer->byte_length );
+		std::memcpy( buffer->data.data(), times.data(), buffer->byte_length );
 	}
 
 	// Rotation values
 	{
-		auto& accessor = model->accessors.push();
-		sampler.output = accessor.handle;
-		accessor.type = Accessor::Type::VEC4;
-		accessor.component_type = Accessor::ComponentType::FLOAT;
-		accessor.count = quats.size();
+		auto accessor = model->accessors.push();
+		sampler.output = accessor;
+		accessor->type = Accessor::Type::VEC4;
+		accessor->component_type = Accessor::ComponentType::FLOAT;
+		accessor->count = quats.size();
 
-		auto& buffer_view = model->buffer_views.push();
-		accessor.buffer_view = buffer_view.handle;
+		auto buffer_view = model->buffer_views.push();
+		accessor->buffer_view = buffer_view;
 
-		auto& buffer = model->buffers.push();
-		buffer_view.buffer = buffer.handle;
-		buffer.byte_length = quats.size() * sizeof( math::Quat );
-		buffer.data.resize( buffer.byte_length );
-		std::memcpy( buffer.data.data(), quats.data(), buffer.byte_length );
+		auto buffer = model->buffers.push();
+		buffer_view->buffer = buffer;
+		buffer->byte_length = quats.size() * sizeof( math::Quat );
+		buffer->data.resize( buffer->byte_length );
+		std::memcpy( buffer->data.data(), quats.data(), buffer->byte_length );
 	}
 }
 
@@ -152,38 +152,38 @@ void Animation::add_rotation( const Handle<Node>& node, const float time, const 
 	sampler.interpolation = Sampler::Interpolation::Linear;
 
 	{
-		auto& accessor = model->accessors.push();
-		sampler.input = accessor.handle;
-		accessor.type = Accessor::Type::SCALAR;
-		accessor.component_type = Accessor::ComponentType::FLOAT;
-		accessor.count = times.size();
+		auto accessor = model->accessors.push();
+		sampler.input = accessor;
+		accessor->type = Accessor::Type::SCALAR;
+		accessor->component_type = Accessor::ComponentType::FLOAT;
+		accessor->count = times.size();
 
-		auto& buffer_view = model->buffer_views.push();
-		accessor.buffer_view = buffer_view.handle;
+		auto buffer_view = model->buffer_views.push();
+		accessor->buffer_view = buffer_view;
 
-		auto& buffer = model->buffers.push();
-		buffer_view.buffer = buffer.handle;
-		buffer.byte_length = times.size() * sizeof( float );
-		buffer.data.resize( buffer.byte_length );
-		std::memcpy( buffer.data.data(), times.data(), buffer.byte_length );
+		auto buffer = model->buffers.push();
+		buffer_view->buffer = buffer;
+		buffer->byte_length = times.size() * sizeof( float );
+		buffer->data.resize( buffer->byte_length );
+		std::memcpy( buffer->data.data(), times.data(), buffer->byte_length );
 	}
 
 	{
-		auto& accessor = model->accessors.push();
-		sampler.output = accessor.handle;
+		auto accessor = model->accessors.push();
+		sampler.output = accessor;
 
-		accessor.type = Accessor::Type::VEC4;
-		accessor.component_type = Accessor::ComponentType::FLOAT;
-		accessor.count = quats.size();
+		accessor->type = Accessor::Type::VEC4;
+		accessor->component_type = Accessor::ComponentType::FLOAT;
+		accessor->count = quats.size();
 
-		auto& buffer_view = model->buffer_views.push();
-		accessor.buffer_view = buffer_view.handle;
+		auto buffer_view = model->buffer_views.push();
+		accessor->buffer_view = buffer_view;
 
-		auto& buffer = model->buffers.push();
-		buffer_view.buffer = buffer.handle;
-		buffer.byte_length = quats.size() * sizeof( math::Quat );
-		buffer.data.resize( buffer.byte_length );
-		std::memcpy( buffer.data.data(), quats.data(), buffer.byte_length );
+		auto buffer = model->buffers.push();
+		buffer_view->buffer = buffer;
+		buffer->byte_length = quats.size() * sizeof( math::Quat );
+		buffer->data.resize( buffer->byte_length );
+		std::memcpy( buffer->data.data(), quats.data(), buffer->byte_length );
 	}
 }
 
